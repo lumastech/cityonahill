@@ -15,7 +15,9 @@ class SetSchoolContext
     {
         $school = $this->resolveSchool($request);
 
-        app()->instance('current_school', $school);
+        // instance() stores null but PHP's isset() returns false for null values,
+        // so bind() with a closure is used to correctly handle the null case.
+        app()->bind('current_school', fn () => $school);
 
         return $next($request);
     }
@@ -23,8 +25,8 @@ class SetSchoolContext
     private function resolveSchool(Request $request): ?School
     {
         // Single-school mode
-        if (! config('zssms.multi_school')) {
-            $defaultId = config('zssms.default_school');
+        if (! config('skuu.multi_school')) {
+            $defaultId = config('skuu.default_school');
 
             return $defaultId ? School::find($defaultId) : null;
         }

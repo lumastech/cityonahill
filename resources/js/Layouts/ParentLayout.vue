@@ -45,7 +45,7 @@ function logout() {
                             {{ schoolName?.[0] ?? 'Z' }}
                         </div>
                         <div>
-                            <p class="text-sm font-semibold text-gray-900">{{ schoolName || 'ZSSMS' }}</p>
+                            <p class="text-sm font-semibold text-gray-900">{{ schoolName || 'SKUU' }}</p>
                             <p class="text-xs text-gray-500">Parent Portal</p>
                         </div>
                     </div>

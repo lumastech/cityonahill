@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use App\Models\SchoolSetting;
 use App\Models\Setting;
 use App\Models\Term;
+use App\Services\NavService;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -38,6 +39,10 @@ class HandleInertiaRequests extends Middleware
             'terms' => fn () => $this->currentTerms(),
 
             'settings' => fn () => $this->mergedSettings(),
+
+            'nav' => fn () => $request->user()
+                ? app(NavService::class)->forUser($request->user())
+                : [],
         ];
     }
 

@@ -55,6 +55,7 @@ export interface SharedProps {
     current_school: School | null
     terms: Term[]
     settings: Record<string, string>
+    nav: NavGroup[]
 }
 
 export type ZambianProvince =
@@ -70,3 +71,20 @@ export type ZambianProvince =
     | 'Western'
 
 export type GradeLetter = 'A' | 'B' | 'C' | 'D' | 'F'
+
+export interface NavItem {
+    label: string
+    url: string | null
+}
+
+export interface NavGroup {
+    label: string
+    icon: string
+    items: NavItem[]
+}
+
+declare module '@inertiajs/core' {
+    interface PageProps {
+        nav: NavGroup[]
+    }
+}

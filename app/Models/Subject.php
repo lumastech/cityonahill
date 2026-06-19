@@ -3,12 +3,15 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Subject extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'school_id',
         'name',
@@ -23,7 +26,7 @@ class Subject extends Model
     {
         return [
             'is_zambian_language' => 'boolean',
-            'is_ecz_subject'      => 'boolean',
+            'is_ecz_subject' => 'boolean',
         ];
     }
 

@@ -4,12 +4,15 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Grade extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'school_id',
         'name',
@@ -23,8 +26,8 @@ class Grade extends Model
     {
         return [
             'grade_number' => 'integer',
-            'is_ecz_year'  => 'boolean',
-            'order_index'  => 'integer',
+            'is_ecz_year' => 'boolean',
+            'order_index' => 'integer',
         ];
     }
 
@@ -69,10 +72,10 @@ class Grade extends Model
     {
         return Attribute::make(
             get: fn () => match ($this->level) {
-                'primary'           => 'Primary',
-                'junior_secondary'  => 'Junior Secondary',
-                'senior_secondary'  => 'Senior Secondary',
-                default             => ucfirst(str_replace('_', ' ', $this->level)),
+                'primary' => 'Primary',
+                'junior_secondary' => 'Junior Secondary',
+                'senior_secondary' => 'Senior Secondary',
+                default => ucfirst(str_replace('_', ' ', $this->level)),
             }
         );
     }
