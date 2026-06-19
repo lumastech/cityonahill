@@ -2,9 +2,13 @@
 
 namespace App\Models;
 
+use App\Enums\SexEnum;
+use App\Enums\StatusEnum;
 use Database\Factories\UserFactory;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
@@ -26,22 +30,22 @@ class User extends Authenticatable implements HasMedia, MustVerifyEmail
     use Notifiable;
     use TwoFactorAuthenticatable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
         'name',
+        'other_name',
         'email',
         'password',
+        'sex',
+        'phone',
+        'nrc',
+        'dob',
+        'nationality',
+        'address',
+        'status',
+        'school_id',
+        'is_parent',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
@@ -49,17 +53,29 @@ class User extends Authenticatable implements HasMedia, MustVerifyEmail
         'two_factor_secret',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'dob' => 'date',
+            'is_parent' => 'boolean',
+            'sex' => SexEnum::class,
+            'status' => StatusEnum::class,
         ];
+    }
+
+    // Relationships
+
+    public function school(): BelongsTo
+    {
+        return $this->belongsTo(School::class);
+    }
+
+    /** @return HasOne<Staff> */
+    public function staff(): HasOne
+    {
+        return $this->hasOne(Staff::class);
     }
 
     public function registerMediaCollections(): void
