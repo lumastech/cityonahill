@@ -30,7 +30,7 @@ class SchoolMessageController extends Controller
             ])))
             ->map(fn ($msgs) => $msgs->first());
 
-        $staff = User::whereHas('schools', fn ($q) => $q->where('school_id', $school->id))
+        $staff = User::whereHas('staff', fn ($q) => $q->where('school_id', $school->id))
             ->where('id', '!=', $userId)
             ->get(['id', 'name']);
 
