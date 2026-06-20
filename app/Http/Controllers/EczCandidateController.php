@@ -27,7 +27,7 @@ class EczCandidateController extends Controller
 
         return Inertia::render('ECZ/Candidates/Index', [
             'candidates' => $candidates,
-            'filters' => compact('grade_level', 'exam_year'),
+            'filters' => ['grade_level' => $gradeLevel, 'exam_year' => $examYear],
         ]);
     }
 

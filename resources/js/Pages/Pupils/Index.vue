@@ -225,7 +225,7 @@ const allSelected = computed(
             </div>
 
             <div class="mt-4">
-                <Pagination :links="pupils.links" />
+                <Pagination :meta="pupils" />
             </div>
         </div>
     </AppLayout>

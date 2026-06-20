@@ -16,19 +16,18 @@ defineProps<{
 
         <div class="flex items-center gap-1">
             <template v-for="link in meta.links" :key="link.label">
-                <component
-                    :is="link.url ? Link : 'span'"
-                    :href="link.url ?? undefined"
+                <Link
+                    v-if="link.url"
+                    :href="link.url"
                     preserve-scroll
                     preserve-state
                     class="inline-flex min-w-[2rem] items-center justify-center rounded px-2 py-1 text-sm"
-                    :class="[
-                        link.active
-                            ? 'bg-blue-600 font-semibold text-white'
-                            : link.url
-                              ? 'text-gray-600 hover:bg-gray-100'
-                              : 'cursor-default text-gray-300',
-                    ]"
+                    :class="link.active ? 'bg-blue-600 font-semibold text-white' : 'text-gray-600 hover:bg-gray-100'"
+                    v-html="link.label"
+                />
+                <span
+                    v-else
+                    class="inline-flex min-w-[2rem] items-center justify-center rounded px-2 py-1 text-sm cursor-default text-gray-300"
                     v-html="link.label"
                 />
             </template>
