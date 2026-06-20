@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AcademicYearController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AllocationController;
 use App\Http\Controllers\ApproveLeaveController;
 use App\Http\Controllers\ApprovePayrollController;
@@ -76,14 +77,8 @@ Route::get('/', function () {
     ]);
 });
 
-Route::middleware([
-    'auth:sanctum',
-    config('jetstream.auth_session'),
-    'verified',
-])->group(function () {
-    Route::get('/dashboard', function () {
-        return Inertia::render('Dashboard');
-    })->name('dashboard');
+Route::middleware(['auth', 'verified', 'school.context'])->group(function () {
+    Route::get('/dashboard', DashboardController::class)->name('dashboard');
 });
 
 // Module 1 — School & Class Structure
