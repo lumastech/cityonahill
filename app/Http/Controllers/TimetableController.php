@@ -4,7 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Data\StoreTimetableSlotData;
 use App\Exceptions\ConflictException;
+use App\Models\Stream;
+use App\Models\Subject;
 use App\Models\TimetableSlot;
+use App\Models\User;
 use App\Services\ClassStructureService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -32,9 +35,17 @@ class TimetableController extends Controller
 
         return Inertia::render('Timetable/Index', [
             'timetable' => $timetable,
-            'viewMode' => $viewMode,
-            'streamId' => $request->integer('stream_id') ?: null,
+            'viewMode'  => $viewMode,
+            'streamId'  => $request->integer('stream_id') ?: null,
             'teacherId' => $request->integer('teacher_id') ?: null,
+            'streams'   => Stream::where('school_id', $school->id)
+                ->with('grade:id,name')
+                ->orderBy('grade_id')
+                ->get(['id', 'name', 'grade_id']),
+            'subjects'  => Subject::where('school_id', $school->id)->orderBy('name')->get(['id', 'name', 'code']),
+            'teachers'  => User::whereHas('staff', fn ($q) => $q->where('school_id', $school->id))
+                ->orderBy('name')
+                ->get(['id', 'name']),
         ]);
     }
 

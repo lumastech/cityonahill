@@ -20,6 +20,8 @@ class ComputeCAMarksController extends Controller
             'term_id' => ['required', 'integer', 'exists:terms,id'],
         ]);
 
+        $school = app('current_school');
+
         $pupils = Pupil::where('stream_id', $validated['stream_id'])
             ->where('status', 'active')
             ->pluck('id');
@@ -33,6 +35,7 @@ class ComputeCAMarksController extends Controller
 
             TermResult::updateOrCreate(
                 [
+                    'school_id' => $school->id,
                     'pupil_id' => $pupilId,
                     'subject_id' => $validated['subject_id'],
                     'term_id' => $validated['term_id'],

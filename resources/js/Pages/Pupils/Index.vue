@@ -195,7 +195,7 @@ const allSelected = computed(
                                 />
                             </td>
                             <td class="px-4 py-3">
-                                <div class="font-medium text-gray-900">{{ pupil.full_name }}</div>
+                                <div class="font-medium text-gray-900">{{ pupil.first_name }} {{ pupil.last_name }}</div>
                             </td>
                             <td class="px-4 py-3 font-mono text-gray-600">{{ pupil.admission_no }}</td>
                             <td class="px-4 py-3 text-gray-600">

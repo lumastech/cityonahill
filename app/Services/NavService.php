@@ -106,10 +106,10 @@ class NavService
                 'label' => 'Admin',
                 'icon'  => 'cog',
                 'items' => [
-                    ['label' => 'Schools',   'route' => null,          'permission' => 'school.view'],
-                    ['label' => 'Roles',     'route' => 'roles.index', 'permission' => 'settings.manage'],
-                    ['label' => 'Settings',  'route' => null,          'permission' => 'settings.manage'],
-                    ['label' => 'Audit Log', 'route' => null,          'permission' => 'audit.view'],
+                    ['label' => 'Schools',   'route' => 'schools.index',    'permission' => 'school.view'],
+                    ['label' => 'Roles',     'route' => 'roles.index',      'permission' => 'settings.manage'],
+                    ['label' => 'Settings',  'route' => 'settings.index',   'permission' => 'settings.manage'],
+                    ['label' => 'Audit Log', 'route' => 'audit-logs.index', 'permission' => 'settings.manage'],
                 ],
             ],
         ];

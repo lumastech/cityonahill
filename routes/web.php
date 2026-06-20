@@ -58,7 +58,10 @@ use App\Http\Controllers\TermController;
 use App\Http\Controllers\TermResultController;
 use App\Http\Controllers\TimetableController;
 use App\Http\Controllers\TransportRouteController;
+use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\SchoolController;
+use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\WaiveInvoiceController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -236,9 +239,17 @@ Route::middleware(['auth', 'verified', 'school.context'])->group(function () {
     Route::get('messages/{user}/thread', [SchoolMessageController::class, 'thread'])->name('messages.thread');
 });
 
-// Role Management
+// Role Management + Admin
 Route::middleware(['auth', 'verified', 'can:settings.manage'])->group(function () {
     Route::resource('roles', RoleController::class)->except(['show']);
+    Route::get('settings', [SettingsController::class, 'index'])->name('settings.index');
+    Route::put('settings', [SettingsController::class, 'update'])->name('settings.update');
+    Route::get('audit-logs', [AuditLogController::class, 'index'])->name('audit-logs.index');
+});
+
+Route::middleware(['auth', 'verified', 'school.context', 'can:school.view'])->group(function () {
+    Route::get('schools', [SchoolController::class, 'index'])->name('schools.index');
+    Route::put('schools', [SchoolController::class, 'update'])->name('schools.update');
 });
 
 // Module 4 — Attendance
