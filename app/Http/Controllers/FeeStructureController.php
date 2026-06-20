@@ -3,7 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Data\CreateFeeStructureData;
+use App\Models\AcademicYear;
 use App\Models\FeeStructure;
+use App\Models\Grade;
+use App\Models\Term;
 use App\Services\FinanceService;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
@@ -24,7 +27,10 @@ class FeeStructureController extends Controller
             ->get();
 
         return Inertia::render('Finance/FeeStructures/Index', [
-            'fee_structures' => $feeStructures,
+            'fee_structures'  => $feeStructures,
+            'terms'           => Term::where('school_id', $school->id)->orderBy('number')->get(['id', 'name', 'number']),
+            'academic_years'  => AcademicYear::where('school_id', $school->id)->orderByDesc('start_year')->get(['id', 'name']),
+            'grades'          => Grade::where('school_id', $school->id)->orderBy('order_index')->get(['id', 'name', 'grade_number']),
         ]);
     }
 

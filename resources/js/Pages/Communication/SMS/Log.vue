@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AppLayout from '@/Layouts/AppLayout.vue'
 import { ref } from 'vue'
 import { router } from '@inertiajs/vue3'
 import type { SmsLog } from '@/types/communication'
@@ -26,6 +27,7 @@ function applyFilter() {
 </script>
 
 <template>
+    <AppLayout>
     <div class="p-6">
         <div class="mb-6 flex items-center justify-between">
             <h1 class="text-2xl font-bold text-gray-900">SMS Log</h1>
@@ -95,4 +97,5 @@ function applyFilter() {
             </template>
         </div>
     </div>
+    </AppLayout>
 </template>

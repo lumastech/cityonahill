@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AppLayout from '@/Layouts/AppLayout.vue'
 import { Head, router, useForm } from '@inertiajs/vue3'
 import { computed, ref } from 'vue'
 import type { BookBorrowing } from '@/types/library'
@@ -36,6 +37,7 @@ function submit() {
 </script>
 
 <template>
+    <AppLayout>
     <Head title="Return Book" />
     <div class="py-6">
         <div class="mx-auto max-w-xl px-4 sm:px-6 lg:px-8">
@@ -86,4 +88,5 @@ function submit() {
             </div>
         </div>
     </div>
+    </AppLayout>
 </template>

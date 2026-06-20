@@ -2,6 +2,16 @@
 import AppLayout from '@/Layouts/AppLayout.vue'
 import { Head, router, useForm } from '@inertiajs/vue3'
 import { ref } from 'vue'
+
+function fmtDate(d: string) {
+    return new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+}
+
+function removeAssessment(id: number) {
+    if (confirm('Delete this assessment? This cannot be undone.')) {
+        useForm({}).delete(route('assessments.destroy', id))
+    }
+}
 import type { Assessment } from '@/types/results'
 import type { PaginatedResponse } from '@/types/shared'
 import { useAssessments } from '@/composables/useAssessments'
@@ -162,16 +172,27 @@ function submitAssessment() {
                     class="rounded-lg border border-gray-200 bg-white p-5 shadow-sm"
                 >
                     <div class="mb-3 flex items-start justify-between gap-2">
-                        <div>
+                        <div class="min-w-0 flex-1">
                             <p class="font-semibold text-gray-900">{{ a.name }}</p>
                             <p class="text-xs text-gray-500">{{ a.subject?.name }} · {{ a.stream?.name }}</p>
                         </div>
-                        <span class="shrink-0 rounded-full px-2 py-0.5 text-xs font-medium" :class="typeColor(a.type)">
-                            {{ typeLabel(a.type) }}
-                        </span>
+                        <div class="flex shrink-0 items-center gap-2">
+                            <span class="rounded-full px-2 py-0.5 text-xs font-medium" :class="typeColor(a.type)">
+                                {{ typeLabel(a.type) }}
+                            </span>
+                            <button
+                                class="text-gray-300 hover:text-red-500 transition-colors"
+                                title="Delete assessment"
+                                @click="removeAssessment(a.id)"
+                            >
+                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                            </button>
+                        </div>
                     </div>
                     <div class="mb-4 flex gap-4 text-sm text-gray-600">
-                        <span>{{ a.date }}</span>
+                        <span>{{ fmtDate(a.date) }}</span>
                         <span>Max: {{ a.max_marks }}</span>
                         <span>Scores: {{ a.scores_count ?? 0 }}</span>
                     </div>

@@ -20,6 +20,7 @@ class School extends Model implements HasMedia
     protected $fillable = [
         'name',
         'code',
+        'subdomain',
         'type',
         'level',
         'province',
@@ -30,6 +31,7 @@ class School extends Model implements HasMedia
         'website',
         'moe_registration_no',
         'headteacher_id',
+        'owner_id',
         'established_year',
         'status',
     ];
@@ -48,6 +50,11 @@ class School extends Model implements HasMedia
     }
 
     // Relationships
+
+    public function owner(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'owner_id');
+    }
 
     public function headteacher(): BelongsTo
     {

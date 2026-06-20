@@ -69,9 +69,9 @@ class ResultsService
             ->get();
     }
 
-    public function computeCAMarks(int $pupilId, int $subjectId, int $termId): float
+    public function computeCAMarks(int $pupilId, int $subjectId, int $termId): ?float
     {
-        $caTypes = ['ca_test', 'assignment', 'practical'];
+        $caTypes = ['ca_test', 'assignment', 'practical', 'mid_term'];
 
         $assessments = Assessment::where('subject_id', $subjectId)
             ->where('term_id', $termId)
@@ -80,13 +80,13 @@ class ResultsService
             ->get();
 
         if ($assessments->isEmpty()) {
-            return 0.0;
+            return null;
         }
 
         $totalWeight = $assessments->sum('weight_percent');
 
         if ($totalWeight === 0) {
-            return 0.0;
+            return null;
         }
 
         $weightedSum = $assessments->sum(function ($assessment) {
@@ -101,6 +101,28 @@ class ResultsService
         });
 
         return round($weightedSum / $totalWeight, 2);
+    }
+
+    public function computeExamMarks(int $pupilId, int $subjectId, int $termId): ?float
+    {
+        $assessment = Assessment::where('subject_id', $subjectId)
+            ->where('term_id', $termId)
+            ->where('type', 'end_of_term')
+            ->with(['scores' => fn ($q) => $q->where('pupil_id', $pupilId)])
+            ->latest('date')
+            ->first();
+
+        if (! $assessment || $assessment->max_marks === 0) {
+            return null;
+        }
+
+        $score = $assessment->scores->first();
+
+        if (! $score) {
+            return null;
+        }
+
+        return round(($score->marks_obtained / $assessment->max_marks) * 100, 2);
     }
 
     public function enterTermResults(BulkEnterTermResultsData $data, int $enteredBy): Collection

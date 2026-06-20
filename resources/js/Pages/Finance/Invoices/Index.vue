@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AppLayout from '@/Layouts/AppLayout.vue'
 import { Head, router, useForm } from '@inertiajs/vue3'
 import { ref } from 'vue'
 import type { FeeInvoice, InvoiceStatus } from '@/types/finance'
@@ -34,6 +35,7 @@ function bulkRaise() {
 </script>
 
 <template>
+    <AppLayout>
     <Head title="Fee Invoices" />
     <div class="py-6">
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -97,4 +99,5 @@ function bulkRaise() {
             </div>
         </div>
     </div>
+    </AppLayout>
 </template>

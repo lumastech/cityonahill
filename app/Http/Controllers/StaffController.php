@@ -5,9 +5,13 @@ namespace App\Http\Controllers;
 use App\Data\CreateStaffData;
 use App\Models\LeaveType;
 use App\Models\Staff;
+use App\Models\Subject;
+use App\Models\User;
 use App\Services\HRService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -24,11 +28,68 @@ class StaffController extends Controller
         ]);
     }
 
-    public function store(CreateStaffData $data): RedirectResponse
+    public function create(): Response
+    {
+        $school = app('current_school');
+
+        $existingUserIds = Staff::where('school_id', $school->id)->pluck('user_id');
+
+        return Inertia::render('HR/Staff/Create', [
+            'available_users' => User::whereNotIn('id', $existingUserIds)
+                ->orderBy('name')
+                ->get(['id', 'name', 'email']),
+            'subjects' => Subject::where('school_id', $school->id)
+                ->orderBy('name')
+                ->get(['id', 'name']),
+        ]);
+    }
+
+    public function store(Request $request): RedirectResponse
     {
         $school = app('current_school');
 
         $this->authorize('staff.create');
+
+        $validated = $request->validate([
+            'mode'             => ['required', 'in:existing,new'],
+            'user_id'          => ['required_if:mode,existing', 'nullable', 'integer', 'exists:users,id'],
+            'name'             => ['required_if:mode,new', 'nullable', 'string', 'max:200'],
+            'email'            => ['required_if:mode,new', 'nullable', 'email', 'unique:users,email'],
+            'employee_no'      => ['required', 'string', 'max:30'],
+            'position'         => ['required', 'string'],
+            'employment_type'  => ['required', 'string'],
+            'employment_date'  => ['required', 'date'],
+            'basic_salary'     => ['required', 'numeric', 'min:0'],
+            'department'       => ['nullable', 'string', 'max:100'],
+            'subjects_taught'  => ['nullable', 'array'],
+            'napsa_no'         => ['nullable', 'string', 'max:25'],
+            'tpin'             => ['nullable', 'string', 'max:15'],
+        ]);
+
+        if ($validated['mode'] === 'new') {
+            $user = User::create([
+                'name'               => $validated['name'],
+                'email'              => $validated['email'],
+                'password'           => Hash::make(Str::random(12)),
+                'email_verified_at'  => now(),
+            ]);
+            $userId = $user->id;
+        } else {
+            $userId = $validated['user_id'];
+        }
+
+        $data = CreateStaffData::from([
+            'user_id'         => $userId,
+            'employee_no'     => $validated['employee_no'],
+            'position'        => $validated['position'],
+            'employment_type' => $validated['employment_type'],
+            'employment_date' => $validated['employment_date'],
+            'basic_salary'    => $validated['basic_salary'],
+            'department'      => $validated['department'] ?? null,
+            'subjects_taught' => $validated['subjects_taught'] ?? null,
+            'napsa_no'        => $validated['napsa_no'] ?? null,
+            'tpin'            => $validated['tpin'] ?? null,
+        ]);
 
         $staff = $this->hrService->createStaff($school->id, $data);
 
@@ -53,9 +114,10 @@ class StaffController extends Controller
         }
 
         return Inertia::render('HR/Staff/Show', [
-            'staff' => $staff,
-            'leave_types' => $leaveTypes,
+            'staff'         => $staff,
+            'leave_types'   => $leaveTypes,
             'leave_balance' => $leaveBalance,
+            'subjects'      => Subject::where('school_id', $staff->school_id)->orderBy('name')->get(['id', 'name']),
         ]);
     }
 

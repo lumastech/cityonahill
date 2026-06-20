@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AppLayout from '@/Layouts/AppLayout.vue'
 import { Head } from '@inertiajs/vue3'
 import type { BookBorrowing, LibraryBook } from '@/types/library'
 
@@ -16,6 +17,7 @@ const STATUS_COLORS: Record<string, string> = {
 </script>
 
 <template>
+    <AppLayout>
     <Head :title="book.title" />
     <div class="py-6">
         <div class="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
@@ -87,4 +89,5 @@ const STATUS_COLORS: Record<string, string> = {
             </div>
         </div>
     </div>
+    </AppLayout>
 </template>

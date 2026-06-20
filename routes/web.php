@@ -32,6 +32,7 @@ use App\Http\Controllers\HolidayController;
 use App\Http\Controllers\LeaveController;
 use App\Http\Controllers\LibraryBookController;
 use App\Http\Controllers\LinkSubjectController;
+use App\Http\Controllers\UnlinkSubjectController;
 use App\Http\Controllers\NoticeController;
 use App\Http\Controllers\OverdueReportController;
 use App\Http\Controllers\ParentMessageController;
@@ -59,23 +60,29 @@ use App\Http\Controllers\TermController;
 use App\Http\Controllers\TermResultController;
 use App\Http\Controllers\TimetableController;
 use App\Http\Controllers\TransportRouteController;
+use App\Http\Controllers\Admin\ApplicationController as AdminApplicationController;
 use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\SchoolApplicationController;
 use App\Http\Controllers\SchoolController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\WaiveInvoiceController;
-use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
+        'canResetPassword' => Route::has('password.request'),
+        'status'           => session('status'),
+        'stats'            => [
+            'pupils'  => \App\Models\Pupil::where('status', 'active')->count(),
+            'schools' => \App\Models\School::count(),
+            'staff'   => \App\Models\Staff::count(),
+        ],
     ]);
-});
+})->name('welcome');
+
+Route::get('/about', fn () => Inertia::render('About'))->name('about');
 
 Route::middleware(['auth', 'verified', 'school.context'])->group(function () {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
@@ -88,6 +95,8 @@ Route::middleware(['auth', 'verified', 'school.context'])->group(function () {
     Route::resource('subjects', SubjectController::class)->except(['show', 'create']);
     Route::post('grades/{grade}/subjects', LinkSubjectController::class)
         ->name('grades.subjects.link');
+    Route::delete('grades/{grade}/subjects/{gradeSubject}', UnlinkSubjectController::class)
+        ->name('grades.subjects.unlink');
     Route::resource('timetable', TimetableController::class)
         ->only(['index', 'store', 'destroy']);
 });
@@ -105,6 +114,7 @@ Route::middleware(['auth', 'verified', 'school.context'])->group(function () {
 // Module 3 — Pupil Management & Admissions
 Route::middleware(['auth', 'verified', 'school.context'])->group(function () {
     Route::resource('pupils', PupilController::class);
+    Route::get('guardians', [GuardianController::class, 'index'])->name('guardians.index');
     Route::post('pupils/{pupil}/guardians', [GuardianController::class, 'store'])
         ->name('pupils.guardians.store');
     Route::delete('pupils/{pupil}/guardians/{guardian}', [GuardianController::class, 'destroy'])
@@ -140,7 +150,7 @@ Route::middleware(['auth', 'verified', 'school.context'])->group(function () {
 
 // Module 8 — Staff & HR
 Route::middleware(['auth', 'verified', 'school.context'])->group(function () {
-    Route::resource('staff', StaffController::class)->except(['create', 'edit']);
+    Route::resource('staff', StaffController::class)->except(['edit']);
     Route::get('leaves/apply', [LeaveController::class, 'create'])->name('leaves.apply');
     Route::get('leaves', [LeaveController::class, 'index'])->name('leaves.index');
     Route::post('leaves', [LeaveController::class, 'store'])->name('leaves.store');
@@ -254,4 +264,23 @@ Route::middleware(['auth', 'verified', 'school.context'])->group(function () {
     Route::get('attendance', [AttendanceController::class, 'index'])->name('attendance.index');
     Route::post('attendance', [AttendanceController::class, 'store'])->name('attendance.store');
     Route::put('attendance/{attendanceSession}', [AttendanceController::class, 'update'])->name('attendance.update');
+});
+
+
+// School Onboarding — applicant-facing (no school context required)
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('onboarding/apply', [SchoolApplicationController::class, 'create'])->name('onboarding.create');
+    Route::post('onboarding/apply', [SchoolApplicationController::class, 'store'])->name('onboarding.store');
+    Route::get('onboarding/{application}', [SchoolApplicationController::class, 'show'])->name('onboarding.show');
+    Route::get('onboarding/{application}/edit', [SchoolApplicationController::class, 'edit'])->name('onboarding.edit');
+    Route::put('onboarding/{application}', [SchoolApplicationController::class, 'update'])->name('onboarding.update');
+});
+
+// School Onboarding — super-admin review queue
+Route::middleware(['auth', 'verified', 'role:super-admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('applications', [AdminApplicationController::class, 'index'])->name('applications.index');
+    Route::get('applications/{application}', [AdminApplicationController::class, 'show'])->name('applications.show');
+    Route::post('applications/{application}/approve', [AdminApplicationController::class, 'approve'])->name('applications.approve');
+    Route::post('applications/{application}/needs-info', [AdminApplicationController::class, 'needsInfo'])->name('applications.needs-info');
+    Route::post('applications/{application}/reject', [AdminApplicationController::class, 'reject'])->name('applications.reject');
 });

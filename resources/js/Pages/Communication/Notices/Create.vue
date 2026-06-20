@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AppLayout from '@/Layouts/AppLayout.vue'
 import { computed, ref } from 'vue'
 import { useForm } from '@inertiajs/vue3'
 
@@ -36,6 +37,7 @@ function submit() {
 </script>
 
 <template>
+    <AppLayout>
     <div class="mx-auto max-w-2xl p-6">
         <h1 class="mb-6 text-2xl font-bold text-gray-900">Create Notice</h1>
 
@@ -124,4 +126,5 @@ function submit() {
             </div>
         </form>
     </div>
+    </AppLayout>
 </template>

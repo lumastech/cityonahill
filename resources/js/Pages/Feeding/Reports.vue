@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AppLayout from '@/Layouts/AppLayout.vue'
 import { Head, router } from '@inertiajs/vue3'
 import { computed, ref } from 'vue'
 import type { FeedingStats } from '@/types/feeding'
@@ -23,6 +24,7 @@ const maxMeals = computed(() =>
 </script>
 
 <template>
+    <AppLayout>
     <Head title="Feeding Reports" />
     <div class="py-6">
         <div class="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
@@ -61,4 +63,5 @@ const maxMeals = computed(() =>
             <div v-else class="py-16 text-center text-gray-400">Select a term to view feeding statistics.</div>
         </div>
     </div>
+    </AppLayout>
 </template>

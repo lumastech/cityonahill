@@ -121,6 +121,7 @@ function submit() {
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Last Name *</label>
                             <input v-model="form.last_name" type="text" class="mt-1 w-full border-gray-300 rounded-md text-sm" required />
+                            <p v-if="form.errors.last_name" class="mt-1 text-xs text-red-600">{{ form.errors.last_name }}</p>
                         </div>
                     </div>
 
@@ -142,6 +143,7 @@ function submit() {
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Date of Birth *</label>
                             <input v-model="form.dob" type="date" class="mt-1 w-full border-gray-300 rounded-md text-sm" required />
+                            <p v-if="form.errors.dob" class="mt-1 text-xs text-red-600">{{ form.errors.dob }}</p>
                         </div>
                     </div>
 
@@ -216,6 +218,7 @@ function submit() {
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Date of Admission *</label>
                             <input v-model="form.date_of_admission" type="date" class="mt-1 w-full border-gray-300 rounded-md text-sm" required />
+                            <p v-if="form.errors.date_of_admission" class="mt-1 text-xs text-red-600">{{ form.errors.date_of_admission }}</p>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Academic Year *</label>

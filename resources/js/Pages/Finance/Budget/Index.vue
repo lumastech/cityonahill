@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AppLayout from '@/Layouts/AppLayout.vue'
 import { Head, router, useForm } from '@inertiajs/vue3'
 import { computed, ref } from 'vue'
 import type { Budget, BudgetVsActualItem } from '@/types/finance'
@@ -27,6 +28,7 @@ const maxBudget = computed(() => Math.max(...(props.budget_vs_actual?.by_categor
 </script>
 
 <template>
+    <AppLayout>
     <Head title="Budget vs Actual" />
     <div class="py-6">
         <div class="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
@@ -75,14 +77,17 @@ const maxBudget = computed(() => Math.max(...(props.budget_vs_actual?.by_categor
                         <select v-model="form.academic_year_id" class="mt-1 block w-full rounded-md border-gray-300 text-sm shadow-sm">
                             <option v-for="ay in academic_years" :key="ay.id" :value="ay.id">{{ ay.name }}</option>
                         </select>
+                        <p v-if="form.errors.academic_year_id" class="mt-1 text-xs text-red-600">{{ form.errors.academic_year_id }}</p>
                     </div>
                     <div>
                         <label class="block text-sm text-gray-700">Category</label>
                         <input v-model="form.category" type="text" class="mt-1 block w-full rounded-md border-gray-300 text-sm shadow-sm" />
+                        <p v-if="form.errors.category" class="mt-1 text-xs text-red-600">{{ form.errors.category }}</p>
                     </div>
                     <div>
                         <label class="block text-sm text-gray-700">Amount (ZMW)</label>
                         <input v-model="form.amount" type="number" step="0.01" class="mt-1 block w-full rounded-md border-gray-300 text-sm shadow-sm" />
+                        <p v-if="form.errors.amount" class="mt-1 text-xs text-red-600">{{ form.errors.amount }}</p>
                     </div>
                     <div class="flex items-end">
                         <button type="submit" :disabled="form.processing" class="w-full rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50">
@@ -93,4 +98,5 @@ const maxBudget = computed(() => Math.max(...(props.budget_vs_actual?.by_categor
             </div>
         </div>
     </div>
+    </AppLayout>
 </template>

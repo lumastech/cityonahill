@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Data\CreateAssessmentData;
 use App\Models\Assessment;
+use App\Models\Pupil;
 use App\Models\Stream;
 use App\Models\Subject;
 use App\Models\Term;
@@ -55,7 +56,7 @@ class AssessmentController extends Controller
 
         $assessment = $this->resultsService->createAssessment($school->id, $data);
 
-        return redirect()->route('assessments.show', $assessment)
+        return redirect()->route('assessments.index')
             ->with('success', 'Assessment created.');
     }
 
@@ -68,11 +69,18 @@ class AssessmentController extends Controller
             'stream:id,name',
             'term:id,name,number',
             'createdBy:id,name',
-            'scores.pupil:id,first_name,last_name,admission_no',
+            'scores',
         ]);
+
+        $pupils = Pupil::where('stream_id', $assessment->stream_id)
+            ->active()
+            ->orderBy('last_name')
+            ->orderBy('first_name')
+            ->get(['id', 'first_name', 'last_name', 'admission_no']);
 
         return Inertia::render('Assessments/Show', [
             'assessment' => $assessment,
+            'pupils'     => $pupils,
         ]);
     }
 

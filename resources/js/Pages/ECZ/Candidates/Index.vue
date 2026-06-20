@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AppLayout from '@/Layouts/AppLayout.vue'
 import { Head, router, useForm } from '@inertiajs/vue3'
 import { computed, ref } from 'vue'
 import type { EczCandidate } from '@/types/ecz'
@@ -34,6 +35,7 @@ function viewCandidate(id: number) {
 </script>
 
 <template>
+    <AppLayout>
     <Head title="ECZ Candidates" />
     <div class="py-6">
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -100,4 +102,5 @@ function viewCandidate(id: number) {
             </div>
         </div>
     </div>
+    </AppLayout>
 </template>

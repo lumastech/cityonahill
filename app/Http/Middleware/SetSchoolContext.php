@@ -31,6 +31,12 @@ class SetSchoolContext
             return $defaultId ? School::find($defaultId) : null;
         }
 
+        // Subdomain-based resolution — primary resolver in multi-school mode
+        $school = $this->resolveBySubdomain($request);
+        if ($school) {
+            return $school;
+        }
+
         $user = $request->user();
 
         if (! $user) {
@@ -75,5 +81,25 @@ class SetSchoolContext
         }
 
         return null;
+    }
+
+    private function resolveBySubdomain(Request $request): ?School
+    {
+        $host     = $request->getHost();
+        $appHost  = parse_url(config('app.url'), PHP_URL_HOST) ?? '';
+
+        // Strip the root domain to get the subdomain part
+        if (! str_ends_with($host, '.' . $appHost)) {
+            return null;
+        }
+
+        $subdomain = rtrim(substr($host, 0, -strlen('.' . $appHost)), '.');
+
+        // Reserved subdomains that are never school portals
+        if (in_array($subdomain, ['www', 'admin', 'api', 'mail', 'ftp', ''])) {
+            return null;
+        }
+
+        return School::where('subdomain', $subdomain)->where('status', 'active')->first();
     }
 }

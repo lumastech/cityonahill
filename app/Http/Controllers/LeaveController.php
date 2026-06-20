@@ -42,12 +42,17 @@ class LeaveController extends Controller
         return back()->with('success', 'Leave application submitted.');
     }
 
-    public function create(): Response
+    public function create(): Response|RedirectResponse
     {
         $school = app('current_school');
         $staff = Staff::where('school_id', $school->id)
             ->where('user_id', auth()->id())
-            ->firstOrFail();
+            ->first();
+
+        if (! $staff) {
+            return redirect()->route('leaves.index')
+                ->with('error', 'You must be a registered staff member to apply for leave.');
+        }
 
         $leaveTypes = LeaveType::where('school_id', $school->id)->get();
         $balance = [];

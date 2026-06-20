@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AppLayout from '@/Layouts/AppLayout.vue'
 import { Head } from '@inertiajs/vue3'
 import type { BookBorrowing } from '@/types/library'
 
@@ -16,6 +17,7 @@ function fineAmount(dueDate: string): string {
 </script>
 
 <template>
+    <AppLayout>
     <Head title="Overdue Books" />
     <div class="py-6">
         <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
@@ -65,4 +67,5 @@ function fineAmount(dueDate: string): string {
             </div>
         </div>
     </div>
+    </AppLayout>
 </template>

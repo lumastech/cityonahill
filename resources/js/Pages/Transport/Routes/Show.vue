@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AppLayout from '@/Layouts/AppLayout.vue'
 import { Head, router, useForm } from '@inertiajs/vue3'
 import { ref } from 'vue'
 import type { PupilTransport, TransportRoute } from '@/types/transport'
@@ -46,6 +47,7 @@ function removeAssignment(id: number) {
 </script>
 
 <template>
+    <AppLayout>
     <Head :title="route.name" />
     <div class="py-6">
         <div class="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
@@ -173,4 +175,5 @@ function removeAssignment(id: number) {
             </div>
         </div>
     </div>
+    </AppLayout>
 </template>

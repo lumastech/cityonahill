@@ -2,6 +2,7 @@
 
 namespace App\Data;
 
+use Illuminate\Validation\Rule;
 use Spatie\LaravelData\Attributes\Validation\Date;
 use Spatie\LaravelData\Attributes\Validation\Exists;
 use Spatie\LaravelData\Attributes\Validation\In;
@@ -18,8 +19,8 @@ class TransferPupilData extends Data
         #[Required, In(['external', 'internal'])]
         public readonly string $type,
 
-        #[Required, StringType, Max(150)]
-        public readonly string $to_school,
+        #[Nullable, StringType, Max(150)]
+        public readonly ?string $to_school = null,
 
         #[Required, Date]
         public readonly string $transfer_date,
@@ -30,4 +31,14 @@ class TransferPupilData extends Data
         #[Nullable, IntegerType, Exists('streams', 'id')]
         public readonly ?int $stream_id = null,
     ) {}
+
+    public static function rules(): array
+    {
+        $type = request('type');
+
+        return [
+            'to_school' => $type === 'external' ? ['required', 'string', 'max:150'] : ['nullable'],
+            'stream_id' => $type === 'internal' ? ['required', 'integer', 'exists:streams,id'] : ['nullable'],
+        ];
+    }
 }

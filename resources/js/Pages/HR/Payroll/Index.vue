@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AppLayout from '@/Layouts/AppLayout.vue'
 import { Head, router, useForm } from '@inertiajs/vue3'
 import { computed, ref } from 'vue'
 import { useHR, MONTH_NAMES } from '@/composables/useHR'
@@ -40,6 +41,7 @@ const summary = computed<PayrollSummary>(() => ({
 </script>
 
 <template>
+    <AppLayout>
     <Head title="Payroll" />
     <div class="py-6">
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -113,4 +115,5 @@ const summary = computed<PayrollSummary>(() => ({
             </div>
         </div>
     </div>
+    </AppLayout>
 </template>

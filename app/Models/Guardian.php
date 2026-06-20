@@ -27,6 +27,8 @@ class Guardian extends Model
         'address',
     ];
 
+    protected $appends = ['full_name'];
+
     // Relationships
 
     public function school(): BelongsTo

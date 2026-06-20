@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AppLayout from '@/Layouts/AppLayout.vue'
 import { Head, router, useForm } from '@inertiajs/vue3'
 import { ref } from 'vue'
 import type { Expense, ExpenseCategory } from '@/types/finance'
@@ -38,6 +39,7 @@ function remove(id: number) {
 </script>
 
 <template>
+    <AppLayout>
     <Head title="Expenses" />
     <div class="py-6">
         <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
@@ -97,14 +99,17 @@ function remove(id: number) {
                     <div>
                         <label class="block text-sm text-gray-700">Amount (ZMW)</label>
                         <input v-model="form.amount" type="number" step="0.01" class="mt-1 block w-full rounded-md border-gray-300 text-sm shadow-sm" />
+                        <p v-if="form.errors.amount" class="mt-1 text-xs text-red-600">{{ form.errors.amount }}</p>
                     </div>
                     <div>
                         <label class="block text-sm text-gray-700">Date</label>
                         <input v-model="form.expense_date" type="date" class="mt-1 block w-full rounded-md border-gray-300 text-sm shadow-sm" />
+                        <p v-if="form.errors.expense_date" class="mt-1 text-xs text-red-600">{{ form.errors.expense_date }}</p>
                     </div>
                     <div class="col-span-2 sm:col-span-3">
                         <label class="block text-sm text-gray-700">Description</label>
                         <input v-model="form.description" type="text" class="mt-1 block w-full rounded-md border-gray-300 text-sm shadow-sm" />
+                        <p v-if="form.errors.description" class="mt-1 text-xs text-red-600">{{ form.errors.description }}</p>
                     </div>
                     <div>
                         <label class="block text-sm text-gray-700">Receipt No</label>
@@ -119,4 +124,5 @@ function remove(id: number) {
             </div>
         </div>
     </div>
+    </AppLayout>
 </template>

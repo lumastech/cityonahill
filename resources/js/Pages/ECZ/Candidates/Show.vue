@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AppLayout from '@/Layouts/AppLayout.vue'
 import { Head, useForm } from '@inertiajs/vue3'
 import { ref } from 'vue'
 import type { EczCandidate } from '@/types/ecz'
@@ -41,6 +42,7 @@ const statusBadge: Record<string, string> = {
 </script>
 
 <template>
+    <AppLayout>
     <Head :title="`${candidate.pupil?.first_name} ${candidate.pupil?.last_name} — ECZ`" />
     <div class="py-6">
         <div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
@@ -140,4 +142,5 @@ const statusBadge: Record<string, string> = {
             </div>
         </div>
     </div>
+    </AppLayout>
 </template>

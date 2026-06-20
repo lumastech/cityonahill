@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AppLayout from '@/Layouts/AppLayout.vue'
 import { computed, ref } from 'vue'
 import { useForm, router } from '@inertiajs/vue3'
 import type { SchoolMessage } from '@/types/communication'
@@ -44,6 +45,7 @@ const currentUserId = ref(0)
 </script>
 
 <template>
+    <AppLayout>
     <div class="p-6">
         <div class="mb-6 flex items-center justify-between">
             <h1 class="text-2xl font-bold text-gray-900">
@@ -156,4 +158,5 @@ const currentUserId = ref(0)
             </form>
         </div>
     </div>
+    </AppLayout>
 </template>

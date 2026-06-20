@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AppLayout from '@/Layouts/AppLayout.vue'
 import { Head, router, useForm } from '@inertiajs/vue3'
 import { computed, ref } from 'vue'
 import type { FeedingSession } from '@/types/feeding'
@@ -53,6 +54,7 @@ const MEAL_COLORS: Record<string, string> = {
 </script>
 
 <template>
+    <AppLayout>
     <Head :title="session ? `Feeding Register — ${session.date}` : 'Daily Feeding Register'" />
     <div class="py-6">
         <div class="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
@@ -176,4 +178,5 @@ const MEAL_COLORS: Record<string, string> = {
             </template>
         </div>
     </div>
+    </AppLayout>
 </template>

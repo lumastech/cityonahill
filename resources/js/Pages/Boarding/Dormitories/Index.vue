@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AppLayout from '@/Layouts/AppLayout.vue'
 import { Head, useForm } from '@inertiajs/vue3'
 import { ref } from 'vue'
 import type { Dormitory } from '@/types/boarding'
@@ -26,6 +27,7 @@ function barColor(pct: number): string {
 </script>
 
 <template>
+    <AppLayout>
     <Head title="Dormitories" />
     <div class="py-6">
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -106,4 +108,5 @@ function barColor(pct: number): string {
             <div v-if="!dormitories.length" class="py-16 text-center text-gray-400">No dormitories yet.</div>
         </div>
     </div>
+    </AppLayout>
 </template>

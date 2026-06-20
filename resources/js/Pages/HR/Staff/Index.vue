@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { Head, router } from '@inertiajs/vue3'
+import AppLayout from '@/Layouts/AppLayout.vue'
+import { Head, Link, router } from '@inertiajs/vue3'
 import { ref } from 'vue'
 import { useHR } from '@/composables/useHR'
 import type { Staff } from '@/types/hr'
@@ -11,14 +12,15 @@ const search = ref('')
 </script>
 
 <template>
+    <AppLayout title="Staff Directory">
     <Head title="Staff Directory" />
     <div class="py-6">
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div class="mb-6 flex items-center justify-between">
                 <h1 class="text-2xl font-semibold text-gray-900">Staff Directory</h1>
-                <a :href="route('staff.create')" class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">
+                <Link :href="route('staff.create')" class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">
                     Add Staff
-                </a>
+                </Link>
             </div>
 
             <div class="mb-4">
@@ -64,7 +66,7 @@ const search = ref('')
                                 </span>
                             </td>
                             <td class="px-4 py-3 text-right">
-                                <a :href="route('staff.show', member.id)" class="text-indigo-600 hover:text-indigo-900 text-sm">View</a>
+                                <Link :href="route('staff.show', member.id)" class="text-indigo-600 hover:text-indigo-900 text-sm">View</Link>
                             </td>
                         </tr>
                         <tr v-if="!staff.length">
@@ -75,4 +77,5 @@ const search = ref('')
             </div>
         </div>
     </div>
+    </AppLayout>
 </template>

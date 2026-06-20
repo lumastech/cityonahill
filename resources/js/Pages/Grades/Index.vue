@@ -122,7 +122,11 @@ const LEVEL_COLORS: Record<string, string> = {
                             <td colspan="6" class="px-4 py-10 text-center text-gray-400">No grades defined yet.</td>
                         </tr>
                         <tr v-for="grade in grades" :key="grade.id" class="hover:bg-gray-50">
-                            <td class="px-4 py-3 font-semibold text-gray-900">{{ grade.name }}</td>
+                            <td class="px-4 py-3 font-semibold">
+                                <Link :href="route('pupils.index', { grade_id: grade.id })" class="text-indigo-700 hover:underline">
+                                    {{ grade.name }}
+                                </Link>
+                            </td>
                             <td class="px-4 py-3">
                                 <span class="rounded-full px-2 py-0.5 text-xs font-medium" :class="LEVEL_COLORS[grade.level] ?? 'bg-gray-100 text-gray-600'">
                                     {{ LEVEL_LABELS[grade.level] ?? grade.level }}

@@ -7,11 +7,19 @@ import { usePupils } from '@/composables/usePupils'
 import { useGuardians } from '@/composables/useGuardians'
 import { usePermissions } from '@/composables/usePermissions'
 
+interface Stream { id: number; name: string; grade_id: number; grade?: { name: string } }
+
 const props = defineProps<{
     pupil: Pupil
     attendanceSummary: Record<string, unknown>[]
     termResults: Record<string, unknown>[]
+    streams: Stream[]
 }>()
+
+function fmtDate(d: string | null | undefined): string {
+    if (!d) return '—'
+    return new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+}
 
 const { statusClass, sexClass } = usePupils()
 const { removeGuardian, relationshipLabel } = useGuardians()
@@ -132,7 +140,7 @@ const TABS = [
                     </div>
                     <div>
                         <dt class="text-gray-500">Date of Birth</dt>
-                        <dd class="mt-0.5 text-gray-900">{{ pupil.dob }}</dd>
+                        <dd class="mt-0.5 text-gray-900">{{ fmtDate(pupil.dob) }}</dd>
                     </div>
                     <div>
                         <dt class="text-gray-500">Sex</dt>
@@ -164,7 +172,7 @@ const TABS = [
                     </div>
                     <div>
                         <dt class="text-gray-500">Date of Admission</dt>
-                        <dd class="mt-0.5 text-gray-900">{{ pupil.date_of_admission }}</dd>
+                        <dd class="mt-0.5 text-gray-900">{{ fmtDate(pupil.date_of_admission) }}</dd>
                     </div>
                     <div v-if="pupil.previous_school">
                         <dt class="text-gray-500">Previous School</dt>
@@ -333,19 +341,36 @@ const TABS = [
                                 Internal (stream change)
                             </label>
                         </div>
+                        <p v-if="transferForm.errors.type" class="mt-1 text-xs text-red-600">{{ transferForm.errors.type }}</p>
                     </div>
+
                     <div v-if="transferForm.type === 'external'">
                         <label class="block text-sm font-medium text-gray-700">To School *</label>
-                        <input v-model="transferForm.to_school" type="text" class="mt-1 w-full border-gray-300 rounded-md text-sm" required />
+                        <input v-model="transferForm.to_school" type="text" class="mt-1 w-full border-gray-300 rounded-md text-sm" />
+                        <p v-if="transferForm.errors.to_school" class="mt-1 text-xs text-red-600">{{ transferForm.errors.to_school }}</p>
                     </div>
+
+                    <div v-if="transferForm.type === 'internal'">
+                        <label class="block text-sm font-medium text-gray-700">New Stream *</label>
+                        <select v-model="transferForm.stream_id" class="mt-1 w-full border-gray-300 rounded-md text-sm">
+                            <option :value="null">Select stream…</option>
+                            <option v-for="s in streams" :key="s.id" :value="s.id">{{ s.grade?.name }} {{ s.name }}</option>
+                        </select>
+                        <p v-if="transferForm.errors.stream_id" class="mt-1 text-xs text-red-600">{{ transferForm.errors.stream_id }}</p>
+                    </div>
+
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Transfer Date *</label>
                         <input v-model="transferForm.transfer_date" type="date" class="mt-1 w-full border-gray-300 rounded-md text-sm" required />
+                        <p v-if="transferForm.errors.transfer_date" class="mt-1 text-xs text-red-600">{{ transferForm.errors.transfer_date }}</p>
                     </div>
+
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Reason</label>
                         <textarea v-model="transferForm.reason" rows="2" class="mt-1 w-full border-gray-300 rounded-md text-sm" />
+                        <p v-if="transferForm.errors.reason" class="mt-1 text-xs text-red-600">{{ transferForm.errors.reason }}</p>
                     </div>
+
                     <div class="flex justify-end gap-2 pt-2">
                         <button type="button" class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded" @click="showTransferModal = false">Cancel</button>
                         <button type="submit" :disabled="transferForm.processing" class="px-4 py-2 text-sm bg-indigo-600 text-white rounded hover:bg-indigo-700 disabled:opacity-50">

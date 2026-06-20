@@ -22,29 +22,50 @@ class PupilService
         return DB::transaction(function () use ($schoolId, $data) {
             $year = Carbon::parse($data->date_of_admission)->year;
 
-            $admissionNo = Pupil::generateAdmissionNo($schoolId, $year);
-
-            return Pupil::create([
-                'school_id' => $schoolId,
-                'admission_no' => $admissionNo,
-                'first_name' => $data->first_name,
-                'last_name' => $data->last_name,
-                'other_name' => $data->other_name,
-                'sex' => $data->sex,
-                'dob' => $data->dob,
-                'nationality' => $data->nationality,
-                'religion' => $data->religion,
-                'tribe' => $data->tribe,
-                'disability' => $data->disability,
+            $pupil = Pupil::create([
+                'school_id'        => $schoolId,
+                'admission_no'     => Pupil::generateAdmissionNo($schoolId, $year),
+                'first_name'       => $data->first_name,
+                'last_name'        => $data->last_name,
+                'other_name'       => $data->other_name,
+                'sex'              => $data->sex,
+                'dob'              => $data->dob,
+                'nationality'      => $data->nationality,
+                'religion'         => $data->religion,
+                'tribe'            => $data->tribe,
+                'disability'       => $data->disability,
                 'disability_details' => $data->disability_details,
-                'blood_group' => $data->blood_group,
-                'previous_school' => $data->previous_school,
+                'blood_group'      => $data->blood_group,
+                'previous_school'  => $data->previous_school,
                 'date_of_admission' => $data->date_of_admission,
-                'grade_id' => $data->grade_id,
-                'stream_id' => $data->stream_id,
+                'grade_id'         => $data->grade_id,
+                'stream_id'        => $data->stream_id,
                 'academic_year_id' => $data->academic_year_id,
-                'status' => 'active',
+                'status'           => 'active',
             ]);
+
+            if ($data->guardian_phone && $data->guardian_first_name && $data->guardian_last_name) {
+                $guardian = Guardian::firstOrCreate(
+                    ['phone' => $data->guardian_phone, 'school_id' => $schoolId],
+                    [
+                        'school_id'    => $schoolId,
+                        'first_name'   => $data->guardian_first_name,
+                        'last_name'    => $data->guardian_last_name,
+                        'relationship' => $data->guardian_relationship ?? 'guardian',
+                        'email'        => $data->guardian_email,
+                    ]
+                );
+
+                $pupil->guardians()->syncWithoutDetaching([
+                    $guardian->id => [
+                        'is_primary'   => $data->is_primary,
+                        'is_emergency' => $data->is_emergency,
+                        'can_pickup'   => $data->can_pickup,
+                    ],
+                ]);
+            }
+
+            return $pupil;
         });
     }
 

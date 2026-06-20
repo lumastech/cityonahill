@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AppLayout from '@/Layouts/AppLayout.vue'
 import { Head } from '@inertiajs/vue3'
 import type { TransportRoute } from '@/types/transport'
 
@@ -18,6 +19,7 @@ function barColor(pct: number): string {
 </script>
 
 <template>
+    <AppLayout>
     <Head title="Transport Routes" />
     <div class="py-6">
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -71,4 +73,5 @@ function barColor(pct: number): string {
             <div v-if="!routes.length" class="py-16 text-center text-gray-400">No transport routes yet.</div>
         </div>
     </div>
+    </AppLayout>
 </template>

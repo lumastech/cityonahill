@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AppLayout from '@/Layouts/AppLayout.vue'
 import { computed, ref } from 'vue'
 import { Link, router } from '@inertiajs/vue3'
 import type { Notice, NoticeAudience } from '@/types/communication'
@@ -50,6 +51,7 @@ function remove(notice: Notice) {
 </script>
 
 <template>
+    <AppLayout>
     <div class="p-6">
         <div class="mb-6 flex items-center justify-between">
             <h1 class="text-2xl font-bold text-gray-900">Notices</h1>
@@ -119,4 +121,5 @@ function remove(notice: Notice) {
             <p v-if="filtered.length === 0" class="py-12 text-center text-gray-500">No notices found.</p>
         </div>
     </div>
+    </AppLayout>
 </template>

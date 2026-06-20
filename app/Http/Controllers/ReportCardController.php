@@ -57,7 +57,7 @@ class ReportCardController extends Controller
 
     public function store(GenerateReportCardData $data): RedirectResponse
     {
-        $this->authorize('report-cards.generate');
+        $this->authorize('report-card.generate');
 
         $this->resultsService->generateReportCards($data, auth()->id());
 

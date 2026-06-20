@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AppLayout from '@/Layouts/AppLayout.vue'
 import { Head, useForm } from '@inertiajs/vue3'
 import type { Leave } from '@/types/hr'
 
@@ -23,6 +24,7 @@ const leaveStatusColor: Record<string, string> = {
 </script>
 
 <template>
+    <AppLayout>
     <Head title="Leave Approvals" />
     <div class="py-6">
         <div class="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
@@ -71,4 +73,5 @@ const leaveStatusColor: Record<string, string> = {
             </div>
         </div>
     </div>
+    </AppLayout>
 </template>

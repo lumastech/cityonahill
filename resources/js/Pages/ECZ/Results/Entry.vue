@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AppLayout from '@/Layouts/AppLayout.vue'
 import { Head, useForm } from '@inertiajs/vue3'
 import { computed, ref } from 'vue'
 import type { EczCandidate } from '@/types/ecz'
@@ -57,6 +58,7 @@ const subjectMap = computed(() => {
 </script>
 
 <template>
+    <AppLayout>
     <Head title="ECZ Results Entry" />
     <div class="py-6">
         <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
@@ -108,4 +110,5 @@ const subjectMap = computed(() => {
             </form>
         </div>
     </div>
+    </AppLayout>
 </template>

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AppLayout from '@/Layouts/AppLayout.vue'
 import { Head, useForm } from '@inertiajs/vue3'
 import type { LeaveType } from '@/types/hr'
 
@@ -15,6 +16,7 @@ function submit() {
 </script>
 
 <template>
+    <AppLayout>
     <Head title="Apply for Leave" />
     <div class="py-6">
         <div class="mx-auto max-w-xl px-4 sm:px-6 lg:px-8">
@@ -60,4 +62,5 @@ function submit() {
             </div>
         </div>
     </div>
+    </AppLayout>
 </template>

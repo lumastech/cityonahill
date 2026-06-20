@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AppLayout from '@/Layouts/AppLayout.vue'
 import { Head, router } from '@inertiajs/vue3'
 import { ref } from 'vue'
 import type { EczPassRateAnalytics } from '@/types/ecz'
@@ -26,6 +27,7 @@ function barWidth(count: number): number {
 </script>
 
 <template>
+    <AppLayout>
     <Head title="ECZ Analytics" />
     <div class="py-6">
         <div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
@@ -83,4 +85,5 @@ function barWidth(count: number): number {
             </div>
         </div>
     </div>
+    </AppLayout>
 </template>

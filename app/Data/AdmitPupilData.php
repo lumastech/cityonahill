@@ -2,7 +2,9 @@
 
 namespace App\Data;
 
+use Spatie\LaravelData\Attributes\Validation\BooleanType;
 use Spatie\LaravelData\Attributes\Validation\Date;
+use Spatie\LaravelData\Attributes\Validation\Email;
 use Spatie\LaravelData\Attributes\Validation\Exists;
 use Spatie\LaravelData\Attributes\Validation\In;
 use Spatie\LaravelData\Attributes\Validation\IntegerType;
@@ -62,5 +64,30 @@ class AdmitPupilData extends Data
 
         #[Required, IntegerType, Exists('academic_years', 'id')]
         public readonly int $academic_year_id,
+
+        // Guardian (optional — added on admission)
+        #[Nullable, StringType, Max(50)]
+        public readonly ?string $guardian_first_name = null,
+
+        #[Nullable, StringType, Max(50)]
+        public readonly ?string $guardian_last_name = null,
+
+        #[Nullable, In(['father', 'mother', 'guardian', 'grandparent', 'sibling', 'other'])]
+        public readonly ?string $guardian_relationship = null,
+
+        #[Nullable, StringType, Max(25)]
+        public readonly ?string $guardian_phone = null,
+
+        #[Nullable, Email]
+        public readonly ?string $guardian_email = null,
+
+        #[BooleanType]
+        public readonly bool $is_primary = true,
+
+        #[BooleanType]
+        public readonly bool $is_emergency = false,
+
+        #[BooleanType]
+        public readonly bool $can_pickup = true,
     ) {}
 }

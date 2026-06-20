@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AppLayout from '@/Layouts/AppLayout.vue'
 import { Head, router } from '@inertiajs/vue3'
 import { ref } from 'vue'
 import type { LibraryBook } from '@/types/library'
@@ -28,6 +29,7 @@ const bookList = Array.isArray(props.books) ? props.books : props.books.data
 </script>
 
 <template>
+    <AppLayout>
     <Head title="Library Catalogue" />
     <div class="py-6">
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -75,4 +77,5 @@ const bookList = Array.isArray(props.books) ? props.books : props.books.data
             </div>
         </div>
     </div>
+    </AppLayout>
 </template>

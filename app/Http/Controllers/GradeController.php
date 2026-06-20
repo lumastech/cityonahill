@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Data\StoreGradeData;
 use App\Models\Grade;
+use App\Models\Subject;
 use App\Services\ClassStructureService;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
@@ -31,8 +32,16 @@ class GradeController extends Controller
     {
         $this->authorizeSchool($grade);
 
+        $grade->load('gradeSubjects.subject');
+
+        $linkedIds = $grade->gradeSubjects->pluck('subject_id');
+
         return Inertia::render('Grades/Edit', [
-            'grade' => $grade->load('gradeSubjects.subject'),
+            'grade'             => $grade,
+            'available_subjects' => Subject::where('school_id', $grade->school_id)
+                ->whereNotIn('id', $linkedIds)
+                ->orderBy('name')
+                ->get(['id', 'name', 'code']),
         ]);
     }
 

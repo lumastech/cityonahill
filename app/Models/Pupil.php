@@ -55,6 +55,8 @@ class Pupil extends Model implements HasMedia
         ];
     }
 
+    protected $appends = ['full_name', 'age'];
+
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection('profile-photo')->singleFile();
@@ -149,9 +151,9 @@ class Pupil extends Model implements HasMedia
         return trim("{$this->first_name} {$this->other_name} {$this->last_name}");
     }
 
-    public function getAgeAttribute(): int
+    public function getAgeAttribute(): ?int
     {
-        return $this->dob->age;
+        return $this->dob?->age;
     }
 
     // Static helpers

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AppLayout from '@/Layouts/AppLayout.vue'
 import { Head, useForm } from '@inertiajs/vue3'
 import { computed, ref } from 'vue'
 import type { FeeInvoice } from '@/types/finance'
@@ -26,6 +27,7 @@ const MOBILE_METHODS = ['airtel_money', 'mtn_momo']
 </script>
 
 <template>
+    <AppLayout>
     <Head title="Record Payment" />
     <div class="py-6">
         <div class="mx-auto max-w-xl px-4 sm:px-6 lg:px-8">
@@ -47,10 +49,12 @@ const MOBILE_METHODS = ['airtel_money', 'mtn_momo']
                         <div>
                             <label class="block text-sm text-gray-700">Amount (ZMW)</label>
                             <input v-model="form.amount" type="number" step="0.01" class="mt-1 block w-full rounded-md border-gray-300 text-sm shadow-sm" />
+                            <p v-if="form.errors.amount" class="mt-1 text-xs text-red-600">{{ form.errors.amount }}</p>
                         </div>
                         <div>
                             <label class="block text-sm text-gray-700">Payment Date</label>
                             <input v-model="form.payment_date" type="date" class="mt-1 block w-full rounded-md border-gray-300 text-sm shadow-sm" />
+                            <p v-if="form.errors.payment_date" class="mt-1 text-xs text-red-600">{{ form.errors.payment_date }}</p>
                         </div>
                     </div>
 
@@ -91,4 +95,5 @@ const MOBILE_METHODS = ['airtel_money', 'mtn_momo']
             </div>
         </div>
     </div>
+    </AppLayout>
 </template>

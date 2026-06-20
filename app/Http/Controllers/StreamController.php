@@ -3,7 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Data\StoreStreamData;
+use App\Models\AcademicYear;
+use App\Models\Grade;
 use App\Models\Stream;
+use App\Models\User;
 use App\Services\ClassStructureService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -26,8 +29,11 @@ class StreamController extends Controller
             ->get();
 
         return Inertia::render('Streams/Index', [
-            'streams' => $streams,
-            'filterGradeId' => $request->integer('grade_id') ?: null,
+            'streams'        => $streams,
+            'filterGradeId'  => $request->integer('grade_id') ?: null,
+            'grades'         => Grade::where('school_id', $school->id)->orderBy('grade_number')->get(['id', 'name', 'grade_number']),
+            'teachers'       => User::whereHas('staff', fn ($q) => $q->where('school_id', $school->id))->orderBy('name')->get(['id', 'name']),
+            'academic_years' => AcademicYear::where('school_id', $school->id)->orderByDesc('start_year')->get(['id', 'name']),
         ]);
     }
 
@@ -48,8 +54,13 @@ class StreamController extends Controller
     {
         $this->authorizeSchool($stream);
 
+        $school = app('current_school');
+
         return Inertia::render('Streams/Edit', [
-            'stream' => $stream->load(['grade', 'classTeacher']),
+            'stream'         => $stream->load(['grade', 'classTeacher']),
+            'grades'         => Grade::where('school_id', $school->id)->orderBy('grade_number')->get(['id', 'name', 'grade_number']),
+            'teachers'       => User::whereHas('staff', fn ($q) => $q->where('school_id', $school->id))->orderBy('name')->get(['id', 'name']),
+            'academic_years' => AcademicYear::where('school_id', $school->id)->orderByDesc('start_year')->get(['id', 'name']),
         ]);
     }
 

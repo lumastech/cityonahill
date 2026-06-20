@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AppLayout from '@/Layouts/AppLayout.vue'
 import { Head, router } from '@inertiajs/vue3'
 import { ref } from 'vue'
 import type { BoardingAllocation } from '@/types/boarding'
@@ -23,6 +24,7 @@ function printPage() {
 </script>
 
 <template>
+    <AppLayout>
     <Head title="Boarding Roster" />
     <div class="min-h-screen bg-white py-6 print:py-2">
         <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 print:px-2">
@@ -99,4 +101,5 @@ function printPage() {
             </div>
         </div>
     </div>
+    </AppLayout>
 </template>

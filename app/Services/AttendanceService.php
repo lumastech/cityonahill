@@ -125,6 +125,32 @@ class AttendanceService
             ];
         }
 
+        // Session exists but has no records — pupils were added to this stream after
+        // the session was opened. Backfill attendance records now so the register shows them.
+        if ($session->records->isEmpty()) {
+            $pupilIds = Pupil::where('stream_id', $streamId)
+                ->where('status', 'active')
+                ->pluck('id');
+
+            if ($pupilIds->isNotEmpty()) {
+                $now = now();
+                AttendanceRecord::insert(
+                    $pupilIds->map(fn ($id) => [
+                        'session_id' => $session->id,
+                        'pupil_id'   => $id,
+                        'status'     => 'absent',
+                        'created_at' => $now,
+                        'updated_at' => $now,
+                    ])->toArray()
+                );
+
+                $session->load([
+                    'records.pupil:id,first_name,last_name,admission_no',
+                    'recordedBy:id,name',
+                ]);
+            }
+        }
+
         $records = $session->records->map(fn ($record) => [
             'record_id' => $record->id,
             'pupil_id' => $record->pupil_id,

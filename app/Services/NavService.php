@@ -47,7 +47,9 @@ class NavService
                 'items' => [
                     ['label' => 'Dashboard',  'route' => 'dashboard',        'permission' => null],
                     ['label' => 'Pupils',     'route' => 'pupils.index',     'permission' => 'pupil.view'],
+                    ['label' => 'Guardians',  'route' => 'guardians.index',  'permission' => 'pupil.view'],
                     ['label' => 'Classes',    'route' => 'grades.index',     'permission' => 'grade.view'],
+                    ['label' => 'Streams',    'route' => 'streams.index',    'permission' => 'grade.view'],
                     ['label' => 'Subjects',   'route' => 'subjects.index',   'permission' => 'subject.view'],
                     ['label' => 'Timetable',  'route' => 'timetable.index',  'permission' => 'grade.view'],
                     ['label' => 'Attendance', 'route' => 'attendance.index', 'permission' => 'attendance.view'],
@@ -106,10 +108,11 @@ class NavService
                 'label' => 'Admin',
                 'icon'  => 'cog',
                 'items' => [
-                    ['label' => 'Schools',   'route' => 'schools.index',    'permission' => 'school.view'],
-                    ['label' => 'Roles',     'route' => 'roles.index',      'permission' => 'settings.manage'],
-                    ['label' => 'Settings',  'route' => 'settings.index',   'permission' => 'settings.manage'],
-                    ['label' => 'Audit Log', 'route' => 'audit-logs.index', 'permission' => 'settings.manage'],
+                    ['label' => 'Schools',      'route' => 'schools.index',           'permission' => 'school.view'],
+                    ['label' => 'Applications', 'route' => 'admin.applications.index', 'permission' => 'settings.manage'],
+                    ['label' => 'Roles',        'route' => 'roles.index',             'permission' => 'settings.manage'],
+                    ['label' => 'Settings',     'route' => 'settings.index',          'permission' => 'settings.manage'],
+                    ['label' => 'Audit Log',    'route' => 'audit-logs.index',        'permission' => 'settings.manage'],
                 ],
             ],
         ];
