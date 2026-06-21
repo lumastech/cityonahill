@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Data\BulkRaiseInvoicesData;
 use App\Data\RaiseInvoiceData;
 use App\Models\FeeInvoice;
+use App\Models\FeeStructure;
 use App\Models\Grade;
 use App\Models\Term;
 use App\Services\FinanceService;
@@ -46,8 +47,12 @@ class FeeInvoiceController extends Controller
 
         return Inertia::render('Finance/Invoices/Index', [
             'invoices' => $query->paginate(30)->withQueryString(),
-            'grades' => Grade::where('school_id', $school->id)->orderBy('grade_number')->get(['id', 'grade_number']),
+            'grades' => Grade::where('school_id', $school->id)->orderBy('grade_number')->get(['id', 'grade_number', 'name']),
             'terms' => Term::where('school_id', $school->id)->orderBy('name')->get(['id', 'name']),
+            'fee_structures' => FeeStructure::where('school_id', $school->id)
+                ->with('grade:id,name,grade_number', 'term:id,name')
+                ->orderBy('name')
+                ->get(['id', 'name', 'amount', 'grade_id', 'term_id']),
             'filters' => compact('gradeId', 'termId', 'status'),
         ]);
     }

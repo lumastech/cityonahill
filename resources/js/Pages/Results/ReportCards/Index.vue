@@ -113,7 +113,9 @@ function publish() {
                         </tr>
                         <tr v-for="card in cards" :key="card.id" class="hover:bg-gray-50">
                             <td class="px-4 py-3 font-medium text-gray-900">
-                                {{ card.pupil?.first_name }} {{ card.pupil?.last_name }}
+                                <Link v-if="card.pupil" :href="route('pupils.show', card.pupil.id)" class="hover:underline text-indigo-700">
+                                    {{ card.pupil.first_name }} {{ card.pupil.last_name }}
+                                </Link>
                             </td>
                             <td class="px-4 py-3 font-mono text-gray-600">{{ card.pupil?.admission_no }}</td>
                             <td class="px-4 py-3 text-center">

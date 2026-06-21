@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import AppLayout from '@/Layouts/AppLayout.vue'
-import { Head } from '@inertiajs/vue3'
+import { Head, Link } from '@inertiajs/vue3'
 import type { TermResult } from '@/types/results'
 import type { GradeLetter } from '@/types/shared'
 
@@ -110,7 +110,9 @@ function printPdf() {
                                 {{ pupil.position_in_stream ?? '—' }}
                             </td>
                             <td class="sticky left-8 bg-white px-3 py-2 whitespace-nowrap font-medium text-gray-900">
-                                {{ pupil.last_name }}, {{ pupil.first_name }}
+                                <Link :href="route('pupils.show', pupil.id)" class="hover:underline text-indigo-700">
+                                    {{ pupil.last_name }}, {{ pupil.first_name }}
+                                </Link>
                                 <span class="ml-1 text-xs text-gray-400">{{ pupil.admission_no }}</span>
                             </td>
                             <td

@@ -3,6 +3,7 @@ import AppLayout from '@/Layouts/AppLayout.vue'
 import { Head, router, useForm } from '@inertiajs/vue3'
 import { ref } from 'vue'
 import type { Expense, ExpenseCategory } from '@/types/finance'
+import { fmtDate } from '@/utils/date'
 
 defineProps<{
     expenses: { data: Expense[]; links: unknown[] }
@@ -65,7 +66,7 @@ function remove(id: number) {
                     </thead>
                     <tbody class="divide-y divide-gray-100">
                         <tr v-for="e in expenses.data" :key="e.id">
-                            <td class="px-4 py-3 text-gray-700">{{ e.expense_date }}</td>
+                            <td class="px-4 py-3 text-gray-700">{{ fmtDate(e.expense_date) }}</td>
                             <td class="px-4 py-3">
                                 <span :class="['rounded-full px-2 py-0.5 text-xs font-medium capitalize', CATEGORY_COLORS[e.category]]">{{ e.category }}</span>
                             </td>

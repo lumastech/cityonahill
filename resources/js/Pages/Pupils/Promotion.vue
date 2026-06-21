@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import AppLayout from '@/Layouts/AppLayout.vue'
-import { Head, useForm } from '@inertiajs/vue3'
+import { Head, Link, useForm } from '@inertiajs/vue3'
 import { ref, computed } from 'vue'
 import type { Pupil } from '@/types/pupils'
 import { useConfirm } from '@/composables/useConfirm'
@@ -143,7 +143,9 @@ async function handlePromote() {
                     </thead>
                     <tbody class="divide-y divide-gray-100">
                         <tr v-for="pupil in streamPupils" :key="pupil.id" :class="pupil.status !== 'active' ? 'opacity-50' : ''">
-                            <td class="px-4 py-2">{{ pupil.full_name }}</td>
+                            <td class="px-4 py-2">
+                                <Link :href="route('pupils.show', pupil.id)" class="hover:underline text-indigo-700">{{ pupil.full_name }}</Link>
+                            </td>
                             <td class="px-4 py-2 font-mono text-gray-500">{{ pupil.admission_no }}</td>
                             <td class="px-4 py-2 capitalize text-gray-500">{{ pupil.status }}</td>
                         </tr>

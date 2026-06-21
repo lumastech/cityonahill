@@ -116,7 +116,9 @@ window.onbeforeunload = () => (isDirty.value ? 'You have unsaved changes.' : nul
                     <tbody class="divide-y divide-gray-100">
                         <tr v-for="(pupil, idx) in pupils" :key="pupil.id" class="hover:bg-gray-50">
                             <td class="px-4 py-2 text-gray-400">{{ idx + 1 }}</td>
-                            <td class="px-4 py-2 font-medium text-gray-900">{{ pupil.last_name }}, {{ pupil.first_name }}</td>
+                            <td class="px-4 py-2 font-medium text-gray-900">
+                                <Link :href="route('pupils.show', pupil.id)" class="hover:underline text-indigo-700">{{ pupil.last_name }}, {{ pupil.first_name }}</Link>
+                            </td>
                             <td class="px-4 py-2 text-gray-500">{{ pupil.admission_no }}</td>
                             <td class="px-4 py-2 text-center">
                                 <input

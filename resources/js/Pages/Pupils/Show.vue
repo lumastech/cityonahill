@@ -304,7 +304,7 @@ const TABS = [
                 <div v-if="!pupil.transfers?.length" class="text-sm text-gray-400">No transfers recorded.</div>
                 <div v-for="t in pupil.transfers" :key="t.id" class="text-sm border-l-2 border-gray-200 pl-3 py-1">
                     <p class="font-medium">{{ t.from_school }} → {{ t.to_school }}</p>
-                    <p class="text-gray-500">{{ t.transfer_date }} <span v-if="t.reason">· {{ t.reason }}</span></p>
+                    <p class="text-gray-500">{{ fmtDate(t.transfer_date) }} <span v-if="t.reason">· {{ t.reason }}</span></p>
                 </div>
             </div>
 

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import AppLayout from '@/Layouts/AppLayout.vue'
-import { Head, router, useForm } from '@inertiajs/vue3'
+import { Head, Link, router, useForm } from '@inertiajs/vue3'
 import { ref } from 'vue'
 import type { PupilTransport, TransportRoute } from '@/types/transport'
 
@@ -153,7 +153,7 @@ function removeAssignment(id: number) {
                     <tbody class="divide-y divide-gray-100">
                         <tr v-for="a in manifest" :key="a.id">
                             <td class="px-4 py-3 font-medium text-gray-900">
-                                {{ a.pupil?.first_name }} {{ a.pupil?.last_name }}
+                                <Link v-if="a.pupil" :href="route('pupils.show', a.pupil.id)" class="hover:underline text-indigo-700">{{ a.pupil.first_name }} {{ a.pupil.last_name }}</Link>
                             </td>
                             <td class="px-4 py-3 text-gray-600">{{ a.pupil?.admission_no }}</td>
                             <td class="px-4 py-3 text-gray-600">

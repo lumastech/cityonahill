@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import AppLayout from '@/Layouts/AppLayout.vue'
-import { Head, useForm } from '@inertiajs/vue3'
+import { Head, Link, useForm } from '@inertiajs/vue3'
 import { ref } from 'vue'
 import type { Bed, Dormitory } from '@/types/boarding'
 
@@ -116,7 +116,9 @@ const BED_COLORS: Record<string, string> = {
                 <!-- Occupied: show pupil info -->
                 <div v-if="selectedBed.status === 'occupied' && selectedBed.active_allocation">
                     <p class="text-sm text-gray-700">
-                        <strong>{{ selectedBed.active_allocation.pupil?.first_name }} {{ selectedBed.active_allocation.pupil?.last_name }}</strong>
+                        <Link v-if="selectedBed.active_allocation.pupil" :href="route('pupils.show', selectedBed.active_allocation.pupil.id)" class="font-semibold hover:underline text-indigo-700">
+                            {{ selectedBed.active_allocation.pupil.first_name }} {{ selectedBed.active_allocation.pupil.last_name }}
+                        </Link>
                         ({{ selectedBed.active_allocation.pupil?.admission_no }})
                     </p>
                     <p class="text-xs text-gray-500 mt-0.5">Since {{ selectedBed.active_allocation.allocated_date }}</p>

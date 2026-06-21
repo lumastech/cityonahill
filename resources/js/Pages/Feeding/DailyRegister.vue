@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import AppLayout from '@/Layouts/AppLayout.vue'
-import { Head, router, useForm } from '@inertiajs/vue3'
+import { Head, Link, router, useForm } from '@inertiajs/vue3'
 import { computed, ref } from 'vue'
 import type { FeedingSession } from '@/types/feeding'
+import { fmtDate } from '@/utils/date'
 
 interface Pupil { id: number; first_name: string; last_name: string; admission_no: string }
-interface Stream { id: number; name: string }
+interface Grade  { id: number; name: string; grade_number: number }
+interface Stream { id: number; name: string; grade_id: number; grade?: Grade }
 interface SessionPage { data: FeedingSession[]; links: unknown[] }
 
 const props = defineProps<{
@@ -65,7 +67,7 @@ const MEAL_COLORS: Record<string, string> = {
                     <div>
                         <a :href="route('feeding-sessions.index')" class="text-sm text-indigo-600 hover:underline">← Sessions</a>
                         <h1 class="mt-1 text-2xl font-bold text-gray-900">
-                            {{ session.date }}
+                            {{ fmtDate(session.date) }}
                             <span :class="['ml-2 rounded-full px-2 py-0.5 text-sm font-medium capitalize', MEAL_COLORS[session.meal_type]]">
                                 {{ session.meal_type }}
                             </span>
@@ -102,7 +104,7 @@ const MEAL_COLORS: Record<string, string> = {
                             <span v-else :class="checkedIds.has(pupil.id) ? 'text-green-600' : 'text-gray-300'">
                                 {{ checkedIds.has(pupil.id) ? '✓' : '✗' }}
                             </span>
-                            <span class="flex-1 text-sm text-gray-900">{{ pupil.first_name }} {{ pupil.last_name }}</span>
+                            <Link :href="route('pupils.show', pupil.id)" class="flex-1 text-sm text-gray-900 hover:underline hover:text-indigo-700">{{ pupil.first_name }} {{ pupil.last_name }}</Link>
                             <span class="text-xs text-gray-400">{{ pupil.admission_no }}</span>
                         </li>
                     </ul>
@@ -130,7 +132,7 @@ const MEAL_COLORS: Record<string, string> = {
                         <label class="block text-xs text-gray-600">Stream (optional)</label>
                         <select v-model="openForm.stream_id" class="mt-1 rounded-md border-gray-300 text-sm shadow-sm">
                             <option value="">Whole school</option>
-                            <option v-for="s in streams" :key="s.id" :value="s.id">{{ s.name }}</option>
+                            <option v-for="s in streams" :key="s.id" :value="s.id">{{ s.grade?.name }} — {{ s.name }}</option>
                         </select>
                     </div>
                     <button @click="openSession" :disabled="openForm.processing"
@@ -153,7 +155,7 @@ const MEAL_COLORS: Record<string, string> = {
                         </thead>
                         <tbody class="divide-y divide-gray-100">
                             <tr v-for="s in sessions?.data" :key="s.id">
-                                <td class="px-4 py-3 font-medium text-gray-900">{{ s.date }}</td>
+                                <td class="px-4 py-3 font-medium text-gray-900">{{ fmtDate(s.date) }}</td>
                                 <td class="px-4 py-3">
                                     <span :class="['rounded-full px-2 py-0.5 text-xs capitalize', MEAL_COLORS[s.meal_type]]">{{ s.meal_type }}</span>
                                 </td>

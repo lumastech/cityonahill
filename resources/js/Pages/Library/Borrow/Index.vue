@@ -3,6 +3,7 @@ import AppLayout from '@/Layouts/AppLayout.vue'
 import Pagination from '@/Components/Pagination.vue'
 import { Head, Link, useForm } from '@inertiajs/vue3'
 import type { PaginatedResponse } from '@/types/shared'
+import { fmtDate } from '@/utils/date'
 
 interface Borrowing {
     id: number
@@ -72,9 +73,9 @@ function isOverdue(due: string, returned: string | null): boolean {
                                 <div class="text-xs text-gray-400">{{ b.book?.author }}</div>
                             </td>
                             <td class="px-4 py-3 text-gray-700">{{ b.borrower_name }}</td>
-                            <td class="px-4 py-3 text-gray-600">{{ b.borrowed_date }}</td>
+                            <td class="px-4 py-3 text-gray-600">{{ fmtDate(b.borrowed_date) }}</td>
                             <td class="px-4 py-3 text-gray-600" :class="{ 'text-red-600 font-medium': isOverdue(b.due_date, b.returned_date) }">
-                                {{ b.due_date }}
+                                {{ fmtDate(b.due_date) }}
                             </td>
                             <td class="px-4 py-3 text-center">
                                 <span v-if="b.returned_date" class="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">Returned</span>

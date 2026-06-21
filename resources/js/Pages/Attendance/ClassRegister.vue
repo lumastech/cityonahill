@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import AppLayout from '@/Layouts/AppLayout.vue'
-import { Head, router, useForm } from '@inertiajs/vue3'
+import { Head, Link, router, useForm } from '@inertiajs/vue3'
 import { computed, ref, watch } from 'vue'
 import type { ClassRegister, AttendanceStatus, SessionType } from '@/types/attendance'
 
@@ -251,7 +251,9 @@ const totalCount = computed(() => records.value.length)
                         <tbody class="divide-y divide-gray-100">
                             <tr v-for="(pupil, idx) in pupils" :key="pupil.id">
                                 <td class="px-4 py-2 text-sm text-gray-500">{{ idx + 1 }}</td>
-                                <td class="px-4 py-2 text-sm font-medium text-gray-900">{{ pupil.full_name }}</td>
+                                <td class="px-4 py-2 text-sm font-medium text-gray-900">
+                                    <Link :href="route('pupils.show', pupil.id)" class="hover:underline text-indigo-700">{{ pupil.full_name }}</Link>
+                                </td>
                                 <td class="px-4 py-2 text-sm text-gray-500">{{ pupil.admission_no }}</td>
                                 <td class="px-4 py-2">
                                     <div v-if="isFinalized && !isEditing" class="flex justify-center">

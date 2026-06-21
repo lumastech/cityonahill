@@ -2,6 +2,7 @@
 import AppLayout from '@/Layouts/AppLayout.vue'
 import { Head } from '@inertiajs/vue3'
 import type { BookBorrowing } from '@/types/library'
+import { fmtDate } from '@/utils/date'
 
 defineProps<{ overdue_borrowings: BookBorrowing[] }>()
 
@@ -51,8 +52,8 @@ function fineAmount(dueDate: string): string {
                                 <p class="text-xs text-gray-500">{{ b.book?.author }}</p>
                             </td>
                             <td class="px-4 py-3 capitalize text-gray-700">{{ b.borrower_type }} #{{ b.borrower_id }}</td>
-                            <td class="px-4 py-3 text-gray-600">{{ b.borrowed_date }}</td>
-                            <td class="px-4 py-3 font-medium text-red-700">{{ b.due_date }}</td>
+                            <td class="px-4 py-3 text-gray-600">{{ fmtDate(b.borrowed_date) }}</td>
+                            <td class="px-4 py-3 font-medium text-red-700">{{ fmtDate(b.due_date) }}</td>
                             <td class="px-4 py-3 text-right font-bold text-red-700">{{ daysOverdue(b.due_date) }}</td>
                             <td class="px-4 py-3 text-right font-semibold text-red-600">{{ fineAmount(b.due_date) }}</td>
                             <td class="px-4 py-3 text-right">

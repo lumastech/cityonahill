@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import AppLayout from '@/Layouts/AppLayout.vue'
-import { Head, useForm } from '@inertiajs/vue3'
+import { Head, Link, useForm } from '@inertiajs/vue3'
 import { computed, ref } from 'vue'
 import type { Assessment, AssessmentScore } from '@/types/results'
 import { useAssessments } from '@/composables/useAssessments'
@@ -98,7 +98,9 @@ window.onbeforeunload = () => (isDirty.value ? 'You have unsaved changes.' : nul
                         <tr v-for="(pupil, idx) in pupils" :key="pupil.id">
                             <td class="px-4 py-2 text-sm text-gray-400">{{ idx + 1 }}</td>
                             <td class="px-4 py-2 text-sm font-medium text-gray-900">
-                                {{ pupil.last_name }}, {{ pupil.first_name }}
+                                <Link :href="route('pupils.show', pupil.id)" class="hover:underline text-indigo-700">
+                                    {{ pupil.last_name }}, {{ pupil.first_name }}
+                                </Link>
                             </td>
                             <td class="px-4 py-2 text-sm text-gray-500">{{ pupil.admission_no }}</td>
                             <td class="px-4 py-2 text-center">

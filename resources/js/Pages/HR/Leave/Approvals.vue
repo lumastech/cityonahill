@@ -2,6 +2,7 @@
 import AppLayout from '@/Layouts/AppLayout.vue'
 import { Head, useForm } from '@inertiajs/vue3'
 import type { Leave } from '@/types/hr'
+import { fmtDate } from '@/utils/date'
 
 defineProps<{ pending_leaves: Leave[] }>()
 
@@ -52,7 +53,7 @@ const leaveStatusColor: Record<string, string> = {
                         <tr v-for="leave in pending_leaves" :key="leave.id">
                             <td class="px-4 py-3 font-medium text-gray-900">{{ leave.staff?.user?.name }}</td>
                             <td class="px-4 py-3 text-gray-600">{{ leave.leave_type?.name }}</td>
-                            <td class="px-4 py-3 text-gray-600 whitespace-nowrap">{{ leave.start_date }} → {{ leave.end_date }}</td>
+                            <td class="px-4 py-3 text-gray-600 whitespace-nowrap">{{ fmtDate(leave.start_date) }} → {{ fmtDate(leave.end_date) }}</td>
                             <td class="px-4 py-3 text-gray-600">{{ leave.total_days }}</td>
                             <td class="px-4 py-3 text-gray-600 max-w-xs truncate">{{ leave.reason }}</td>
                             <td class="px-4 py-3">

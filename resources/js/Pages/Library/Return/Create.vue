@@ -3,6 +3,7 @@ import AppLayout from '@/Layouts/AppLayout.vue'
 import { Head, router, useForm } from '@inertiajs/vue3'
 import { computed, ref } from 'vue'
 import type { BookBorrowing } from '@/types/library'
+import { fmtDate } from '@/utils/date'
 
 const props = defineProps<{
     active_borrowings: BookBorrowing[]
@@ -56,7 +57,7 @@ function submit() {
                         <select v-model="form.borrowing_id" class="mt-1 block w-full rounded-md border-gray-300 text-sm shadow-sm">
                             <option value="">Select borrowing…</option>
                             <option v-for="b in filtered" :key="b.id" :value="b.id">
-                                {{ b.book?.title }} — {{ b.borrower_type }} #{{ b.borrower_id }} (due {{ b.due_date }})
+                                {{ b.book?.title }} — {{ b.borrower_type }} #{{ b.borrower_id }} (due {{ fmtDate(b.due_date) }})
                             </option>
                         </select>
                     </div>

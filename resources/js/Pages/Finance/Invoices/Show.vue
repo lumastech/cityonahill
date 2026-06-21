@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import AppLayout from '@/Layouts/AppLayout.vue'
-import { Head, useForm } from '@inertiajs/vue3'
+import { Head, Link, useForm } from '@inertiajs/vue3'
 import type { FeeInvoice, InvoiceStatus } from '@/types/finance'
+import { fmtDate } from '@/utils/date'
 
 const props = defineProps<{
     invoice: FeeInvoice
@@ -42,7 +43,9 @@ const MOBILE_METHODS = ['airtel_money', 'mtn_momo']
                 <div>
                     <a :href="route('fee-invoices.index')" class="mb-1 block text-sm text-indigo-600 hover:underline">← Invoices</a>
                     <h1 class="text-2xl font-semibold text-gray-900">
-                        {{ invoice.pupil?.first_name }} {{ invoice.pupil?.last_name }}
+                        <Link v-if="invoice.pupil" :href="route('pupils.show', invoice.pupil.id)" class="hover:underline">
+                            {{ invoice.pupil.first_name }} {{ invoice.pupil.last_name }}
+                        </Link>
                     </h1>
                     <p class="text-sm text-gray-500">{{ invoice.pupil?.admission_no }} · {{ invoice.fee_structure?.name }} · {{ invoice.term?.name }}</p>
                 </div>
@@ -82,7 +85,7 @@ const MOBILE_METHODS = ['airtel_money', 'mtn_momo']
                     </thead>
                     <tbody class="divide-y divide-gray-100">
                         <tr v-for="p in invoice.payments" :key="p.id">
-                            <td class="px-4 py-2 text-gray-700">{{ p.payment_date }}</td>
+                            <td class="px-4 py-2 text-gray-700">{{ fmtDate(p.payment_date) }}</td>
                             <td class="px-4 py-2 text-right font-medium">ZMW {{ Number(p.amount).toFixed(2) }}</td>
                             <td class="px-4 py-2 text-gray-600 capitalize">{{ p.payment_method.replace('_', ' ') }}</td>
                             <td class="px-4 py-2 text-gray-600">{{ p.reference ?? '—' }}</td>

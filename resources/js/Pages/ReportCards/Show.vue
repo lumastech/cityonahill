@@ -5,6 +5,7 @@ import type { ReportCard, TermResult } from '@/types/results'
 import type { GradeLetter } from '@/types/shared'
 import { useGrading } from '@/composables/useGrading'
 import { useReportCards } from '@/composables/useReportCards'
+import { fmtDate } from '@/utils/date'
 
 const props = defineProps<{
     report_card: ReportCard
@@ -79,7 +80,7 @@ const school = props.report_card.stream?.grade
                 </div>
                 <div class="flex gap-2">
                     <span class="font-medium text-gray-700 w-32">D.O.B.:</span>
-                    <span class="text-gray-800">{{ pupil?.dob }}</span>
+                    <span class="text-gray-800">{{ fmtDate(pupil?.dob) }}</span>
                 </div>
                 <div class="flex gap-2">
                     <span class="font-medium text-gray-700 w-32">Class:</span>

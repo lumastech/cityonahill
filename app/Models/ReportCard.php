@@ -10,6 +10,13 @@ class ReportCard extends Model
 {
     use HasFactory;
 
+    protected $appends = ['published'];
+
+    public function getPublishedAttribute(): bool
+    {
+        return $this->published_at !== null;
+    }
+
     protected $fillable = [
         'school_id',
         'pupil_id',

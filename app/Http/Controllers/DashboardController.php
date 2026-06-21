@@ -84,7 +84,7 @@ class DashboardController extends Controller
 
         // Active assessments needing scores
         $pendingAssessments = Assessment::where('school_id', $schoolId)
-            ->where('date', '<=', $todayDate)
+            ->whereDate('date', '<=', $todayDate)
             ->whereDoesntHave('scores')
             ->count();
 
@@ -209,7 +209,7 @@ class DashboardController extends Controller
 
         $pendingScoring = Assessment::where('school_id', $schoolId)
             ->where('created_by', $user->id)
-            ->where('date', '<=', now()->toDateString())
+            ->whereDate('date', '<=', now()->toDateString())
             ->whereDoesntHave('scores')
             ->count();
 

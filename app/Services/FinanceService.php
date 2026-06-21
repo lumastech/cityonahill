@@ -88,6 +88,7 @@ class FinanceService
                     'amount' => $structure->amount,
                     'discount' => 0,
                     'balance_due' => $structure->amount,
+                    'due_date' => $data->due_date,
                     'status' => 'unpaid',
                 ]);
 

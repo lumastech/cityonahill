@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3'
 import type { ChildSummaryPupil } from '@/types/portal'
+import { fmtDate } from '@/utils/date'
 
 defineProps<{
     pupil: ChildSummaryPupil
@@ -48,7 +49,7 @@ const statusColor: Record<string, string> = {
                             <td class="px-4 py-3 text-gray-900">{{ inv.description }}</td>
                             <td class="px-4 py-3 text-gray-700">{{ inv.amount.toFixed(2) }}</td>
                             <td class="px-4 py-3 text-green-700">{{ inv.paid.toFixed(2) }}</td>
-                            <td class="px-4 py-3 text-gray-600">{{ inv.due_date }}</td>
+                            <td class="px-4 py-3 text-gray-600">{{ fmtDate(inv.due_date) }}</td>
                             <td class="px-4 py-3">
                                 <span :class="['rounded-full px-2 py-0.5 text-xs font-medium', statusColor[inv.status] ?? 'bg-gray-100']">
                                     {{ inv.status }}

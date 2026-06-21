@@ -2,6 +2,7 @@
 import AppLayout from '@/Layouts/AppLayout.vue'
 import { Head } from '@inertiajs/vue3'
 import type { BookBorrowing, LibraryBook } from '@/types/library'
+import { fmtDate } from '@/utils/date'
 
 const props = defineProps<{
     book: LibraryBook
@@ -71,8 +72,8 @@ const STATUS_COLORS: Record<string, string> = {
                     <tbody class="divide-y divide-gray-100">
                         <tr v-for="b in book.borrowings" :key="b.id">
                             <td class="px-4 py-3 text-gray-700 capitalize">{{ b.borrower_type }} #{{ b.borrower_id }}</td>
-                            <td class="px-4 py-3 text-gray-600">{{ b.borrowed_date }}</td>
-                            <td class="px-4 py-3 text-gray-600">{{ b.due_date }}</td>
+                            <td class="px-4 py-3 text-gray-600">{{ fmtDate(b.borrowed_date) }}</td>
+                            <td class="px-4 py-3 text-gray-600">{{ fmtDate(b.due_date) }}</td>
                             <td class="px-4 py-3 text-gray-600">{{ b.returned_date ?? '—' }}</td>
                             <td class="px-4 py-3">
                                 <span :class="['rounded-full px-2 py-0.5 text-xs font-medium', STATUS_COLORS[b.status]]">{{ b.status }}</span>

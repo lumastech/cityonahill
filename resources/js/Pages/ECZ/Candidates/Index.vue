@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import AppLayout from '@/Layouts/AppLayout.vue'
-import { Head, router, useForm } from '@inertiajs/vue3'
+import { Head, Link, router, useForm } from '@inertiajs/vue3'
 import { computed, ref } from 'vue'
 import type { EczCandidate } from '@/types/ecz'
 
@@ -79,7 +79,9 @@ function viewCandidate(id: number) {
                     <tbody class="divide-y divide-gray-100">
                         <tr v-for="c in candidates" :key="c.id" class="hover:bg-gray-50">
                             <td class="px-4 py-3 font-medium text-gray-900">
-                                {{ c.pupil?.first_name }} {{ c.pupil?.last_name }}
+                                <Link :href="route('pupils.show', c.pupil_id)" class="hover:underline text-indigo-700">
+                                    {{ c.pupil?.first_name }} {{ c.pupil?.last_name }}
+                                </Link>
                             </td>
                             <td class="px-4 py-3 text-gray-600">{{ c.pupil?.admission_no }}</td>
                             <td class="px-4 py-3 text-gray-600">{{ c.index_number ?? '—' }}</td>

@@ -3,6 +3,7 @@ import AppLayout from '@/Layouts/AppLayout.vue'
 import { Head, Link, usePage } from '@inertiajs/vue3'
 import { computed } from 'vue'
 import type { SharedProps } from '@/types/shared'
+import { fmtDate } from '@/utils/date'
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
@@ -302,7 +303,7 @@ const TYPE_COLORS: Record<string, string> = {
                         <div v-for="a in classStats.assessments" :key="a.id" class="flex items-center justify-between py-2.5">
                             <div>
                                 <p class="text-sm font-medium text-gray-800">{{ a.name }}</p>
-                                <p class="text-xs text-gray-500">{{ a.subject?.name }} · {{ a.date }}</p>
+                                <p class="text-xs text-gray-500">{{ a.subject?.name }} · {{ fmtDate(a.date) }}</p>
                             </div>
                             <span class="rounded-full px-2 py-0.5 text-xs font-medium" :class="TYPE_COLORS[a.type] ?? 'bg-gray-100 text-gray-600'">
                                 {{ TYPE_LABELS[a.type] ?? a.type }}
@@ -370,7 +371,7 @@ const TYPE_COLORS: Record<string, string> = {
                                     </td>
                                     <td class="py-2 text-gray-600">{{ a.subject?.name }}</td>
                                     <td class="py-2 text-gray-600">{{ a.stream?.name }}</td>
-                                    <td class="py-2 text-gray-600">{{ a.date }}</td>
+                                    <td class="py-2 text-gray-600">{{ fmtDate(a.date) }}</td>
                                     <td class="py-2">
                                         <span class="rounded-full px-2 py-0.5 text-xs font-medium" :class="TYPE_COLORS[a.type] ?? 'bg-gray-100 text-gray-600'">
                                             {{ TYPE_LABELS[a.type] ?? a.type }}
@@ -475,7 +476,7 @@ const TYPE_COLORS: Record<string, string> = {
                         <div v-for="b in libStats.recent_borrowings" :key="b.id" class="flex items-center justify-between py-2.5">
                             <div>
                                 <p class="text-sm font-medium text-gray-800">{{ b.book?.title }}</p>
-                                <p class="text-xs text-gray-500">Due {{ b.due_date }} · issued by {{ b.issued_by?.name }}</p>
+                                <p class="text-xs text-gray-500">Due {{ fmtDate(b.due_date) }} · issued by {{ b.issued_by?.name }}</p>
                             </div>
                             <span class="rounded-full px-2 py-0.5 text-xs font-medium capitalize"
                                   :class="b.status === 'returned' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'">

@@ -3,6 +3,7 @@ import AppLayout from '@/Layouts/AppLayout.vue'
 import { Head, router } from '@inertiajs/vue3'
 import { computed, ref } from 'vue'
 import type { FeedingStats } from '@/types/feeding'
+import { fmtDate } from '@/utils/date'
 
 interface Term { id: number; name: string }
 
@@ -48,7 +49,7 @@ const maxMeals = computed(() =>
                     <h2 class="mb-4 text-sm font-semibold text-gray-700">Daily Meals Served</h2>
                     <div v-if="stats.by_day.length" class="space-y-1.5">
                         <div v-for="day in stats.by_day" :key="day.date" class="flex items-center gap-2">
-                            <span class="w-24 shrink-0 text-right text-xs text-gray-500">{{ day.date }}</span>
+                            <span class="w-24 shrink-0 text-right text-xs text-gray-500">{{ fmtDate(day.date) }}</span>
                             <div class="flex-1 rounded-full bg-gray-100 h-5 overflow-hidden">
                                 <div class="h-5 rounded-full bg-green-500"
                                     :style="{ width: (day.meals / maxMeals * 100) + '%' }" />

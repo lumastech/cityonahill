@@ -4,6 +4,7 @@ import { Head, useForm } from '@inertiajs/vue3'
 import { computed, ref } from 'vue'
 import { useHR, MONTH_NAMES, POSITION_LABELS, STATUS_COLORS } from '@/composables/useHR'
 import type { Leave, LeaveType, Payroll, Staff } from '@/types/hr'
+import { fmtDate } from '@/utils/date'
 
 interface Subject { id: number; name: string }
 
@@ -101,7 +102,7 @@ const leaveStatusColor: Record<string, string> = {
                         <div><dt class="text-gray-500">Employee No</dt><dd class="font-medium">{{ staff.employee_no }}</dd></div>
                         <div><dt class="text-gray-500">Position</dt><dd class="font-medium">{{ positionLabel(staff.position) }}</dd></div>
                         <div><dt class="text-gray-500">Employment Type</dt><dd class="font-medium capitalize">{{ staff.employment_type }}</dd></div>
-                        <div><dt class="text-gray-500">Start Date</dt><dd class="font-medium">{{ staff.employment_date }}</dd></div>
+                        <div><dt class="text-gray-500">Start Date</dt><dd class="font-medium">{{ fmtDate(staff.employment_date) }}</dd></div>
                         <div><dt class="text-gray-500">Basic Salary</dt><dd class="font-medium">{{ formatZmw(staff.basic_salary) }}</dd></div>
                         <div><dt class="text-gray-500">Department</dt><dd class="font-medium">{{ staff.department ?? '—' }}</dd></div>
                         <div><dt class="text-gray-500">Status</dt>
@@ -232,8 +233,8 @@ const leaveStatusColor: Record<string, string> = {
                         <tbody class="divide-y divide-gray-100">
                             <tr v-for="leave in staff.leaves" :key="leave.id">
                                 <td class="px-4 py-3 text-gray-900">{{ leave.leave_type?.name }}</td>
-                                <td class="px-4 py-3 text-gray-600">{{ leave.start_date }}</td>
-                                <td class="px-4 py-3 text-gray-600">{{ leave.end_date }}</td>
+                                <td class="px-4 py-3 text-gray-600">{{ fmtDate(leave.start_date) }}</td>
+                                <td class="px-4 py-3 text-gray-600">{{ fmtDate(leave.end_date) }}</td>
                                 <td class="px-4 py-3 text-gray-600">{{ leave.total_days }}</td>
                                 <td class="px-4 py-3">
                                     <span :class="['rounded-full px-2 py-0.5 text-xs font-medium', leaveStatusColor[leave.status]]">

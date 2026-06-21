@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import AppLayout from '@/Layouts/AppLayout.vue'
-import { Head, router, useForm } from '@inertiajs/vue3'
+import { Head, Link, router, useForm } from '@inertiajs/vue3'
 import { computed, ref, watch } from 'vue'
 import type { TermResult } from '@/types/results'
 import { useResults } from '@/composables/useResults'
@@ -182,7 +182,9 @@ function publish() {
                     <tbody class="divide-y divide-gray-100">
                         <tr v-for="(pupil, idx) in pupils" :key="pupil.id">
                             <td class="px-3 py-2 text-sm font-medium text-gray-900">
-                                {{ pupil.last_name }}, {{ pupil.first_name }}
+                                <Link :href="route('pupils.show', pupil.id)" class="hover:underline text-indigo-700">
+                                    {{ pupil.last_name }}, {{ pupil.first_name }}
+                                </Link>
                                 <span class="ml-1 text-xs text-gray-400">{{ pupil.admission_no }}</span>
                             </td>
                             <td class="px-3 py-2 text-center">

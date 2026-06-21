@@ -28,7 +28,11 @@ class FeedingSessionController extends Controller
             ->paginate(30)
             ->withQueryString();
 
-        $streams = Stream::where('school_id', $school->id)->orderBy('name')->get(['id', 'name']);
+        $streams = Stream::where('school_id', $school->id)
+            ->with('grade:id,name,grade_number')
+            ->orderBy('grade_id')
+            ->orderBy('name')
+            ->get(['id', 'name', 'grade_id']);
 
         return Inertia::render('Feeding/DailyRegister', [
             'sessions' => $sessions,

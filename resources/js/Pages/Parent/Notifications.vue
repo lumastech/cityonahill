@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Head, router } from '@inertiajs/vue3'
 import type { PortalNotification } from '@/types/portal'
+import { fmtDateTime } from '@/utils/date'
 
 defineProps<{
     notifications: {
@@ -40,7 +41,7 @@ function markRead(id: number) {
                             <div>
                                 <p class="font-medium text-gray-900">{{ notif.title }}</p>
                                 <p class="mt-1 text-sm text-gray-600">{{ notif.message }}</p>
-                                <p class="mt-1 text-xs text-gray-400">{{ notif.created_at }}</p>
+                                <p class="mt-1 text-xs text-gray-400">{{ fmtDateTime(notif.created_at) }}</p>
                             </div>
                         </div>
                         <button
