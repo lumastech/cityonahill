@@ -101,6 +101,14 @@ class StaffController extends Controller
     {
         abort_if($staff->school_id !== app('current_school')?->id, 403);
 
+        $user = auth()->user();
+        $canViewAll = $user->hasAnyRole([
+            'super-admin', 'school-admin', 'headteacher', 'deputy-headteacher', 'finance-officer', 'hr-officer',
+        ]);
+        $isSelf = $staff->user_id === $user->id;
+
+        abort_if(! $canViewAll && ! $isSelf, 403);
+
         $staff->load([
             'user:id,name,email',
             'leaves.leaveType:id,name',
@@ -118,6 +126,7 @@ class StaffController extends Controller
             'leave_types'   => $leaveTypes,
             'leave_balance' => $leaveBalance,
             'subjects'      => Subject::where('school_id', $staff->school_id)->orderBy('name')->get(['id', 'name']),
+            'can_edit'      => $canViewAll,
         ]);
     }
 

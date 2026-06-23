@@ -50,7 +50,7 @@ export interface FlashMessages {
 }
 
 export interface SharedProps {
-    auth: { user: AuthUser }
+    auth: { user: AuthUser; staff_profile_url: string | null }
     flash: FlashMessages
     current_school: School | null
     terms: Term[]

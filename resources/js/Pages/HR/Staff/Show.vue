@@ -13,6 +13,7 @@ const props = defineProps<{
     leave_types: LeaveType[]
     leave_balance: Record<number, number>
     subjects: Subject[]
+    can_edit: boolean
 }>()
 
 const { positionLabel, positionColor, statusColor, formatZmw } = useHR()
@@ -62,7 +63,7 @@ const leaveStatusColor: Record<string, string> = {
         <div class="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
             <!-- Header -->
             <div class="mb-6 flex items-center gap-4">
-                <a :href="route('staff.index')" class="text-sm text-indigo-600 hover:underline">← Directory</a>
+                <a v-if="can_edit" :href="route('staff.index')" class="text-sm text-indigo-600 hover:underline">← Directory</a>
                 <div class="flex-1">
                     <h1 class="text-2xl font-semibold text-gray-900">{{ staff.user?.name }}</h1>
                     <div class="mt-1 flex items-center gap-2">
@@ -90,7 +91,7 @@ const leaveStatusColor: Record<string, string> = {
 
                 <!-- View mode -->
                 <div v-if="!editing">
-                    <div class="mb-4 flex justify-end">
+                    <div v-if="can_edit" class="mb-4 flex justify-end">
                         <button
                             class="rounded-md border border-gray-300 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50"
                             @click="editing = true"
@@ -118,7 +119,7 @@ const leaveStatusColor: Record<string, string> = {
                 </div>
 
                 <!-- Edit mode -->
-                <form v-else class="space-y-5" @submit.prevent="save">
+                <form v-else-if="can_edit" class="space-y-5" @submit.prevent="save">
                     <div class="grid grid-cols-2 gap-4 sm:grid-cols-3">
 
                         <div>

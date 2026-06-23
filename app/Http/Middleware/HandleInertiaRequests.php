@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use App\Models\SchoolSetting;
 use App\Models\Setting;
+use App\Models\Staff;
 use App\Models\Term;
 use App\Services\NavService;
 use Illuminate\Http\Request;
@@ -43,6 +44,8 @@ class HandleInertiaRequests extends Middleware
             'nav' => fn () => $request->user()
                 ? app(NavService::class)->forUser($request->user())
                 : [],
+
+            'auth.staff_profile_url' => fn () => $this->staffProfileUrl($request),
         ];
     }
 
@@ -59,6 +62,22 @@ class HandleInertiaRequests extends Middleware
             ->where('status', 'active')
             ->get()
             ->toArray();
+    }
+
+    private function staffProfileUrl(Request $request): ?string
+    {
+        $user   = $request->user();
+        $school = app()->bound('current_school') ? app('current_school') : null;
+
+        if (! $user || ! $school) {
+            return null;
+        }
+
+        $staff = Staff::where('school_id', $school->id)
+            ->where('user_id', $user->id)
+            ->value('id');
+
+        return $staff ? route('staff.show', $staff) : null;
     }
 
     /** @return array<string, mixed> */
