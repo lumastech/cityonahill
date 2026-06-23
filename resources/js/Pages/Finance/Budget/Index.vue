@@ -2,7 +2,9 @@
 import AppLayout from '@/Layouts/AppLayout.vue'
 import { Head, router, useForm } from '@inertiajs/vue3'
 import { computed, ref } from 'vue'
-import type { Budget, BudgetVsActualItem } from '@/types/finance'
+import type { Budget, BudgetVsActualItem, ExpenseCategory } from '@/types/finance'
+
+const CATEGORIES: ExpenseCategory[] = ['salaries', 'utilities', 'maintenance', 'supplies', 'transport', 'feeding', 'library', 'other']
 
 const props = defineProps<{
     budgets: Budget[]
@@ -81,7 +83,10 @@ const maxBudget = computed(() => Math.max(...(props.budget_vs_actual?.by_categor
                     </div>
                     <div>
                         <label class="block text-sm text-gray-700">Category</label>
-                        <input v-model="form.category" type="text" class="mt-1 block w-full rounded-md border-gray-300 text-sm shadow-sm" />
+                        <select v-model="form.category" class="mt-1 block w-full rounded-md border-gray-300 text-sm shadow-sm">
+                            <option value="">Select category…</option>
+                            <option v-for="c in CATEGORIES" :key="c" :value="c" class="capitalize">{{ c }}</option>
+                        </select>
                         <p v-if="form.errors.category" class="mt-1 text-xs text-red-600">{{ form.errors.category }}</p>
                     </div>
                     <div>

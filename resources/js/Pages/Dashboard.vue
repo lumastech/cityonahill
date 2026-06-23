@@ -40,6 +40,7 @@ interface SubjectTeacherStats {
     my_assessments: Assessment[]
     pending_scoring: number
     streams: Stream[]
+    notices: Notice[]
 }
 
 interface FinanceStats {
@@ -48,6 +49,7 @@ interface FinanceStats {
     collected_this_month: number
     expenses_this_month: number
     recent_payments: Payment[]
+    notices: Notice[]
 }
 
 interface LibrarianStats {
@@ -55,6 +57,7 @@ interface LibrarianStats {
     active_borrowings: number
     overdue: number
     recent_borrowings: Borrowing[]
+    notices: Notice[]
 }
 
 interface BoardingStats {
@@ -62,10 +65,11 @@ interface BoardingStats {
     occupied_beds: number
     available_beds: number
     occupancy_pct: number
+    notices: Notice[]
 }
 
-interface TransportStats { routes: number; assigned_pupils: number }
-interface FeedingStats   { today_session: unknown; low_stock: { item_name: string; quantity_kg: number }[] }
+interface TransportStats { routes: number; assigned_pupils: number; notices: Notice[] }
+interface FeedingStats   { today_session: unknown; low_stock: { item_name: string; quantity_kg: number }[]; notices: Notice[] }
 
 type DashType = 'admin' | 'class_teacher' | 'subject_teacher' | 'finance' | 'librarian' | 'boarding' | 'transport' | 'feeding' | 'default'
 
@@ -383,6 +387,21 @@ const TYPE_COLORS: Record<string, string> = {
                     </div>
                     <p v-else class="text-sm text-gray-400">No assessments yet. Create one above.</p>
                 </div>
+
+                <!-- Notices -->
+                <div class="rounded-xl border bg-white p-5 shadow-sm">
+                    <div class="mb-3 flex items-center justify-between">
+                        <p class="font-semibold text-gray-800">Recent Notices</p>
+                        <Link :href="route('notices.index')" class="text-xs text-indigo-600 hover:underline">All notices</Link>
+                    </div>
+                    <div v-if="subjectStats.notices.length" class="space-y-2">
+                        <div v-for="n in subjectStats.notices" :key="n.id" class="border-l-2 border-indigo-200 pl-3">
+                            <p class="text-sm font-medium text-gray-800">{{ n.title }}</p>
+                            <p class="text-xs text-gray-400">{{ fmtDate(n.published_at) }}</p>
+                        </div>
+                    </div>
+                    <p v-else class="text-sm text-gray-400">No published notices.</p>
+                </div>
             </template>
 
             <!-- ═══════════════════════════════════════════════════════════
@@ -438,6 +457,21 @@ const TYPE_COLORS: Record<string, string> = {
                     </div>
                     <p v-else class="text-sm text-gray-400">No payments recorded yet.</p>
                 </div>
+
+                <!-- Notices -->
+                <div class="rounded-xl border bg-white p-5 shadow-sm">
+                    <div class="mb-3 flex items-center justify-between">
+                        <p class="font-semibold text-gray-800">Recent Notices</p>
+                        <Link :href="route('notices.index')" class="text-xs text-indigo-600 hover:underline">All notices</Link>
+                    </div>
+                    <div v-if="financeStats.notices.length" class="space-y-2">
+                        <div v-for="n in financeStats.notices" :key="n.id" class="border-l-2 border-indigo-200 pl-3">
+                            <p class="text-sm font-medium text-gray-800">{{ n.title }}</p>
+                            <p class="text-xs text-gray-400">{{ fmtDate(n.published_at) }}</p>
+                        </div>
+                    </div>
+                    <p v-else class="text-sm text-gray-400">No published notices.</p>
+                </div>
             </template>
 
             <!-- ═══════════════════════════════════════════════════════════
@@ -486,6 +520,21 @@ const TYPE_COLORS: Record<string, string> = {
                     </div>
                     <p v-else class="text-sm text-gray-400">No recent borrowings.</p>
                 </div>
+
+                <!-- Notices -->
+                <div class="rounded-xl border bg-white p-5 shadow-sm">
+                    <div class="mb-3 flex items-center justify-between">
+                        <p class="font-semibold text-gray-800">Recent Notices</p>
+                        <Link :href="route('notices.index')" class="text-xs text-indigo-600 hover:underline">All notices</Link>
+                    </div>
+                    <div v-if="libStats.notices.length" class="space-y-2">
+                        <div v-for="n in libStats.notices" :key="n.id" class="border-l-2 border-indigo-200 pl-3">
+                            <p class="text-sm font-medium text-gray-800">{{ n.title }}</p>
+                            <p class="text-xs text-gray-400">{{ fmtDate(n.published_at) }}</p>
+                        </div>
+                    </div>
+                    <p v-else class="text-sm text-gray-400">No published notices.</p>
+                </div>
             </template>
 
             <!-- ═══════════════════════════════════════════════════════════
@@ -517,6 +566,21 @@ const TYPE_COLORS: Record<string, string> = {
                         View Roster
                     </Link>
                 </div>
+
+                <!-- Notices -->
+                <div class="rounded-xl border bg-white p-5 shadow-sm">
+                    <div class="mb-3 flex items-center justify-between">
+                        <p class="font-semibold text-gray-800">Recent Notices</p>
+                        <Link :href="route('notices.index')" class="text-xs text-indigo-600 hover:underline">All notices</Link>
+                    </div>
+                    <div v-if="boardingStats.notices.length" class="space-y-2">
+                        <div v-for="n in boardingStats.notices" :key="n.id" class="border-l-2 border-indigo-200 pl-3">
+                            <p class="text-sm font-medium text-gray-800">{{ n.title }}</p>
+                            <p class="text-xs text-gray-400">{{ fmtDate(n.published_at) }}</p>
+                        </div>
+                    </div>
+                    <p v-else class="text-sm text-gray-400">No published notices.</p>
+                </div>
             </template>
 
             <!-- ═══════════════════════════════════════════════════════════
@@ -540,6 +604,21 @@ const TYPE_COLORS: Record<string, string> = {
                             <Link :href="route('pupils.index')" class="block text-sm text-indigo-600 hover:underline">Assign Pupils</Link>
                         </div>
                     </div>
+                </div>
+
+                <!-- Notices -->
+                <div class="rounded-xl border bg-white p-5 shadow-sm">
+                    <div class="mb-3 flex items-center justify-between">
+                        <p class="font-semibold text-gray-800">Recent Notices</p>
+                        <Link :href="route('notices.index')" class="text-xs text-indigo-600 hover:underline">All notices</Link>
+                    </div>
+                    <div v-if="transportStats.notices.length" class="space-y-2">
+                        <div v-for="n in transportStats.notices" :key="n.id" class="border-l-2 border-indigo-200 pl-3">
+                            <p class="text-sm font-medium text-gray-800">{{ n.title }}</p>
+                            <p class="text-xs text-gray-400">{{ fmtDate(n.published_at) }}</p>
+                        </div>
+                    </div>
+                    <p v-else class="text-sm text-gray-400">No published notices.</p>
                 </div>
             </template>
 
@@ -572,6 +651,21 @@ const TYPE_COLORS: Record<string, string> = {
                         <p v-else class="text-sm text-gray-400">All stock levels OK.</p>
                         <Link :href="route('stock.index')" class="mt-3 inline-block text-xs text-indigo-600 hover:underline">Manage stock</Link>
                     </div>
+                </div>
+
+                <!-- Notices -->
+                <div class="rounded-xl border bg-white p-5 shadow-sm">
+                    <div class="mb-3 flex items-center justify-between">
+                        <p class="font-semibold text-gray-800">Recent Notices</p>
+                        <Link :href="route('notices.index')" class="text-xs text-indigo-600 hover:underline">All notices</Link>
+                    </div>
+                    <div v-if="feedingStats.notices.length" class="space-y-2">
+                        <div v-for="n in feedingStats.notices" :key="n.id" class="border-l-2 border-indigo-200 pl-3">
+                            <p class="text-sm font-medium text-gray-800">{{ n.title }}</p>
+                            <p class="text-xs text-gray-400">{{ fmtDate(n.published_at) }}</p>
+                        </div>
+                    </div>
+                    <p v-else class="text-sm text-gray-400">No published notices.</p>
                 </div>
             </template>
 

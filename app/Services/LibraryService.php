@@ -107,7 +107,7 @@ class LibraryService
                     ->orWhere('isbn', 'like', "%{$query}%")
                     ->orWhere('category', 'like', "%{$query}%");
             })
-            ->withMedia()
+            ->with('media')
             ->orderBy('title')
             ->limit(30)
             ->get();

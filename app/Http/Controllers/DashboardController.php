@@ -45,6 +45,16 @@ class DashboardController extends Controller
         return Inertia::render('Dashboard', $data);
     }
 
+    private function recentNotices(int $schoolId, array $audiences = ['all']): \Illuminate\Database\Eloquent\Collection
+    {
+        return Notice::where('school_id', $schoolId)
+            ->where('status', 'published')
+            ->whereIn('audience', $audiences)
+            ->orderByDesc('published_at')
+            ->limit(3)
+            ->get(['id', 'title', 'audience', 'published_at']);
+    }
+
     private function adminStats(mixed $school, mixed $user): array
     {
         $schoolId = $school->id;
@@ -89,11 +99,7 @@ class DashboardController extends Controller
             ->count();
 
         // Recent notices
-        $notices = Notice::where('school_id', $schoolId)
-            ->where('status', 'published')
-            ->orderByDesc('published_at')
-            ->limit(3)
-            ->get(['id', 'title', 'audience', 'published_at']);
+        $notices = $this->recentNotices($schoolId, ['all', 'staff', 'parents']);
 
         // Current term
         $currentTerm = Term::where('school_id', $schoolId)
@@ -172,12 +178,7 @@ class DashboardController extends Controller
             : collect();
 
         // Notices
-        $notices = Notice::where('school_id', $schoolId)
-            ->where('status', 'published')
-            ->whereIn('audience', ['all', 'staff'])
-            ->orderByDesc('published_at')
-            ->limit(3)
-            ->get(['id', 'title', 'published_at']);
+        $notices = $this->recentNotices($schoolId, ['all', 'staff']);
 
         return [
             'type'  => 'class_teacher',
@@ -223,6 +224,7 @@ class DashboardController extends Controller
                 'my_assessments'  => $myAssessments,
                 'pending_scoring' => $pendingScoring,
                 'streams'         => $streams,
+                'notices'         => $this->recentNotices($schoolId, ['all', 'staff']),
             ],
         ];
     }
@@ -265,6 +267,7 @@ class DashboardController extends Controller
                 'collected_this_month'    => round($collectedThisMonth, 2),
                 'expenses_this_month'     => round($expensesThisMonth, 2),
                 'recent_payments'         => $recentPayments,
+                'notices'                 => $this->recentNotices($schoolId, ['all', 'staff']),
             ],
         ];
     }
@@ -290,6 +293,7 @@ class DashboardController extends Controller
                 'active_borrowings'=> $activeBorrow,
                 'overdue'          => $overdue,
                 'recent_borrowings'=> $recentBorrowings,
+                'notices'          => $this->recentNotices($schoolId, ['all', 'staff']),
             ],
         ];
     }
@@ -309,6 +313,7 @@ class DashboardController extends Controller
                 'occupied_beds' => $occupiedBeds,
                 'available_beds'=> $availableBeds,
                 'occupancy_pct' => $totalBeds > 0 ? round(($occupiedBeds / $totalBeds) * 100) : 0,
+                'notices'       => $this->recentNotices($schoolId, ['all', 'staff']),
             ],
         ];
     }
@@ -325,6 +330,7 @@ class DashboardController extends Controller
             'stats' => [
                 'routes'          => $routes,
                 'assigned_pupils' => $assignedPupils,
+                'notices'         => $this->recentNotices($schoolId, ['all', 'staff']),
             ],
         ];
     }
@@ -347,6 +353,7 @@ class DashboardController extends Controller
             'stats' => [
                 'today_session' => $todaySession,
                 'low_stock'     => $lowStock,
+                'notices'       => $this->recentNotices($schoolId, ['all', 'staff']),
             ],
         ];
     }

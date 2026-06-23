@@ -24,7 +24,7 @@ class LibraryBookController extends Controller
             ? $this->libraryService->searchBooks($school->id, $search)
             : LibraryBook::where('school_id', $school->id)
                 ->when($category, fn ($q) => $q->byCategory($category))
-                ->withMedia('book-cover')
+                ->with('media')
                 ->orderBy('title')
                 ->paginate(24)
                 ->withQueryString();
