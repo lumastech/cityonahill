@@ -8,6 +8,7 @@ use App\Models\LeaveType;
 use App\Models\Staff;
 use App\Services\HRService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -15,18 +16,27 @@ class LeaveController extends Controller
 {
     public function __construct(private readonly HRService $hrService) {}
 
-    public function index(): Response
+    public function index(Request $request): Response
     {
-        $school = app('current_school');
+        $school  = app('current_school');
+        $status  = $request->string('status')->toString() ?: 'pending';
+        $search  = $request->string('search')->toString() ?: null;
 
-        $leaves = Leave::where('school_id', $school->id)
+        $query = Leave::where('school_id', $school->id)
             ->with(['staff.user:id,name', 'leaveType:id,name'])
-            ->pending()
-            ->orderByDesc('created_at')
-            ->get();
+            ->orderByDesc('created_at');
+
+        if ($status !== 'all') {
+            $query->where('status', $status);
+        }
+
+        if ($search) {
+            $query->whereHas('staff.user', fn ($q) => $q->where('name', 'like', "%{$search}%"));
+        }
 
         return Inertia::render('HR/Leave/Approvals', [
-            'pending_leaves' => $leaves,
+            'leaves'  => $query->paginate(30)->withQueryString(),
+            'filters' => compact('status', 'search'),
         ]);
     }
 
