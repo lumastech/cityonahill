@@ -1,7 +1,4 @@
-export type StaffPosition =
-    | 'headteacher' | 'deputy_headteacher' | 'class_teacher' | 'subject_teacher'
-    | 'bursar' | 'librarian' | 'boarding_master' | 'transport_coordinator'
-    | 'feeding_coordinator' | 'admin' | 'support' | 'counsellor'
+export type StaffPosition = string  // role name e.g. 'class-teacher', 'headteacher'
 
 export type EmploymentType = 'permanent' | 'contract' | 'temporary' | 'volunteer'
 export type StaffStatus = 'active' | 'terminated' | 'suspended' | 'on_leave'
@@ -68,6 +65,14 @@ export interface Payroll {
     paid_at: string | null
     approved_by: number | null
     staff?: Pick<Staff, 'id' | 'user'>
+}
+
+export interface PayrollAdjustment {
+    id: number
+    payroll_id: number
+    type: 'bonus' | 'deduction'
+    description: string
+    amount: number
 }
 
 export interface PayrollSummary {

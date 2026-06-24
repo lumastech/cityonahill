@@ -36,6 +36,7 @@ use App\Http\Controllers\UnlinkSubjectController;
 use App\Http\Controllers\NoticeController;
 use App\Http\Controllers\OverdueReportController;
 use App\Http\Controllers\ParentMessageController;
+use App\Http\Controllers\PayrollAdjustmentController;
 use App\Http\Controllers\PayrollController;
 use App\Http\Controllers\PortalController;
 use App\Http\Controllers\PortalNotificationController;
@@ -47,6 +48,10 @@ use App\Http\Controllers\PupilPromotionController;
 use App\Http\Controllers\PupilStatisticsController;
 use App\Http\Controllers\PupilTransferController;
 use App\Http\Controllers\PupilTransportController;
+use App\Http\Controllers\InitiatePaymentController;
+use App\Http\Controllers\InvoicePaymentLinkController;
+use App\Http\Controllers\LencoWebhookController;
+use App\Http\Controllers\PublicInvoiceController;
 use App\Http\Controllers\ReportCardController;
 use App\Http\Controllers\RouteManifestController;
 use App\Http\Controllers\SchoolAttendanceSummaryController;
@@ -113,6 +118,7 @@ Route::middleware(['auth', 'verified', 'school.context'])->group(function () {
 
 // Module 3 — Pupil Management & Admissions
 Route::middleware(['auth', 'verified', 'school.context'])->group(function () {
+    Route::get('pupils/search', [PupilController::class, 'search'])->name('pupils.search');
     Route::resource('pupils', PupilController::class);
     Route::get('guardians', [GuardianController::class, 'index'])->name('guardians.index');
     Route::post('pupils/{pupil}/guardians', [GuardianController::class, 'store'])
@@ -156,8 +162,11 @@ Route::middleware(['auth', 'verified', 'school.context'])->group(function () {
     Route::post('leaves', [LeaveController::class, 'store'])->name('leaves.store');
     Route::post('leaves/{leave}/approve', ApproveLeaveController::class)->name('leaves.approve');
     Route::get('payroll', [PayrollController::class, 'index'])->name('payroll.index');
+    Route::get('payroll/{payroll}', [PayrollController::class, 'show'])->name('payroll.show');
     Route::post('payroll/generate', GeneratePayrollController::class)->name('payroll.generate');
     Route::post('payroll/{payroll}/approve', ApprovePayrollController::class)->name('payroll.approve');
+    Route::post('payroll/{payroll}/adjustments', [PayrollAdjustmentController::class, 'store'])->name('payroll.adjustments.store');
+    Route::delete('payroll-adjustments/{adjustment}', [PayrollAdjustmentController::class, 'destroy'])->name('payroll.adjustments.destroy');
 });
 
 // Module 7 — Parent / Guardian Portal
@@ -226,6 +235,8 @@ Route::middleware(['auth', 'verified', 'school.context'])->group(function () {
     Route::get('fee-invoices/{feeInvoice}', [FeeInvoiceController::class, 'show'])->name('fee-invoices.show');
     Route::post('fee-invoices/bulk-raise', [FeeInvoiceController::class, 'bulkRaise'])->name('fee-invoices.bulk-raise');
     Route::post('fee-invoices/{feeInvoice}/waive', WaiveInvoiceController::class)->name('fee-invoices.waive');
+    Route::post('fee-invoices/{feeInvoice}/initiate-payment', InitiatePaymentController::class)->name('fee-invoices.initiate-payment');
+    Route::post('fee-invoices/{feeInvoice}/payment-link', InvoicePaymentLinkController::class)->name('fee-invoices.payment-link');
     Route::post('fee-payments', FeePaymentController::class)->name('fee-payments.store');
     Route::resource('expenses', ExpenseController::class)->only(['index', 'store', 'destroy']);
     Route::resource('budgets', BudgetController::class)->only(['index', 'store', 'destroy']);
@@ -245,10 +256,11 @@ Route::middleware(['auth', 'verified', 'school.context'])->group(function () {
 });
 
 // Role Management + Admin
-Route::middleware(['auth', 'verified', 'can:settings.manage'])->group(function () {
+Route::middleware(['auth', 'verified', 'school.context', 'can:settings.manage'])->group(function () {
     Route::resource('roles', RoleController::class)->except(['show']);
     Route::get('settings', [SettingsController::class, 'index'])->name('settings.index');
     Route::put('settings', [SettingsController::class, 'update'])->name('settings.update');
+    Route::put('settings/payment', [SettingsController::class, 'updatePayment'])->name('settings.payment.update');
     Route::get('audit-logs', [AuditLogController::class, 'index'])->name('audit-logs.index');
 });
 
@@ -284,3 +296,10 @@ Route::middleware(['auth', 'verified', 'role:super-admin'])->prefix('admin')->na
     Route::post('applications/{application}/needs-info', [AdminApplicationController::class, 'needsInfo'])->name('applications.needs-info');
     Route::post('applications/{application}/reject', [AdminApplicationController::class, 'reject'])->name('applications.reject');
 });
+
+// Public — payment links (no auth required)
+Route::get('/pay/{token}', [PublicInvoiceController::class, 'show'])->name('invoices.pay');
+Route::post('/pay/{token}', [PublicInvoiceController::class, 'pay'])->name('invoices.pay.post');
+
+// Webhooks — no auth; CSRF excluded via bootstrap/app.php validateCsrfTokens(except)
+Route::post('/webhooks/lenco', LencoWebhookController::class)->name('webhooks.lenco');

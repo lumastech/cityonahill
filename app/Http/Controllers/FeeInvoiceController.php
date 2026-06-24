@@ -8,6 +8,7 @@ use App\Models\FeeInvoice;
 use App\Models\FeeStructure;
 use App\Models\Grade;
 use App\Models\Term;
+use App\Services\PaymentGatewayManager;
 use App\Services\FinanceService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -68,19 +69,32 @@ class FeeInvoiceController extends Controller
 
     public function show(FeeInvoice $feeInvoice): Response
     {
-        abort_if($feeInvoice->school_id !== app('current_school')?->id, 403);
+        $school = app('current_school');
+        abort_if($feeInvoice->school_id !== $school->id, 403);
 
         $feeInvoice->load([
             'pupil:id,first_name,last_name,admission_no',
+            'pupil.guardians:id,phone',
             'feeStructure:id,name,amount',
             'term:id,name',
             'payments.receivedBy:id,name',
         ]);
 
+        // Pre-fill guardian phone for mobile money
+        $guardianPhone = $feeInvoice->pupil?->guardians
+            ->pluck('phone')
+            ->filter()
+            ->first();
+
+        $gatewayManager = app(PaymentGatewayManager::class);
+
         return Inertia::render('Finance/Invoices/Show', [
-            'invoice' => $feeInvoice,
-            'amount_paid' => $feeInvoice->amount_paid,
-            'outstanding' => $feeInvoice->outstanding,
+            'invoice'        => $feeInvoice,
+            'amount_paid'    => $feeInvoice->amount_paid,
+            'outstanding'    => $feeInvoice->outstanding,
+            'gateway_active' => $gatewayManager->active($school->id) !== null,
+            'cash_enabled'   => $gatewayManager->cashEnabled($school->id),
+            'guardian_phone' => $guardianPhone,
         ]);
     }
 

@@ -9,6 +9,7 @@ interface Subject { id: number; name: string }
 const props = defineProps<{
     available_users: AvailableUser[]
     subjects: Subject[]
+    roles: string[]
 }>()
 
 const mode = ref<'existing' | 'new'>('new')
@@ -22,7 +23,7 @@ const form = useForm({
     email: '',
     // staff details
     employee_no: '',
-    position: 'subject_teacher',
+    position: 'subject-teacher',
     employment_type: 'permanent',
     employment_date: new Date().toISOString().slice(0, 10),
     basic_salary: '',
@@ -47,20 +48,9 @@ function submit() {
     form.post(route('staff.store'))
 }
 
-const POSITIONS = [
-    { value: 'headteacher',           label: 'Headteacher' },
-    { value: 'deputy_headteacher',    label: 'Deputy Headteacher' },
-    { value: 'class_teacher',         label: 'Class Teacher' },
-    { value: 'subject_teacher',       label: 'Subject Teacher' },
-    { value: 'bursar',                label: 'Bursar' },
-    { value: 'librarian',             label: 'Librarian' },
-    { value: 'boarding_master',       label: 'Boarding Master' },
-    { value: 'transport_coordinator', label: 'Transport Coordinator' },
-    { value: 'feeding_coordinator',   label: 'Feeding Coordinator' },
-    { value: 'admin',                 label: 'Admin Staff' },
-    { value: 'support',               label: 'Support Staff' },
-    { value: 'counsellor',            label: 'Counsellor' },
-]
+function roleLabel(role: string): string {
+    return role.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
+}
 
 const EMPLOYMENT_TYPES = [
     { value: 'permanent',  label: 'Permanent' },
@@ -70,7 +60,7 @@ const EMPLOYMENT_TYPES = [
 ]
 
 const showSubjects = computed(() =>
-    ['class_teacher', 'subject_teacher'].includes(form.position)
+    ['class-teacher', 'subject-teacher'].includes(form.position)
 )
 </script>
 
@@ -152,7 +142,7 @@ const showSubjects = computed(() =>
                         <div>
                             <label class="block text-xs font-medium text-gray-600 mb-1">Position</label>
                             <select v-model="form.position" class="w-full rounded-md border-gray-300 text-sm shadow-sm">
-                                <option v-for="p in POSITIONS" :key="p.value" :value="p.value">{{ p.label }}</option>
+                                <option v-for="r in roles" :key="r" :value="r">{{ roleLabel(r) }}</option>
                             </select>
                         </div>
                         <div>

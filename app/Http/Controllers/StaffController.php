@@ -8,8 +8,10 @@ use App\Models\Staff;
 use App\Models\Subject;
 use App\Models\User;
 use App\Services\HRService;
+use Spatie\Permission\Models\Role;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
@@ -41,6 +43,9 @@ class StaffController extends Controller
             'subjects' => Subject::where('school_id', $school->id)
                 ->orderBy('name')
                 ->get(['id', 'name']),
+            'roles' => Role::whereNotIn('name', ['super-admin', 'parent'])
+                ->orderBy('name')
+                ->pluck('name'),
         ]);
     }
 
@@ -56,7 +61,7 @@ class StaffController extends Controller
             'name'             => ['required_if:mode,new', 'nullable', 'string', 'max:200'],
             'email'            => ['required_if:mode,new', 'nullable', 'email', 'unique:users,email'],
             'employee_no'      => ['required', 'string', 'max:30'],
-            'position'         => ['required', 'string'],
+            'position'         => ['required', 'string', Rule::exists('roles', 'name')->whereNotIn('name', ['super-admin', 'parent'])],
             'employment_type'  => ['required', 'string'],
             'employment_date'  => ['required', 'date'],
             'basic_salary'     => ['required', 'numeric', 'min:0'],
@@ -126,6 +131,7 @@ class StaffController extends Controller
             'leave_types'   => $leaveTypes,
             'leave_balance' => $leaveBalance,
             'subjects'      => Subject::where('school_id', $staff->school_id)->orderBy('name')->get(['id', 'name']),
+            'roles'         => Role::whereNotIn('name', ['super-admin', 'parent'])->orderBy('name')->pluck('name'),
             'can_edit'      => $canViewAll,
         ]);
     }
@@ -134,11 +140,20 @@ class StaffController extends Controller
     {
         abort_if($staff->school_id !== app('current_school')?->id, 403);
 
+        $oldPosition = $staff->position;
+
         $staff->update($request->only([
             'position', 'department', 'subjects_taught',
             'employment_type', 'basic_salary', 'status',
             'bank', 'bank_account', 'bank_branch',
         ]));
+
+        if ($request->filled('position') && $staff->position !== $oldPosition) {
+            $user = $staff->user;
+            if ($user) {
+                $this->hrService->syncPositionRole($user, $staff->position);
+            }
+        }
 
         return back()->with('success', 'Staff record updated.');
     }

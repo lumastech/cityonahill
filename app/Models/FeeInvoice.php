@@ -7,14 +7,16 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Models\Concerns\HasAudit;
 
 class FeeInvoice extends Model
 {
     use HasFactory;
+    use HasAudit;
 
     protected $fillable = [
         'school_id', 'pupil_id', 'fee_structure_id', 'term_id', 'academic_year_id',
-        'amount', 'discount', 'balance_due', 'due_date', 'status',
+        'notes', 'amount', 'discount', 'balance_due', 'due_date', 'status',
     ];
 
     protected function casts(): array
@@ -54,7 +56,12 @@ class FeeInvoice extends Model
 
     public function getAmountPaidAttribute(): float
     {
-        return (float) $this->payments()->sum('amount');
+        return (float) $this->payments()
+            ->where(function ($q) {
+                $q->whereNull('gateway_status')
+                  ->orWhere('gateway_status', 'completed');
+            })
+            ->sum('amount');
     }
 
     public function getOutstandingAttribute(): float

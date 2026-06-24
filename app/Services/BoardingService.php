@@ -9,8 +9,11 @@ use App\Enums\SexEnum;
 use App\Models\Bed;
 use App\Models\BoardingAllocation;
 use App\Models\Dormitory;
+use App\Models\FeeInvoice;
 use App\Models\Pupil;
+use App\Models\Term;
 use Illuminate\Support\Collection;
+use Illuminate\Validation\ValidationException;
 
 class BoardingService
 {
@@ -36,12 +39,27 @@ class BoardingService
             : (string) $pupil->sex;
 
         if ($pupilGender !== $bed->dormitory->gender) {
-            abort(422, "Pupil gender ({$pupilGender}) does not match dormitory gender ({$bed->dormitory->gender}).");
+            throw ValidationException::withMessages([
+                'pupil_id' => "This pupil is {$pupilGender} but the dormitory is for {$bed->dormitory->gender} pupils.",
+            ]);
         }
 
-        // Bed availability check
         if ($bed->status !== 'available') {
-            abort(422, 'This bed is not available for allocation.');
+            throw ValidationException::withMessages([
+                'bed_id' => 'This bed is no longer available.',
+            ]);
+        }
+
+        $alreadyAllocated = BoardingAllocation::where('school_id', $schoolId)
+            ->where('pupil_id', $data->pupil_id)
+            ->where('term_id', $data->term_id)
+            ->active()
+            ->exists();
+
+        if ($alreadyAllocated) {
+            throw ValidationException::withMessages([
+                'pupil_id' => "{$pupil->first_name} {$pupil->last_name} already has a bed allocated for this term.",
+            ]);
         }
 
         $allocation = BoardingAllocation::create([
@@ -54,6 +72,22 @@ class BoardingService
         ]);
 
         $bed->update(['status' => 'occupied']);
+
+        if ($data->fee_amount > 0) {
+            $term = Term::find($data->term_id);
+            FeeInvoice::create([
+                'school_id'        => $schoolId,
+                'pupil_id'         => $data->pupil_id,
+                'fee_structure_id' => null,
+                'term_id'          => $data->term_id,
+                'academic_year_id' => $term?->academic_year_id,
+                'notes'            => "Boarding fee — {$bed->dormitory->name}, Bed {$bed->bed_number}",
+                'amount'           => $data->fee_amount,
+                'discount'         => 0,
+                'balance_due'      => $data->fee_amount,
+                'status'           => 'unpaid',
+            ]);
+        }
 
         return $allocation;
     }

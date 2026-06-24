@@ -302,9 +302,11 @@ class DashboardController extends Controller
     {
         $schoolId = $school->id;
 
-        $totalBeds     = Bed::where('school_id', $schoolId)->count();
-        $occupiedBeds  = Bed::where('school_id', $schoolId)->where('status', 'occupied')->count();
-        $availableBeds = Bed::where('school_id', $schoolId)->where('status', 'available')->count();
+        $bedQuery = fn () => Bed::whereHas('dormitory', fn ($q) => $q->where('school_id', $schoolId));
+
+        $totalBeds     = $bedQuery()->count();
+        $occupiedBeds  = $bedQuery()->where('status', 'occupied')->count();
+        $availableBeds = $bedQuery()->where('status', 'available')->count();
 
         return [
             'type'  => 'boarding',

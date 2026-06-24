@@ -9,11 +9,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
+use App\Models\Concerns\HasAudit;
 
 class LibraryBook extends Model implements HasMedia
 {
     use HasFactory;
     use InteractsWithMedia;
+    use HasAudit;
 
     protected $fillable = [
         'school_id', 'title', 'author', 'isbn', 'publisher', 'publish_year',

@@ -6,10 +6,12 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Models\Concerns\HasAudit;
 
 class BookBorrowing extends Model
 {
     use HasFactory;
+    use HasAudit;
 
     protected $fillable = [
         'school_id', 'book_id', 'borrower_type', 'borrower_id',

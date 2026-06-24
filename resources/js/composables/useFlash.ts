@@ -9,6 +9,7 @@ export function useFlash() {
         success: null,
         error: null,
         info: null,
+        link_url: null,
     })
 
     let clearTimer: ReturnType<typeof setTimeout> | null = null
@@ -26,7 +27,7 @@ export function useFlash() {
                 if (clearTimer) clearTimeout(clearTimer)
 
                 clearTimer = setTimeout(() => {
-                    localFlash.value = { success: null, error: null, info: null }
+                    localFlash.value = { success: null, error: null, info: null, link_url: null }
                 }, 4000)
             }
         },
@@ -34,7 +35,7 @@ export function useFlash() {
     )
 
     function clear() {
-        localFlash.value = { success: null, error: null, info: null }
+        localFlash.value = { success: null, error: null, info: null, link_url: null }
         if (clearTimer) clearTimeout(clearTimer)
     }
 

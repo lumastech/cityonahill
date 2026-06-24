@@ -23,7 +23,23 @@ class PayrollController extends Controller
 
         return Inertia::render('HR/Payroll/Index', [
             'payrolls' => $payrolls,
-            'filters' => compact('month', 'year'),
+            'filters'  => compact('month', 'year'),
+        ]);
+    }
+
+    public function show(Payroll $payroll): Response
+    {
+        abort_if($payroll->school_id !== app('current_school')?->id, 403);
+
+        $payroll->load([
+            'staff.user:id,name,email',
+            'adjustments' => fn ($q) => $q->orderBy('type')->orderBy('created_at'),
+            'approvedBy:id,name',
+        ]);
+
+        return Inertia::render('HR/Payroll/Show', [
+            'payroll'  => $payroll,
+            'can_edit' => $payroll->isPending() && auth()->user()->can('payroll.generate'),
         ]);
     }
 }

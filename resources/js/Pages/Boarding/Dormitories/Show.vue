@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import AppLayout from '@/Layouts/AppLayout.vue'
-import { Head, Link, useForm } from '@inertiajs/vue3'
+import { Head, Link, useForm, router } from '@inertiajs/vue3'
 import { ref } from 'vue'
 import type { Bed, Dormitory } from '@/types/boarding'
 
 interface Term { id: number; name: string }
+interface PupilResult { id: number; first_name: string; last_name: string; admission_no: string }
 
 const props = defineProps<{
     dormitory: Dormitory
@@ -16,12 +17,49 @@ const selectedBed = ref<Bed | null>(null)
 const showAddBedForm = ref(false)
 
 const addBedForm = useForm({ bed_number: '' })
-const allocateForm = useForm({ pupil_id: '', bed_id: '', term_id: props.term_id ?? '', fee_amount: '0' })
+const allocateForm = useForm({ pupil_id: '' as string | number, bed_id: '', term_id: props.term_id ?? '', fee_amount: '0' })
+
+// Pupil autocomplete state
+const pupilQuery = ref('')
+const pupilResults = ref<PupilResult[]>([])
+const selectedPupil = ref<PupilResult | null>(null)
+const showDropdown = ref(false)
+let searchTimer: ReturnType<typeof setTimeout> | null = null
+
+function onPupilInput() {
+    selectedPupil.value = null
+    allocateForm.pupil_id = ''
+    if (searchTimer) clearTimeout(searchTimer)
+    if (pupilQuery.value.length < 2) { pupilResults.value = []; showDropdown.value = false; return }
+    searchTimer = setTimeout(async () => {
+        const params = new URLSearchParams({ q: pupilQuery.value, gender: props.dormitory.gender })
+        const res = await fetch(route('pupils.search') + '?' + params.toString())
+        pupilResults.value = await res.json()
+        showDropdown.value = pupilResults.value.length > 0
+    }, 250)
+}
+
+function selectPupil(p: PupilResult) {
+    selectedPupil.value = p
+    allocateForm.pupil_id = p.id
+    pupilQuery.value = `${p.first_name} ${p.last_name} (${p.admission_no})`
+    pupilResults.value = []
+    showDropdown.value = false
+}
+
+function clearPupil() {
+    selectedPupil.value = null
+    allocateForm.pupil_id = ''
+    pupilQuery.value = ''
+    pupilResults.value = []
+    showDropdown.value = false
+}
 
 function selectBed(bed: Bed) {
     if (bed.status === 'available') {
         selectedBed.value = bed
         allocateForm.bed_id = String(bed.id)
+        clearPupil()
     } else if (bed.status === 'occupied') {
         selectedBed.value = bed
     }
@@ -35,7 +73,21 @@ function submitAddBed() {
 
 function submitAllocate() {
     allocateForm.post(route('allocations.store'), {
-        onSuccess: () => { selectedBed.value = null; allocateForm.reset() },
+        preserveState: true,
+        preserveScroll: true,
+        onSuccess: () => { selectedBed.value = null; allocateForm.reset(); clearPupil() },
+    })
+}
+
+function fmtDate(d: string | null | undefined): string {
+    if (!d) return '—'
+    return new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+}
+
+function vacateBed(allocationId: number) {
+    if (!confirm('Vacate this bed?')) return
+    router.post(route('allocations.vacate', allocationId), {}, {
+        onSuccess: () => { selectedBed.value = null },
     })
 }
 
@@ -121,23 +173,41 @@ const BED_COLORS: Record<string, string> = {
                         </Link>
                         ({{ selectedBed.active_allocation.pupil?.admission_no }})
                     </p>
-                    <p class="text-xs text-gray-500 mt-0.5">Since {{ selectedBed.active_allocation.allocated_date }}</p>
-                    <form class="mt-3" @submit.prevent="() => {
-                        if (!confirm('Vacate this bed?')) return;
-                        $inertia.post(route('allocations.vacate', selectedBed!.active_allocation!.id));
-                    }">
-                        <button type="submit" class="rounded-md bg-red-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-700">
-                            Vacate Bed
-                        </button>
-                    </form>
+                    <p class="text-xs text-gray-500 mt-0.5">Since {{ fmtDate(selectedBed.active_allocation.allocated_date) }}</p>
+                    <button
+                        type="button"
+                        class="mt-3 rounded-md bg-red-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-700"
+                        @click="vacateBed(selectedBed!.active_allocation!.id)"
+                    >
+                        Vacate Bed
+                    </button>
                 </div>
 
                 <!-- Available: allocate form -->
                 <form v-else-if="selectedBed.status === 'available'" class="grid gap-3 sm:grid-cols-3" @submit.prevent="submitAllocate">
-                    <div>
-                        <label class="block text-xs text-gray-600">Pupil ID</label>
-                        <input v-model="allocateForm.pupil_id" type="number" placeholder="Pupil ID"
-                            class="mt-1 block w-full rounded-md border-gray-300 text-sm shadow-sm" />
+                    <div class="relative sm:col-span-3">
+                        <label class="block text-xs text-gray-600">Pupil</label>
+                        <input
+                            v-model="pupilQuery"
+                            type="text"
+                            placeholder="Search by name or admission no…"
+                            autocomplete="off"
+                            :class="['mt-1 block w-full rounded-md text-sm shadow-sm', allocateForm.errors.pupil_id ? 'border-red-400 focus:ring-red-400' : 'border-gray-300']"
+                            @input="onPupilInput"
+                            @blur="() => setTimeout(() => { showDropdown = false }, 150)"
+                        />
+                        <ul v-if="showDropdown"
+                            class="absolute z-20 mt-1 max-h-48 w-full overflow-y-auto rounded-md border border-gray-200 bg-white shadow-lg text-sm">
+                            <li v-for="p in pupilResults" :key="p.id"
+                                class="cursor-pointer px-3 py-2 hover:bg-indigo-50"
+                                @mousedown.prevent="selectPupil(p)">
+                                {{ p.first_name }} {{ p.last_name }}
+                                <span class="text-gray-400 text-xs ml-1">({{ p.admission_no }})</span>
+                            </li>
+                        </ul>
+                        <p v-if="allocateForm.errors.pupil_id" class="mt-1 flex items-center gap-1 text-xs text-red-600">
+                            <span>⚠</span> {{ allocateForm.errors.pupil_id }}
+                        </p>
                     </div>
                     <div>
                         <label class="block text-xs text-gray-600">Term</label>

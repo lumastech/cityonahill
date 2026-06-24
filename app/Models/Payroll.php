@@ -5,10 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Models\Concerns\HasAudit;
 
 class Payroll extends Model
 {
     use HasFactory;
+    use HasAudit;
 
     protected $table = 'payroll';
 
@@ -55,5 +58,15 @@ class Payroll extends Model
     public function approvedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'approved_by');
+    }
+
+    public function adjustments(): HasMany
+    {
+        return $this->hasMany(PayrollAdjustment::class);
+    }
+
+    public function isPending(): bool
+    {
+        return $this->paid_at === null;
     }
 }

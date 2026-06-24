@@ -91,8 +91,10 @@ const summary = computed<PayrollSummary>(() => ({
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
-                        <tr v-for="p in payrolls" :key="p.id">
-                            <td class="px-4 py-3 font-medium text-gray-900">{{ p.staff?.user?.name }}</td>
+                        <tr v-for="p in payrolls" :key="p.id" class="hover:bg-gray-50">
+                            <td class="px-4 py-3 font-medium text-gray-900">
+                                <a :href="route('payroll.show', p.id)" class="hover:underline text-indigo-700">{{ p.staff?.user?.name }}</a>
+                            </td>
                             <td class="px-4 py-3 text-right text-gray-700">{{ formatZmw(p.basic_salary) }}</td>
                             <td class="px-4 py-3 text-right text-gray-600">{{ formatZmw(p.napsa_employee) }}</td>
                             <td class="px-4 py-3 text-right text-gray-600">{{ formatZmw(p.paye) }}</td>

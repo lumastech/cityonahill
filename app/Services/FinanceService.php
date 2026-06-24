@@ -128,6 +128,24 @@ class FinanceService
         return $payment;
     }
 
+    public function reconcileInvoice(FeeInvoice $invoice): void
+    {
+        $totalPaid = (float) $invoice->payments()
+            ->where(function ($q) {
+                $q->whereNull('gateway_status')
+                  ->orWhere('gateway_status', 'completed');
+            })
+            ->sum('amount');
+
+        $balanceDue = (float) $invoice->total_amount;
+
+        if ($totalPaid >= $balanceDue) {
+            $invoice->update(['status' => 'paid', 'balance_due' => 0]);
+        } elseif ($totalPaid > 0) {
+            $invoice->update(['status' => 'partial', 'balance_due' => $balanceDue - $totalPaid]);
+        }
+    }
+
     public function waiveInvoice(int $invoiceId, string $reason, int $waivedBy): FeeInvoice
     {
         $invoice = FeeInvoice::findOrFail($invoiceId);

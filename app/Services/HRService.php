@@ -6,32 +6,61 @@ use App\Data\ApplyLeaveData;
 use App\Data\ApproveLeaveData;
 use App\Data\CreateStaffData;
 use App\Data\GeneratePayrollData;
+use App\Models\Expense;
 use App\Models\Leave;
 use App\Models\LeaveType;
 use App\Models\Payroll;
+use App\Models\PayrollAdjustment;
 use App\Models\Staff;
+use App\Models\User;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Spatie\Permission\Models\Role;
 
 class HRService
 {
+    // Roles that are never staff positions — always preserved as-is.
+    private const SYSTEM_ROLES = ['super-admin', 'parent'];
+
+    /**
+     * Sync the user's staff role to match their position (which IS a role name).
+     * System roles (super-admin, parent) are never touched.
+     */
+    public function syncPositionRole(User $user, string $position): void
+    {
+        $staffRoles = Role::whereNotIn('name', self::SYSTEM_ROLES)->pluck('name')->toArray();
+
+        $preserve = $user->roles->pluck('name')
+            ->reject(fn ($r) => in_array($r, $staffRoles))
+            ->values()
+            ->toArray();
+
+        $user->syncRoles([...$preserve, $position]);
+    }
     public function createStaff(int $schoolId, CreateStaffData $data): Staff
     {
-        return Staff::create([
-            'school_id' => $schoolId,
-            'user_id' => $data->user_id,
-            'employee_no' => $data->employee_no,
-            'position' => $data->position,
-            'department' => $data->department,
+        $staff = Staff::create([
+            'school_id'       => $schoolId,
+            'user_id'         => $data->user_id,
+            'employee_no'     => $data->employee_no,
+            'position'        => $data->position,
+            'department'      => $data->department,
             'subjects_taught' => $data->subjects_taught,
             'employment_type' => $data->employment_type,
             'employment_date' => $data->employment_date,
-            'basic_salary' => $data->basic_salary,
-            'napsa_no' => $data->napsa_no,
-            'tpin' => $data->tpin,
-            'status' => 'active',
+            'basic_salary'    => $data->basic_salary,
+            'napsa_no'        => $data->napsa_no,
+            'tpin'            => $data->tpin,
+            'status'          => 'active',
         ]);
+
+        $user = User::find($data->user_id);
+        if ($user) {
+            $this->syncPositionRole($user, $data->position);
+        }
+
+        return $staff;
     }
 
     public function applyLeave(int $staffId, ApplyLeaveData $data): Leave
@@ -134,10 +163,60 @@ class HRService
 
     public function approvePayroll(int $payrollId, int $approvedBy): Payroll
     {
-        $payroll = Payroll::findOrFail($payrollId);
+        $payroll = Payroll::with('staff.user')->findOrFail($payrollId);
         $payroll->update(['approved_by' => $approvedBy, 'paid_at' => now()]);
 
+        $monthName = \Carbon\Carbon::create()->month($payroll->month)->format('F');
+        $staffName = $payroll->staff?->user?->name ?? 'Staff';
+
+        Expense::create([
+            'school_id'    => $payroll->school_id,
+            'category'     => 'salaries',
+            'description'  => "Salary — {$staffName} ({$monthName} {$payroll->year})",
+            'amount'       => $payroll->net_pay,
+            'expense_date' => $payroll->paid_at->toDateString(),
+            'approved_by'  => $approvedBy,
+        ]);
+
         return $payroll;
+    }
+
+    public function addAdjustment(Payroll $payroll, string $type, string $description, float $amount): PayrollAdjustment
+    {
+        $adj = $payroll->adjustments()->create(compact('type', 'description', 'amount'));
+        $this->recalculate($payroll);
+
+        return $adj;
+    }
+
+    public function removeAdjustment(PayrollAdjustment $adjustment): void
+    {
+        $payroll = $adjustment->payroll;
+        $adjustment->delete();
+        $this->recalculate($payroll);
+    }
+
+    public function recalculate(Payroll $payroll): void
+    {
+        $payroll->load('adjustments');
+
+        $bonuses    = $payroll->adjustments->where('type', 'bonus')->sum('amount');
+        $extraDeductions = $payroll->adjustments->where('type', 'deduction')->sum('amount');
+
+        $gross           = (float) $payroll->basic_salary + (float) $bonuses;
+        $napsaEmployee   = round($gross * 0.05, 2);
+        $napsaEmployer   = round($gross * 0.05, 2);
+        $paye            = $this->computePaye($gross);
+        $netPay          = round($gross - $napsaEmployee - $paye - (float) $extraDeductions, 2);
+
+        $payroll->update([
+            'allowances'    => round($bonuses, 2),
+            'deductions'    => round($extraDeductions, 2),
+            'napsa_employee'=> $napsaEmployee,
+            'napsa_employer'=> $napsaEmployer,
+            'paye'          => $paye,
+            'net_pay'       => $netPay,
+        ]);
     }
 
     public function getStaffDirectory(int $schoolId): Collection

@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Data\AdmitPupilData;
 use App\Data\UpdatePupilData;
 use App\Models\AcademicYear;
+use App\Models\AttendanceRecord;
+use App\Models\FeeInvoice;
+use App\Models\FeePayment;
 use App\Models\Grade;
 use App\Models\Pupil;
 use App\Models\Stream;
@@ -56,6 +59,28 @@ class PupilController extends Controller
         ]);
     }
 
+    public function search(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $school = app('current_school');
+        $q = $request->string('q')->trim();
+
+        $gender = $request->string('gender')->toString() ?: null;
+
+        $pupils = Pupil::where('school_id', $school->id)
+            ->where('status', 'active')
+            ->when($gender, fn ($query) => $query->where('sex', $gender))
+            ->where(function ($query) use ($q) {
+                $query->where('first_name', 'like', "%{$q}%")
+                    ->orWhere('last_name', 'like', "%{$q}%")
+                    ->orWhere('admission_no', 'like', "%{$q}%");
+            })
+            ->orderBy('last_name')
+            ->limit(15)
+            ->get(['id', 'first_name', 'last_name', 'admission_no']);
+
+        return response()->json($pupils);
+    }
+
     public function store(AdmitPupilData $data): RedirectResponse
     {
         $this->authorize('pupil.create');
@@ -80,9 +105,36 @@ class PupilController extends Controller
             'transfers',
         ]);
 
+        $invoices = FeeInvoice::where('pupil_id', $pupil->id)
+            ->with('term:id,name')
+            ->orderByDesc('created_at')
+            ->limit(10)
+            ->get(['id', 'term_id', 'notes', 'amount', 'discount', 'balance_due', 'status', 'due_date', 'created_at']);
+
+        $recentPayments = FeePayment::where('pupil_id', $pupil->id)
+            ->where(function ($q) {
+                $q->whereNull('gateway_status')->orWhere('gateway_status', 'completed');
+            })
+            ->with('invoice:id,term_id', 'invoice.term:id,name')
+            ->orderByDesc('payment_date')
+            ->limit(10)
+            ->get(['id', 'invoice_id', 'amount', 'payment_method', 'payment_date', 'received_by']);
+
+        $attendanceRecords = AttendanceRecord::where('pupil_id', $pupil->id)
+            ->with('attendanceSession:id,date')
+            ->get(['id', 'session_id', 'status'])
+            ->map(fn ($r) => [
+                'date'   => $r->attendanceSession?->date?->format('Y-m-d'),
+                'status' => $r->status,
+            ])
+            ->filter(fn ($r) => $r['date'] !== null)
+            ->values();
+
         return Inertia::render('Pupils/Show', [
             'pupil'             => $pupil,
-            'attendanceSummary' => [],
+            'invoices'          => $invoices,
+            'recentPayments'    => $recentPayments,
+            'attendanceRecords' => $attendanceRecords,
             'termResults'       => [],
             'streams'           => Stream::where('school_id', $pupil->school_id)
                 ->with('grade:id,name')

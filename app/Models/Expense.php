@@ -7,11 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
+use App\Models\Concerns\HasAudit;
 
 class Expense extends Model implements HasMedia
 {
     use HasFactory;
     use InteractsWithMedia;
+    use HasAudit;
 
     protected $fillable = [
         'school_id', 'category', 'description', 'amount',

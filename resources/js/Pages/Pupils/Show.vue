@@ -1,17 +1,42 @@
 <script setup lang="ts">
 import AppLayout from '@/Layouts/AppLayout.vue'
 import { Head, Link, useForm, router } from '@inertiajs/vue3'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import type { Pupil, Guardian } from '@/types/pupils'
 import { usePupils } from '@/composables/usePupils'
 import { useGuardians } from '@/composables/useGuardians'
 import { usePermissions } from '@/composables/usePermissions'
 
 interface Stream { id: number; name: string; grade_id: number; grade?: { name: string } }
+interface Invoice {
+    id: number
+    term_id: number | null
+    notes: string | null
+    amount: number
+    discount: number
+    balance_due: number
+    status: 'unpaid' | 'partial' | 'paid'
+    due_date: string | null
+    created_at: string
+    term?: { id: number; name: string }
+}
+interface Payment {
+    id: number
+    invoice_id: number
+    amount: number
+    payment_method: string
+    payment_date: string
+    received_by: string | null
+    invoice?: { term?: { id: number; name: string } }
+}
+
+interface AttendanceDay { date: string; status: 'present' | 'absent' | 'late' }
 
 const props = defineProps<{
     pupil: Pupil
-    attendanceSummary: Record<string, unknown>[]
+    invoices: Invoice[]
+    recentPayments: Payment[]
+    attendanceRecords: AttendanceDay[]
     termResults: Record<string, unknown>[]
     streams: Stream[]
 }>()
@@ -21,12 +46,93 @@ function fmtDate(d: string | null | undefined): string {
     return new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
 }
 
+function fmtMoney(amount: number | string): string {
+    return 'ZMW ' + Number(amount).toLocaleString('en-ZM', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+}
+
 const { statusClass, sexClass } = usePupils()
 const { removeGuardian, relationshipLabel } = useGuardians()
-const { can } = usePermissions()
+const { can, hasRole } = usePermissions()
+
+const canTransfer = computed(() =>
+    hasRole('super-admin') || hasRole('school-admin') || hasRole('headteacher') ||
+    hasRole('deputy-headteacher') || hasRole('class-teacher')
+)
 
 const activeTab = ref<'profile' | 'guardians' | 'academic' | 'fees' | 'attendance'>('profile')
 const showAddGuardian = ref(false)
+
+// ── Attendance calendar ────────────────────────────────────────────────────
+const calendarDate = ref(new Date())
+
+const calendarYear  = computed(() => calendarDate.value.getFullYear())
+const calendarMonth = computed(() => calendarDate.value.getMonth()) // 0-indexed
+
+const MONTH_NAMES = ['January','February','March','April','May','June',
+                     'July','August','September','October','November','December']
+const DAY_NAMES = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']
+
+// Map date string → status for O(1) lookup
+const attendanceMap = computed(() => {
+    const m: Record<string, string> = {}
+    for (const r of props.attendanceRecords) m[r.date] = r.status
+    return m
+})
+
+// Build the grid: leading nulls for offset, then day numbers
+const calendarGrid = computed(() => {
+    const year  = calendarYear.value
+    const month = calendarMonth.value
+    const firstDow = new Date(year, month, 1).getDay()
+    const daysInMonth = new Date(year, month + 1, 0).getDate()
+    const cells: (number | null)[] = Array(firstDow).fill(null)
+    for (let d = 1; d <= daysInMonth; d++) cells.push(d)
+    return cells
+})
+
+const attendanceSummary = computed(() => {
+    const year  = calendarYear.value
+    const month = calendarMonth.value
+    let present = 0, absent = 0, late = 0
+    for (const r of props.attendanceRecords) {
+        const d = new Date(r.date)
+        if (d.getFullYear() === year && d.getMonth() === month) {
+            if (r.status === 'present') present++
+            else if (r.status === 'absent') absent++
+            else if (r.status === 'late') late++
+        }
+    }
+    const total = present + absent + late
+    return { present, absent, late, total, pct: total > 0 ? Math.round((present / total) * 100) : null }
+})
+
+function prevMonth() {
+    const d = new Date(calendarDate.value)
+    d.setDate(1)
+    d.setMonth(d.getMonth() - 1)
+    calendarDate.value = d
+}
+
+function nextMonth() {
+    const d = new Date(calendarDate.value)
+    d.setDate(1)
+    d.setMonth(d.getMonth() + 1)
+    calendarDate.value = d
+}
+
+function isoDate(day: number): string {
+    return `${calendarYear.value}-${String(calendarMonth.value + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
+}
+
+function dayClass(day: number | null): string {
+    if (!day) return ''
+    const status = attendanceMap.value[isoDate(day)]
+    if (status === 'present') return 'bg-green-100 text-green-800 font-semibold'
+    if (status === 'absent')  return 'bg-red-100 text-red-800 font-semibold'
+    if (status === 'late')    return 'bg-yellow-100 text-yellow-800 font-semibold'
+    const dow = new Date(calendarYear.value, calendarMonth.value, day).getDay()
+    return dow === 0 || dow === 6 ? 'text-gray-300' : 'text-gray-400'
+}
 const showTransferModal = ref(false)
 
 const guardianForm = useForm({
@@ -293,7 +399,7 @@ const TABS = [
                 <div class="pt-4 border-t flex justify-between items-center">
                     <h3 class="font-medium text-gray-800">Transfer History</h3>
                     <button
-                        v-if="pupil.status === 'active'"
+                        v-if="pupil.status === 'active' && canTransfer"
                         class="text-sm text-indigo-600 border border-indigo-300 px-3 py-1.5 rounded hover:bg-indigo-50"
                         @click="showTransferModal = true"
                     >
@@ -309,13 +415,164 @@ const TABS = [
             </div>
 
             <!-- Fees Tab -->
-            <div v-if="activeTab === 'fees'" class="bg-white rounded-lg shadow p-6 text-center text-gray-400 py-12">
-                <p class="text-sm">Fee invoices are managed in Module 9 — Fees & Finance.</p>
+            <div v-if="activeTab === 'fees'" class="space-y-4">
+
+                <!-- Balance summary -->
+                <div class="grid grid-cols-3 gap-4">
+                    <div class="bg-white rounded-lg shadow p-4 text-center">
+                        <p class="text-xs font-medium uppercase tracking-wide text-gray-500">Total Billed</p>
+                        <p class="mt-1 text-2xl font-bold text-gray-900">
+                            {{ fmtMoney(invoices.reduce((s, i) => s + Number(i.amount), 0)) }}
+                        </p>
+                    </div>
+                    <div class="bg-white rounded-lg shadow p-4 text-center">
+                        <p class="text-xs font-medium uppercase tracking-wide text-green-600">Total Paid</p>
+                        <p class="mt-1 text-2xl font-bold text-green-700">
+                            {{ fmtMoney(recentPayments.reduce((s, p) => s + Number(p.amount), 0)) }}
+                        </p>
+                    </div>
+                    <div class="bg-white rounded-lg shadow p-4 text-center">
+                        <p class="text-xs font-medium uppercase tracking-wide text-red-500">Outstanding</p>
+                        <p class="mt-1 text-2xl font-bold text-red-600">
+                            {{ fmtMoney(invoices.reduce((s, i) => s + Number(i.balance_due), 0)) }}
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Invoices -->
+                <div class="bg-white rounded-lg shadow overflow-hidden">
+                    <div class="flex items-center justify-between px-5 py-3 border-b border-gray-100">
+                        <p class="font-semibold text-gray-800 text-sm">Invoices</p>
+                        <Link :href="route('fee-invoices.index')" class="text-xs text-indigo-600 hover:underline">
+                            View all
+                        </Link>
+                    </div>
+                    <div v-if="invoices.length" class="overflow-x-auto">
+                        <table class="min-w-full text-sm divide-y divide-gray-100">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-4 py-2.5 text-left text-xs font-medium text-gray-500">Term</th>
+                                    <th class="px-4 py-2.5 text-left text-xs font-medium text-gray-500">Description</th>
+                                    <th class="px-4 py-2.5 text-right text-xs font-medium text-gray-500">Amount</th>
+                                    <th class="px-4 py-2.5 text-right text-xs font-medium text-gray-500">Balance</th>
+                                    <th class="px-4 py-2.5 text-left text-xs font-medium text-gray-500">Due</th>
+                                    <th class="px-4 py-2.5 text-left text-xs font-medium text-gray-500">Status</th>
+                                    <th class="px-4 py-2.5"></th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-50">
+                                <tr v-for="inv in invoices" :key="inv.id">
+                                    <td class="px-4 py-2.5 text-gray-700 whitespace-nowrap">{{ inv.term?.name ?? '—' }}</td>
+                                    <td class="px-4 py-2.5 text-gray-500 text-xs">{{ inv.notes ?? 'School fees' }}</td>
+                                    <td class="px-4 py-2.5 text-right text-gray-700">{{ fmtMoney(inv.amount) }}</td>
+                                    <td class="px-4 py-2.5 text-right font-medium" :class="Number(inv.balance_due) > 0 ? 'text-red-600' : 'text-gray-400'">
+                                        {{ fmtMoney(inv.balance_due) }}
+                                    </td>
+                                    <td class="px-4 py-2.5 text-gray-500">{{ inv.due_date ? fmtDate(inv.due_date) : '—' }}</td>
+                                    <td class="px-4 py-2.5">
+                                        <span class="rounded-full px-2 py-0.5 text-xs font-medium capitalize"
+                                            :class="{
+                                                'bg-green-100 text-green-700': inv.status === 'paid',
+                                                'bg-yellow-100 text-yellow-700': inv.status === 'partial',
+                                                'bg-red-100 text-red-700': inv.status === 'unpaid',
+                                            }">
+                                            {{ inv.status }}
+                                        </span>
+                                    </td>
+                                    <td class="px-4 py-2.5 text-right">
+                                        <Link :href="route('fee-invoices.show', inv.id)" class="text-xs text-indigo-600 hover:underline">View</Link>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <p v-else class="px-5 py-8 text-center text-sm text-gray-400">No invoices yet.</p>
+                </div>
+
+                <!-- Recent payments -->
+                <div class="bg-white rounded-lg shadow overflow-hidden">
+                    <p class="px-5 py-3 border-b border-gray-100 font-semibold text-gray-800 text-sm">Recent Payments</p>
+                    <div v-if="recentPayments.length" class="overflow-x-auto">
+                        <table class="min-w-full text-sm divide-y divide-gray-100">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-4 py-2.5 text-left text-xs font-medium text-gray-500">Date</th>
+                                    <th class="px-4 py-2.5 text-left text-xs font-medium text-gray-500">Term</th>
+                                    <th class="px-4 py-2.5 text-right text-xs font-medium text-gray-500">Amount</th>
+                                    <th class="px-4 py-2.5 text-left text-xs font-medium text-gray-500">Method</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-50">
+                                <tr v-for="pay in recentPayments" :key="pay.id">
+                                    <td class="px-4 py-2.5 text-gray-700">{{ fmtDate(pay.payment_date) }}</td>
+                                    <td class="px-4 py-2.5 text-gray-500">{{ pay.invoice?.term?.name ?? '—' }}</td>
+                                    <td class="px-4 py-2.5 text-right font-medium text-green-700">{{ fmtMoney(pay.amount) }}</td>
+                                    <td class="px-4 py-2.5 text-gray-500 capitalize">{{ pay.payment_method?.replace('_', ' ') ?? '—' }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <p v-else class="px-5 py-8 text-center text-sm text-gray-400">No payments recorded.</p>
+                </div>
             </div>
 
             <!-- Attendance Tab -->
-            <div v-if="activeTab === 'attendance'" class="bg-white rounded-lg shadow p-6 text-center text-gray-400 py-12">
-                <p class="text-sm">Attendance records are managed in Module 4 — Attendance.</p>
+            <div v-if="activeTab === 'attendance'" class="space-y-4">
+
+                <!-- Month summary stats -->
+                <div class="grid grid-cols-4 gap-3">
+                    <div class="bg-white rounded-lg shadow p-4 text-center">
+                        <p class="text-xs font-medium uppercase tracking-wide text-gray-500">Days Recorded</p>
+                        <p class="mt-1 text-2xl font-bold text-gray-900">{{ attendanceSummary.total }}</p>
+                    </div>
+                    <div class="bg-white rounded-lg shadow p-4 text-center">
+                        <p class="text-xs font-medium uppercase tracking-wide text-green-600">Present</p>
+                        <p class="mt-1 text-2xl font-bold text-green-700">{{ attendanceSummary.present }}</p>
+                    </div>
+                    <div class="bg-white rounded-lg shadow p-4 text-center">
+                        <p class="text-xs font-medium uppercase tracking-wide text-red-500">Absent</p>
+                        <p class="mt-1 text-2xl font-bold text-red-600">{{ attendanceSummary.absent }}</p>
+                    </div>
+                    <div class="bg-white rounded-lg shadow p-4 text-center">
+                        <p class="text-xs font-medium uppercase tracking-wide text-gray-500">Rate</p>
+                        <p class="mt-1 text-2xl font-bold"
+                            :class="attendanceSummary.pct === null ? 'text-gray-300' : attendanceSummary.pct >= 80 ? 'text-green-600' : 'text-red-600'">
+                            {{ attendanceSummary.pct !== null ? attendanceSummary.pct + '%' : '—' }}
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Calendar -->
+                <div class="bg-white rounded-lg shadow p-5">
+
+                    <!-- Month navigation -->
+                    <div class="mb-4 flex items-center justify-between">
+                        <button class="rounded-md border border-gray-200 px-3 py-1 text-sm text-gray-600 hover:bg-gray-50" @click="prevMonth">← Prev</button>
+                        <p class="font-semibold text-gray-800">{{ MONTH_NAMES[calendarMonth] }} {{ calendarYear }}</p>
+                        <button class="rounded-md border border-gray-200 px-3 py-1 text-sm text-gray-600 hover:bg-gray-50" @click="nextMonth">Next →</button>
+                    </div>
+
+                    <!-- Day-of-week headers -->
+                    <div class="mb-1 grid grid-cols-7 text-center">
+                        <span v-for="d in DAY_NAMES" :key="d" class="text-xs font-medium text-gray-400">{{ d }}</span>
+                    </div>
+
+                    <!-- Day cells -->
+                    <div class="grid grid-cols-7 gap-1">
+                        <div v-for="(day, i) in calendarGrid" :key="i"
+                            class="flex aspect-square items-center justify-center rounded-md text-sm"
+                            :class="day ? dayClass(day) : ''">
+                            {{ day ?? '' }}
+                        </div>
+                    </div>
+
+                    <!-- Legend -->
+                    <div class="mt-4 flex items-center gap-4 text-xs text-gray-500">
+                        <span class="flex items-center gap-1"><span class="inline-block h-3 w-3 rounded bg-green-200"></span> Present</span>
+                        <span class="flex items-center gap-1"><span class="inline-block h-3 w-3 rounded bg-red-200"></span> Absent</span>
+                        <span class="flex items-center gap-1"><span class="inline-block h-3 w-3 rounded bg-yellow-200"></span> Late</span>
+                    </div>
+                </div>
             </div>
         </div>
 

@@ -28,9 +28,10 @@ class HandleInertiaRequests extends Middleware
             'auth.user' => fn () => $request->user()?->load(['roles', 'permissions', 'school']),
 
             'flash' => fn () => [
-                'success' => $request->session()->get('success'),
-                'error' => $request->session()->get('error'),
-                'info' => $request->session()->get('info'),
+                'success'  => $request->session()->get('success'),
+                'error'    => $request->session()->get('error'),
+                'info'     => $request->session()->get('info'),
+                'link_url' => $request->session()->get('link_url'),
             ],
 
             'current_school' => fn () => app()->bound('current_school')

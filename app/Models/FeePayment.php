@@ -5,14 +5,17 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Models\Concerns\HasAudit;
 
 class FeePayment extends Model
 {
     use HasFactory;
+    use HasAudit;
 
     protected $fillable = [
         'school_id', 'pupil_id', 'invoice_id', 'amount',
-        'payment_method', 'reference', 'transaction_id',
+        'payment_method', 'gateway', 'gateway_status', 'payer_phone',
+        'reference', 'transaction_id',
         'mobile_money_provider', 'received_by', 'payment_date',
     ];
 

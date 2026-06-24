@@ -2,7 +2,7 @@
 import AppLayout from '@/Layouts/AppLayout.vue'
 import { Head, useForm } from '@inertiajs/vue3'
 import { computed, ref } from 'vue'
-import { useHR, MONTH_NAMES, POSITION_LABELS, STATUS_COLORS } from '@/composables/useHR'
+import { useHR, MONTH_NAMES, STATUS_COLORS } from '@/composables/useHR'
 import type { Leave, LeaveType, Payroll, Staff } from '@/types/hr'
 import { fmtDate } from '@/utils/date'
 
@@ -13,12 +13,17 @@ const props = defineProps<{
     leave_types: LeaveType[]
     leave_balance: Record<number, number>
     subjects: Subject[]
+    roles: string[]
     can_edit: boolean
 }>()
 
 const { positionLabel, positionColor, statusColor, formatZmw } = useHR()
 const activeTab = ref<'employment' | 'leaves' | 'payroll'>('employment')
 const editing = ref(false)
+
+function roleLabel(role: string): string {
+    return role.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
+}
 
 const form = useForm({
     position:        props.staff.position ?? '',
@@ -33,7 +38,7 @@ const form = useForm({
 })
 
 const isTeacher = computed(() =>
-    ['class_teacher', 'subject_teacher'].includes(form.position),
+    ['class-teacher', 'subject-teacher'].includes(form.position),
 )
 
 function toggleSubject(id: number) {
@@ -44,6 +49,8 @@ function toggleSubject(id: number) {
 
 function save() {
     form.put(route('staff.update', props.staff.id), {
+        preserveState: true,
+        preserveScroll: true,
         onSuccess: () => { editing.value = false },
     })
 }
@@ -125,7 +132,7 @@ const leaveStatusColor: Record<string, string> = {
                         <div>
                             <label class="block text-xs font-medium text-gray-600 mb-1">Position</label>
                             <select v-model="form.position" class="w-full rounded-md border-gray-300 text-sm shadow-sm">
-                                <option v-for="(label, val) in POSITION_LABELS" :key="val" :value="val">{{ label }}</option>
+                                <option v-for="r in roles" :key="r" :value="r">{{ roleLabel(r) }}</option>
                             </select>
                             <p v-if="form.errors.position" class="mt-1 text-xs text-red-600">{{ form.errors.position }}</p>
                         </div>
@@ -135,7 +142,7 @@ const leaveStatusColor: Record<string, string> = {
                             <select v-model="form.employment_type" class="w-full rounded-md border-gray-300 text-sm shadow-sm">
                                 <option value="permanent">Permanent</option>
                                 <option value="contract">Contract</option>
-                                <option value="part_time">Part-time</option>
+                                <option value="temporary">Temporary</option>
                                 <option value="volunteer">Volunteer</option>
                             </select>
                         </div>

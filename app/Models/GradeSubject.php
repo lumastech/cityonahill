@@ -5,9 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Models\Concerns\HasAudit;
 
 class GradeSubject extends Model
 {
+    use HasAudit;
+
     protected $fillable = [
         'school_id',
         'grade_id',

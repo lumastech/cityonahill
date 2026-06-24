@@ -18,6 +18,7 @@ use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Spatie\Permission\Traits\HasRoles;
+use App\Models\Concerns\HasAudit;
 
 class User extends Authenticatable implements HasMedia, MustVerifyEmail
 {
@@ -30,6 +31,7 @@ class User extends Authenticatable implements HasMedia, MustVerifyEmail
     use InteractsWithMedia;
     use Notifiable;
     use TwoFactorAuthenticatable;
+    use HasAudit;
 
     protected $fillable = [
         'name',

@@ -16,7 +16,7 @@ const { flash, hasFlash, clear } = useFlash()
     >
         <div
             v-if="hasFlash"
-            class="fixed bottom-4 right-4 z-50 flex max-w-sm flex-col gap-2"
+            class="fixed top-4 left-1/2 z-50 flex w-full max-w-sm -translate-x-1/2 flex-col gap-2"
             role="alert"
         >
             <div

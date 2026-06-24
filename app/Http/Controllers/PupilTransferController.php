@@ -15,6 +15,11 @@ class PupilTransferController extends Controller
     {
         abort_if($pupil->school_id !== app('current_school')?->id, 403);
 
+        abort_unless(
+            auth()->user()->hasAnyRole(['super-admin', 'school-admin', 'headteacher', 'deputy-headteacher', 'class-teacher']),
+            403
+        );
+
         $this->pupilService->transfer($pupil->id, $data, auth()->id());
 
         $message = $data->type === 'external'

@@ -7,10 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use App\Models\Concerns\HasAudit;
 
 class Guardian extends Model
 {
     use HasFactory;
+    use HasAudit;
 
     protected $fillable = [
         'school_id',
