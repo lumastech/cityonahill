@@ -131,7 +131,11 @@ class PupilService
                     'transfer_date' => $data->transfer_date,
                 ]);
             } else {
-                $pupil->update(['stream_id' => $data->stream_id]);
+                $stream = Stream::findOrFail($data->stream_id);
+                $pupil->update([
+                    'stream_id' => $stream->id,
+                    'grade_id'  => $stream->grade_id,
+                ]);
             }
 
             return $pupil->fresh();

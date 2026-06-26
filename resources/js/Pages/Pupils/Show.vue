@@ -59,6 +59,16 @@ const canTransfer = computed(() =>
     hasRole('deputy-headteacher') || hasRole('class-teacher')
 )
 
+const streamsByGrade = computed(() => {
+    const map = new Map<number, { id: number; name: string; streams: Stream[] }>()
+    for (const s of props.streams) {
+        if (!s.grade) continue
+        if (!map.has(s.grade_id)) map.set(s.grade_id, { id: s.grade_id, name: s.grade.name, streams: [] })
+        map.get(s.grade_id)!.streams.push(s)
+    }
+    return [...map.values()].sort((a, b) => a.name.localeCompare(b.name))
+})
+
 const activeTab = ref<'profile' | 'guardians' | 'academic' | 'fees' | 'attendance'>('profile')
 const showAddGuardian = ref(false)
 
@@ -611,7 +621,11 @@ const TABS = [
                         <label class="block text-sm font-medium text-gray-700">New Stream *</label>
                         <select v-model="transferForm.stream_id" class="mt-1 w-full border-gray-300 rounded-md text-sm">
                             <option :value="null">Select stream…</option>
-                            <option v-for="s in streams" :key="s.id" :value="s.id">{{ s.grade?.name }} {{ s.name }}</option>
+                            <template v-for="grade in streamsByGrade" :key="grade.id">
+                                <optgroup :label="grade.name">
+                                    <option v-for="s in grade.streams" :key="s.id" :value="s.id">{{ s.name }}</option>
+                                </optgroup>
+                            </template>
                         </select>
                         <p v-if="transferForm.errors.stream_id" class="mt-1 text-xs text-red-600">{{ transferForm.errors.stream_id }}</p>
                     </div>

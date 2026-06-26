@@ -110,6 +110,7 @@ class NavService
                 'items' => [
                     ['label' => 'Schools',      'route' => 'schools.index',           'permission' => 'school.view'],
                     ['label' => 'Applications', 'route' => 'admin.applications.index', 'permission' => 'settings.manage'],
+                    ['label' => 'Menus',        'route' => 'admin.menus.index',       'permission' => 'settings.manage'],
                     ['label' => 'Roles',        'route' => 'roles.index',             'permission' => 'settings.manage'],
                     ['label' => 'Settings',     'route' => 'settings.index',          'permission' => 'settings.manage'],
                     ['label' => 'Audit Log',    'route' => 'audit-logs.index',        'permission' => 'settings.manage'],

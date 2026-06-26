@@ -15,7 +15,7 @@ use App\Notifications\ApplicationReceivedNotification;
 use App\Notifications\ApplicationRejectedNotification;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
-use Spatie\Permission\Models\Role;
+use App\Models\Role;
 
 class SchoolApplicationService
 {

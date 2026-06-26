@@ -8,8 +8,10 @@ use App\Models\Grade;
 use App\Models\Stream;
 use App\Models\User;
 use App\Services\ClassStructureService;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -68,7 +70,13 @@ class StreamController extends Controller
     {
         $school = app('current_school');
 
-        $this->service->createStream($school->id, $data);
+        try {
+            $this->service->createStream($school->id, $data);
+        } catch (UniqueConstraintViolationException) {
+            throw ValidationException::withMessages([
+                'name' => "A class named \"{$data->name}\" already exists in the selected grade.",
+            ]);
+        }
 
         return redirect()->route('streams.index')
             ->with('success', 'Class created successfully.');
@@ -78,13 +86,19 @@ class StreamController extends Controller
     {
         $this->authorizeSchool($stream);
 
-        $stream->update([
-            'grade_id' => $data->grade_id,
-            'name' => $data->name,
-            'class_teacher_id' => $data->class_teacher_id,
-            'capacity' => $data->capacity,
-            'academic_year_id' => $data->academic_year_id,
-        ]);
+        try {
+            $stream->update([
+                'grade_id' => $data->grade_id,
+                'name' => $data->name,
+                'class_teacher_id' => $data->class_teacher_id,
+                'capacity' => $data->capacity,
+                'academic_year_id' => $data->academic_year_id,
+            ]);
+        } catch (UniqueConstraintViolationException) {
+            throw ValidationException::withMessages([
+                'name' => "A class named \"{$data->name}\" already exists in the selected grade.",
+            ]);
+        }
 
         return redirect()->route('streams.index')
             ->with('success', 'Class updated successfully.');

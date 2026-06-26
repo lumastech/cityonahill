@@ -6,7 +6,7 @@ use App\Models\SchoolSetting;
 use App\Models\Setting;
 use App\Models\Staff;
 use App\Models\Term;
-use App\Services\NavService;
+use App\Services\MenuService;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -43,7 +43,7 @@ class HandleInertiaRequests extends Middleware
             'settings' => fn () => $this->mergedSettings(),
 
             'nav' => fn () => $request->user()
-                ? app(NavService::class)->forUser($request->user())
+                ? app(MenuService::class)->forUser($request->user())
                 : [],
 
             'auth.staff_profile_url' => fn () => $this->staffProfileUrl($request),

@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import AppLayout from '@/Layouts/AppLayout.vue'
 import Pagination from '@/Components/Pagination.vue'
-import { Head, Link, router } from '@inertiajs/vue3'
+import { Head, Link, router, useForm } from '@inertiajs/vue3'
 import { ref, computed } from 'vue'
 import type { Pupil, SchoolStatistics } from '@/types/pupils'
 import type { PaginatedResponse } from '@/types/shared'
 import { usePupils } from '@/composables/usePupils'
 import { usePermissions } from '@/composables/usePermissions'
+
+interface StreamOption { id: number; name: string; grade_id: number; grade?: { id: number; name: string } }
 
 const props = defineProps<{
     pupils: PaginatedResponse<Pupil>
@@ -18,17 +20,44 @@ const props = defineProps<{
         search?: string
     }
     grades: Array<{ id: number; name: string }>
+    streams: StreamOption[]
     stats?: SchoolStatistics
 }>()
 
 const { statusClass, sexClass, exportToCsv } = usePupils()
-const { can } = usePermissions()
+const { can, hasRole } = usePermissions()
+
+const canMove = computed(() =>
+    hasRole('super-admin') || hasRole('school-admin') || hasRole('headteacher') ||
+    hasRole('deputy-headteacher') || hasRole('class-teacher')
+)
 
 const search = ref(props.filters.search ?? '')
 const selectedGrade = ref(props.filters.grade_id ?? '')
 const selectedSex = ref(props.filters.sex ?? '')
 const selectedStatus = ref(props.filters.status ?? '')
 const selected = ref<number[]>([])
+
+// Bulk move
+const bulkMoveForm = useForm({ pupil_ids: [] as number[], stream_id: '' as string | number })
+const showBulkMove = ref(false)
+
+const streamsByGrade = computed(() => {
+    const map = new Map<number, { id: number; name: string; streams: StreamOption[] }>()
+    for (const s of props.streams) {
+        if (!s.grade) continue
+        if (!map.has(s.grade_id)) map.set(s.grade_id, { id: s.grade_id, name: s.grade.name, streams: [] })
+        map.get(s.grade_id)!.streams.push(s)
+    }
+    return [...map.values()].sort((a, b) => a.name.localeCompare(b.name))
+})
+
+function submitBulkMove() {
+    bulkMoveForm.pupil_ids = [...selected.value]
+    bulkMoveForm.post(route('pupils.bulk-move'), {
+        onSuccess: () => { selected.value = []; showBulkMove.value = false; bulkMoveForm.reset() },
+    })
+}
 
 function applyFilters() {
     router.get(
@@ -45,19 +74,13 @@ function applyFilters() {
 
 function toggleSelect(id: number) {
     const idx = selected.value.indexOf(id)
-    if (idx === -1) {
-        selected.value.push(id)
-    } else {
-        selected.value.splice(idx, 1)
-    }
+    if (idx === -1) selected.value.push(id)
+    else selected.value.splice(idx, 1)
 }
 
 function selectAll() {
-    if (selected.value.length === props.pupils.data.length) {
-        selected.value = []
-    } else {
-        selected.value = props.pupils.data.map((p) => p.id)
-    }
+    if (selected.value.length === props.pupils.data.length) selected.value = []
+    else selected.value = props.pupils.data.map((p) => p.id)
 }
 
 function handleExport() {
@@ -117,6 +140,53 @@ const allSelected = computed(
                         + Admit Pupil
                     </Link>
                 </div>
+            </div>
+
+            <!-- Bulk move action bar -->
+            <div
+                v-if="selected.length > 0 && canMove"
+                class="mb-4 bg-indigo-50 border border-indigo-200 rounded-lg px-4 py-3 flex flex-wrap items-center gap-3"
+            >
+                <span class="text-sm font-medium text-indigo-800">
+                    {{ selected.length }} pupil{{ selected.length === 1 ? '' : 's' }} selected
+                </span>
+                <div class="flex items-center gap-2 ml-auto">
+                    <select
+                        v-model="bulkMoveForm.stream_id"
+                        class="border-indigo-300 rounded-md text-sm text-gray-700 focus:ring-indigo-500 focus:border-indigo-500"
+                        :disabled="bulkMoveForm.processing"
+                    >
+                        <option value="">Move to stream…</option>
+                        <optgroup
+                            v-for="grade in streamsByGrade"
+                            :key="grade.id"
+                            :label="grade.name"
+                        >
+                            <option
+                                v-for="s in grade.streams"
+                                :key="s.id"
+                                :value="s.id"
+                            >
+                                {{ s.name }}
+                            </option>
+                        </optgroup>
+                    </select>
+                    <button
+                        :disabled="!bulkMoveForm.stream_id || bulkMoveForm.processing"
+                        class="text-sm px-4 py-1.5 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed"
+                        @click="submitBulkMove"
+                    >
+                        {{ bulkMoveForm.processing ? 'Moving…' : 'Move' }}
+                    </button>
+                    <button
+                        class="text-sm text-indigo-600 hover:underline"
+                        @click="selected = []"
+                    >
+                        Clear
+                    </button>
+                </div>
+                <p v-if="bulkMoveForm.errors.stream_id" class="w-full text-xs text-red-600">{{ bulkMoveForm.errors.stream_id }}</p>
+                <p v-if="bulkMoveForm.errors.pupil_ids" class="w-full text-xs text-red-600">{{ bulkMoveForm.errors.pupil_ids }}</p>
             </div>
 
             <!-- Filters -->

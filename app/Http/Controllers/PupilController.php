@@ -41,10 +41,14 @@ class PupilController extends Controller
             ->withQueryString();
 
         return Inertia::render('Pupils/Index', [
-            'pupils' => $pupils,
+            'pupils'  => $pupils,
             'filters' => $request->only(['grade_id', 'stream_id', 'sex', 'status', 'search']),
-            'grades' => Grade::where('school_id', $school->id)->orderBy('grade_number')->get(['id', 'name']),
-            'stats' => Inertia::defer(fn () => $this->pupilService->getSchoolStatistics($school->id)),
+            'grades'  => Grade::where('school_id', $school->id)->orderBy('grade_number')->get(['id', 'name']),
+            'streams' => Stream::where('school_id', $school->id)
+                ->with('grade:id,name')
+                ->orderBy('name')
+                ->get(['id', 'name', 'grade_id']),
+            'stats'   => Inertia::defer(fn () => $this->pupilService->getSchoolStatistics($school->id)),
         ]);
     }
 

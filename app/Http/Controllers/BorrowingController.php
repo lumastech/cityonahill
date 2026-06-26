@@ -42,15 +42,44 @@ class BorrowingController extends Controller
                 ->available()
                 ->orderBy('title')
                 ->get(['id', 'title', 'author', 'copies_available']),
-            'pupils' => Pupil::where('school_id', $school->id)
-                ->where('status', 'active')
-                ->orderBy('first_name')
-                ->get(['id', 'first_name', 'last_name', 'admission_no']),
-            'staff' => Staff::where('school_id', $school->id)
+        ]);
+    }
+
+    public function searchBorrower(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $school = app('current_school');
+        $type = $request->string('type')->toString();
+        $q = $request->string('q')->trim()->toString();
+
+        if ($type === 'staff') {
+            $results = Staff::where('school_id', $school->id)
                 ->active()
                 ->with('user:id,name')
-                ->get(['id', 'user_id', 'employee_no', 'position']),
-        ]);
+                ->whereHas('user', fn ($query) => $query->where('name', 'like', "%{$q}%"))
+                ->orWhere(fn ($query) => $query->where('school_id', $school->id)->where('employee_no', 'like', "%{$q}%"))
+                ->limit(15)
+                ->get(['id', 'user_id', 'employee_no', 'position'])
+                ->map(fn ($s) => [
+                    'id'    => $s->id,
+                    'label' => $s->user?->name . ' — ' . $s->employee_no,
+                ]);
+        } else {
+            $results = Pupil::where('school_id', $school->id)
+                ->where('status', 'active')
+                ->where(fn ($query) => $query
+                    ->where('first_name', 'like', "%{$q}%")
+                    ->orWhere('last_name', 'like', "%{$q}%")
+                    ->orWhere('admission_no', 'like', "%{$q}%"))
+                ->orderBy('last_name')
+                ->limit(15)
+                ->get(['id', 'first_name', 'last_name', 'admission_no'])
+                ->map(fn ($p) => [
+                    'id'    => $p->id,
+                    'label' => "{$p->first_name} {$p->last_name} ({$p->admission_no})",
+                ]);
+        }
+
+        return response()->json($results);
     }
 
     public function store(IssueBorrowingData $data): RedirectResponse

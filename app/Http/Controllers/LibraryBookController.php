@@ -67,10 +67,48 @@ class LibraryBookController extends Controller
 
         $libraryBook->loadMedia('book-cover');
 
+        $categories = LibraryBook::where('school_id', $libraryBook->school_id)
+            ->distinct()
+            ->pluck('category')
+            ->sort()
+            ->values();
+
         return Inertia::render('Library/Books/Show', [
-            'book' => $libraryBook,
-            'cover_url' => $libraryBook->getFirstMediaUrl('book-cover'),
+            'book'       => $libraryBook,
+            'cover_url'  => $libraryBook->getFirstMediaUrl('book-cover'),
+            'categories' => $categories,
         ]);
+    }
+
+    public function update(AddBookData $data, Request $request, LibraryBook $libraryBook): RedirectResponse
+    {
+        abort_if($libraryBook->school_id !== app('current_school')?->id, 403);
+
+        // Adjust copies_available proportionally when total changes
+        $delta = $data->copies_total - $libraryBook->copies_total;
+        $newAvailable = max(0, $libraryBook->copies_available + $delta);
+
+        $libraryBook->update([
+            'title'          => $data->title,
+            'author'         => $data->author,
+            'isbn'           => $data->isbn,
+            'publisher'      => $data->publisher,
+            'publish_year'   => $data->publish_year,
+            'category'       => $data->category,
+            'subject_id'     => $data->subject_id,
+            'copies_total'   => $data->copies_total,
+            'copies_available' => $newAvailable,
+            'shelf_location' => $data->shelf_location,
+            'description'    => $data->description,
+        ]);
+
+        if ($request->hasFile('cover')) {
+            $libraryBook->clearMediaCollection('book-cover');
+            $libraryBook->addMedia($request->file('cover'))->toMediaCollection('book-cover');
+        }
+
+        return redirect()->route('library-books.show', $libraryBook)
+            ->with('success', 'Book updated.');
     }
 
     public function destroy(LibraryBook $libraryBook): RedirectResponse

@@ -8,7 +8,7 @@ use App\Models\Staff;
 use App\Models\Subject;
 use App\Models\User;
 use App\Services\HRService;
-use Spatie\Permission\Models\Role;
+use App\Models\Role;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;

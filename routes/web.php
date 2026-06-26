@@ -43,6 +43,7 @@ use App\Http\Controllers\PortalNotificationController;
 use App\Http\Controllers\PublishNoticeController;
 use App\Http\Controllers\PublishReportCardsController;
 use App\Http\Controllers\PublishResultsController;
+use App\Http\Controllers\PupilBulkMoveController;
 use App\Http\Controllers\PupilController;
 use App\Http\Controllers\PupilPromotionController;
 use App\Http\Controllers\PupilStatisticsController;
@@ -66,6 +67,10 @@ use App\Http\Controllers\TermResultController;
 use App\Http\Controllers\TimetableController;
 use App\Http\Controllers\TransportRouteController;
 use App\Http\Controllers\Admin\ApplicationController as AdminApplicationController;
+use App\Http\Controllers\Admin\MenuController as AdminMenuController;
+use App\Http\Controllers\Admin\MenuRoleController;
+use App\Http\Controllers\Admin\MenuUserController;
+use App\Http\Controllers\Admin\ReorderMenuController;
 use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SchoolApplicationController;
@@ -119,6 +124,7 @@ Route::middleware(['auth', 'verified', 'school.context'])->group(function () {
 // Module 3 — Pupil Management & Admissions
 Route::middleware(['auth', 'verified', 'school.context'])->group(function () {
     Route::get('pupils/search', [PupilController::class, 'search'])->name('pupils.search');
+    Route::post('pupils/bulk-move', PupilBulkMoveController::class)->name('pupils.bulk-move');
     Route::resource('pupils', PupilController::class);
     Route::get('guardians', [GuardianController::class, 'index'])->name('guardians.index');
     Route::post('pupils/{pupil}/guardians', [GuardianController::class, 'store'])
@@ -219,8 +225,9 @@ Route::middleware(['auth', 'verified', 'school.context'])->group(function () {
 
 // Module 10 — Library
 Route::middleware(['auth', 'verified', 'school.context'])->group(function () {
-    Route::resource('library-books', LibraryBookController::class)->except(['create', 'edit', 'update']);
+    Route::resource('library-books', LibraryBookController::class)->except(['create', 'edit']);
     Route::get('borrowings', [BorrowingController::class, 'index'])->name('borrowings.index');
+    Route::get('borrowings/search-borrower', [BorrowingController::class, 'searchBorrower'])->name('borrowings.search-borrower');
     Route::get('borrowings/create', [BorrowingController::class, 'create'])->name('borrowings.create');
     Route::post('borrowings', [BorrowingController::class, 'store'])->name('borrowings.store');
     Route::patch('borrowings/{borrowing}', [BorrowingController::class, 'update'])->name('borrowings.update');
@@ -295,6 +302,12 @@ Route::middleware(['auth', 'verified', 'role:super-admin'])->prefix('admin')->na
     Route::post('applications/{application}/approve', [AdminApplicationController::class, 'approve'])->name('applications.approve');
     Route::post('applications/{application}/needs-info', [AdminApplicationController::class, 'needsInfo'])->name('applications.needs-info');
     Route::post('applications/{application}/reject', [AdminApplicationController::class, 'reject'])->name('applications.reject');
+
+    // Menu management
+    Route::patch('menus/reorder', ReorderMenuController::class)->name('menus.reorder');
+    Route::post('menus/role-assignments', MenuRoleController::class)->name('menus.role-assignments');
+    Route::post('menus/user-overrides', MenuUserController::class)->name('menus.user-overrides');
+    Route::resource('menus', AdminMenuController::class)->only(['index', 'store', 'update', 'destroy']);
 });
 
 // Public — payment links (no auth required)
