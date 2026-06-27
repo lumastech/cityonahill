@@ -242,6 +242,7 @@ class DashboardController extends Controller
             ->where('school_id', $schoolId)
             ->whereMonth('payment_date', now()->month)
             ->whereYear('payment_date', now()->year)
+            ->where(fn ($q) => $q->whereNull('gateway_status')->orWhere('gateway_status', 'completed'))
             ->sum('amount');
 
         $expensesThisMonth = DB::table('expenses')
@@ -254,9 +255,10 @@ class DashboardController extends Controller
             ->join('fee_invoices', 'fee_payments.invoice_id', '=', 'fee_invoices.id')
             ->join('pupils', 'fee_invoices.pupil_id', '=', 'pupils.id')
             ->where('fee_payments.school_id', $schoolId)
+            ->where(fn ($q) => $q->whereNull('fee_payments.gateway_status')->orWhere('fee_payments.gateway_status', 'completed'))
             ->orderByDesc('fee_payments.payment_date')
             ->limit(5)
-            ->get(['fee_payments.amount', 'fee_payments.payment_date', 'fee_payments.method',
+            ->get(['fee_payments.amount', 'fee_payments.payment_date', 'fee_payments.payment_method',
                    DB::raw("pupils.first_name || ' ' || pupils.last_name as pupil_name")]);
 
         return [
