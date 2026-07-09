@@ -25,8 +25,8 @@ class SetSchoolContext
     private function resolveSchool(Request $request): ?School
     {
         // Single-school mode
-        if (! config('skuu.multi_school')) {
-            $defaultId = config('skuu.default_school');
+        if (! config('CITYONAHILL.multi_school')) {
+            $defaultId = config('CITYONAHILL.default_school');
 
             return $defaultId ? School::find($defaultId) : null;
         }

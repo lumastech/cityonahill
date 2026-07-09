@@ -1,1 +1,0 @@
-import{V as e,j as t,k as n,x as r}from"./app-CRgKhl7k.js";var i={class:`block font-medium text-sm text-gray-700`},a={key:0},o={key:1},s={__name:`InputLabel`,props:{value:String},setup(s){return(c,l)=>(n(),r(`label`,i,[s.value?(n(),r(`span`,a,e(s.value),1)):(n(),r(`span`,o,[t(c.$slots,`default`)]))]))}};export{s as t};

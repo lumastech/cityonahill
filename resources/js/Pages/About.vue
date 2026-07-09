@@ -36,7 +36,8 @@ const features = [
 </script>
 
 <template>
-    <Head title="About SKUU" />
+
+    <Head title="About CITYONAHILL" />
 
     <div class="min-h-screen bg-white font-sans antialiased">
 
@@ -47,12 +48,10 @@ const features = [
                     <div class="w-8 h-8 rounded-lg bg-sky-600 flex items-center justify-center">
                         <span class="text-white font-bold text-sm">SK</span>
                     </div>
-                    <span class="text-lg font-bold text-gray-900 tracking-tight">SKUU</span>
+                    <span class="text-lg font-bold text-gray-900 tracking-tight">CITYONAHILL</span>
                 </Link>
-                <Link
-                    :href="route('login')"
-                    class="text-sm font-medium text-white bg-sky-600 hover:bg-sky-700 px-4 py-2 rounded-md transition-colors"
-                >
+                <Link :href="route('login')"
+                    class="text-sm font-medium text-white bg-sky-600 hover:bg-sky-700 px-4 py-2 rounded-md transition-colors">
                     Sign In
                 </Link>
             </div>
@@ -61,7 +60,8 @@ const features = [
         <!-- Hero -->
         <section class="pt-32 pb-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-sky-50 to-white">
             <div class="mx-auto max-w-3xl text-center">
-                <span class="inline-block mb-4 px-3 py-1 text-xs font-semibold text-sky-700 bg-sky-100 rounded-full tracking-wide uppercase">
+                <span
+                    class="inline-block mb-4 px-3 py-1 text-xs font-semibold text-sky-700 bg-sky-100 rounded-full tracking-wide uppercase">
                     Built for Zambian Schools
                 </span>
                 <h1 class="text-5xl font-extrabold text-gray-900 leading-tight tracking-tight">
@@ -69,7 +69,8 @@ const features = [
                     <span class="text-sky-600">Simplified.</span>
                 </h1>
                 <p class="mt-6 text-lg text-gray-500 max-w-2xl mx-auto leading-relaxed">
-                    SKUU brings every part of your school — pupils, staff, academics, finance, and communication — into one seamless platform aligned with the Zambian curriculum.
+                    CITYONAHILL brings every part of your school — pupils, staff, academics, finance, and communication
+                    — into one seamless platform aligned with the Zambian curriculum.
                 </p>
             </div>
         </section>
@@ -82,13 +83,12 @@ const features = [
                     <p class="mt-3 text-gray-500">One platform. Every department. Zero duplication.</p>
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                    <div
-                        v-for="f in features"
-                        :key="f.title"
-                        class="group p-6 rounded-xl border border-gray-100 hover:border-sky-200 hover:shadow-md transition-all"
-                    >
-                        <div class="w-10 h-10 rounded-lg bg-sky-50 group-hover:bg-sky-100 flex items-center justify-center mb-4 transition-colors">
-                            <svg class="w-5 h-5 text-sky-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <div v-for="f in features" :key="f.title"
+                        class="group p-6 rounded-xl border border-gray-100 hover:border-sky-200 hover:shadow-md transition-all">
+                        <div
+                            class="w-10 h-10 rounded-lg bg-sky-50 group-hover:bg-sky-100 flex items-center justify-center mb-4 transition-colors">
+                            <svg class="w-5 h-5 text-sky-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                                stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" :d="f.icon" />
                             </svg>
                         </div>
@@ -108,16 +108,13 @@ const features = [
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-10 relative">
                     <div class="hidden sm:block absolute top-6 left-1/4 right-1/4 h-0.5 bg-sky-100" />
-                    <div
-                        v-for="(step, i) in [
-                            { n: '01', title: 'Set up your school', desc: 'Add grades, streams, subjects, and staff. The setup takes minutes, not days.' },
-                            { n: '02', title: 'Enrol pupils', desc: 'Admit pupils, assign them to streams, and record guardian contacts in one form.' },
-                            { n: '03', title: 'Run your school', desc: 'Record attendance, enter assessment scores, generate report cards, and bill parents — all in one place.' },
-                        ]"
-                        :key="i"
-                        class="flex flex-col items-center text-center"
-                    >
-                        <div class="w-12 h-12 rounded-full bg-sky-600 flex items-center justify-center text-white font-bold text-sm mb-4 relative z-10 shadow-md">
+                    <div v-for="(step, i) in [
+                        { n: '01', title: 'Set up your school', desc: 'Add grades, streams, subjects, and staff. The setup takes minutes, not days.' },
+                        { n: '02', title: 'Enrol pupils', desc: 'Admit pupils, assign them to streams, and record guardian contacts in one form.' },
+                        { n: '03', title: 'Run your school', desc: 'Record attendance, enter assessment scores, generate report cards, and bill parents — all in one place.' },
+                    ]" :key="i" class="flex flex-col items-center text-center">
+                        <div
+                            class="w-12 h-12 rounded-full bg-sky-600 flex items-center justify-center text-white font-bold text-sm mb-4 relative z-10 shadow-md">
                             {{ step.n }}
                         </div>
                         <h3 class="font-semibold text-gray-900 mb-1">{{ step.title }}</h3>
@@ -128,14 +125,13 @@ const features = [
         </section>
 
         <!-- CTA -->
-        <section class="py-20 px-4 sm:px-6 lg:px-8" style="background: linear-gradient(135deg, #0c4a6e 0%, #0369a1 100%);">
+        <section class="py-20 px-4 sm:px-6 lg:px-8"
+            style="background: linear-gradient(135deg, #0c4a6e 0%, #0369a1 100%);">
             <div class="mx-auto max-w-2xl text-center">
                 <h2 class="text-3xl font-bold text-white">Ready to modernise your school?</h2>
                 <p class="mt-4 text-sky-200">Sign in and take full control of your school's operations today.</p>
-                <Link
-                    :href="route('login')"
-                    class="mt-8 inline-block px-8 py-3.5 bg-white text-sky-700 font-semibold rounded-lg hover:bg-sky-50 transition-colors shadow"
-                >
+                <Link :href="route('login')"
+                    class="mt-8 inline-block px-8 py-3.5 bg-white text-sky-700 font-semibold rounded-lg hover:bg-sky-50 transition-colors shadow">
                     Sign In Now
                 </Link>
             </div>
@@ -148,9 +144,10 @@ const features = [
                     <div class="w-6 h-6 rounded bg-sky-500 flex items-center justify-center">
                         <span class="text-white font-bold text-xs">SK</span>
                     </div>
-                    <span class="text-sm text-gray-400">SKUU School Management System</span>
+                    <span class="text-sm text-gray-400">CITYONAHILL School Management System</span>
                 </div>
-                <p class="text-xs text-gray-600">© {{ new Date().getFullYear() }} SKUU. Built for Zambian schools.</p>
+                <p class="text-xs text-gray-600">© {{ new Date().getFullYear() }} CITYONAHILL. Built for Zambian
+                    schools.</p>
             </div>
         </footer>
 

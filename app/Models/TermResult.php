@@ -82,7 +82,7 @@ class TermResult extends Model
 
     public static function computeGradeLetter(float $total): string
     {
-        foreach (config('skuu.grading_scale') as $band) {
+        foreach (config('CITYONAHILL.grading_scale') as $band) {
             if ($total >= $band['min'] && $total <= $band['max']) {
                 return $band['letter'];
             }
