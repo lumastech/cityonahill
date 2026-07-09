@@ -30,6 +30,9 @@ class DashboardController extends Controller
         $role   = $user->getRoleNames()->first() ?? '';
 
         $data = match (true) {
+            // No school context (e.g. super-admin on the root domain before
+            // selecting a school) — every stats builder needs a school.
+            $school === null => ['type' => 'default', 'stats' => []],
             in_array($role, ['super-admin', 'school-admin', 'headteacher', 'deputy-headteacher'])
                 => $this->adminStats($school, $user),
             $role === 'class-teacher'          => $this->classTeacherStats($school, $user),

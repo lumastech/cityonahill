@@ -674,7 +674,7 @@ const TYPE_COLORS: Record<string, string> = {
             ════════════════════════════════════════════════════════════════ -->
             <template v-else>
                 <div class="rounded-xl border bg-white p-10 text-center shadow-sm">
-                    <p class="text-lg font-semibold text-gray-700">Welcome to {{ school?.name }}</p>
+                    <p class="text-lg font-semibold text-gray-700">{{ school ? `Welcome to ${school.name}` : 'Welcome' }}</p>
                     <p class="mt-2 text-sm text-gray-500">Use the navigation on the left to get started.</p>
                 </div>
             </template>
