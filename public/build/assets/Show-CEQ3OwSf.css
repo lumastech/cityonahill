@@ -1,0 +1,1 @@
+@media print{body *{visibility:hidden}#payslip,#payslip *{visibility:visible}#payslip{position:absolute;inset:0}}

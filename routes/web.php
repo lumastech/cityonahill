@@ -80,17 +80,7 @@ use App\Http\Controllers\WaiveInvoiceController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-Route::get('/', function () {
-    return Inertia::render('Welcome', [
-        'canResetPassword' => Route::has('password.request'),
-        'status'           => session('status'),
-        'stats'            => [
-            'pupils'  => \App\Models\Pupil::where('status', 'active')->count(),
-            'schools' => \App\Models\School::count(),
-            'staff'   => \App\Models\Staff::count(),
-        ],
-    ]);
-})->name('welcome');
+Route::get('/', fn () => Inertia::render('Welcome'))->name('welcome');
 
 Route::get('/about', fn () => Inertia::render('About'))->name('about');
 
