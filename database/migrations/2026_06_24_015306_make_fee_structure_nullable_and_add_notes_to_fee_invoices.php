@@ -1,11 +1,62 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
     public function up(): void
+    {
+        if (DB::getDriverName() === 'sqlite') {
+            $this->sqliteUp();
+
+            return;
+        }
+
+        Schema::table('fee_invoices', function (Blueprint $table) {
+            $table->text('notes')->nullable()->after('academic_year_id');
+        });
+
+        Schema::table('fee_invoices', function (Blueprint $table) {
+            $table->dropForeign(['fee_structure_id']);
+        });
+
+        DB::statement('ALTER TABLE fee_invoices MODIFY fee_structure_id BIGINT UNSIGNED NULL');
+
+        Schema::table('fee_invoices', function (Blueprint $table) {
+            $table->foreign('fee_structure_id')->references('id')->on('fee_structures')->cascadeOnDelete();
+        });
+
+        // The existing composite unique index is kept: MySQL treats NULLs as
+        // distinct, so rows with a NULL fee_structure_id never conflict —
+        // same semantics as the partial index used on SQLite.
+    }
+
+    public function down(): void
+    {
+        if (DB::getDriverName() === 'sqlite') {
+            $this->sqliteDown();
+
+            return;
+        }
+
+        DB::statement('DELETE FROM fee_invoices WHERE fee_structure_id IS NULL');
+
+        Schema::table('fee_invoices', function (Blueprint $table) {
+            $table->dropForeign(['fee_structure_id']);
+        });
+
+        DB::statement('ALTER TABLE fee_invoices MODIFY fee_structure_id BIGINT UNSIGNED NOT NULL');
+
+        Schema::table('fee_invoices', function (Blueprint $table) {
+            $table->foreign('fee_structure_id')->references('id')->on('fee_structures')->cascadeOnDelete();
+            $table->dropColumn('notes');
+        });
+    }
+
+    private function sqliteUp(): void
     {
         DB::statement('PRAGMA foreign_keys = OFF');
 
@@ -42,7 +93,7 @@ return new class extends Migration
         DB::statement('PRAGMA foreign_keys = ON');
     }
 
-    public function down(): void
+    private function sqliteDown(): void
     {
         DB::statement('PRAGMA foreign_keys = OFF');
 

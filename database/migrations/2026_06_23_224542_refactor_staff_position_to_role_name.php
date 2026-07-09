@@ -25,7 +25,9 @@ return new class extends Migration
 
     public function up(): void
     {
-        DB::statement('PRAGMA foreign_keys = OFF');
+        if (DB::getDriverName() === 'sqlite') {
+            DB::statement('PRAGMA foreign_keys = OFF');
+        }
 
         // Add a temporary string column alongside the enum column
         Schema::table('staff', function (Blueprint $table) {
@@ -49,12 +51,16 @@ return new class extends Migration
             $table->renameColumn('position_new', 'position');
         });
 
-        DB::statement('PRAGMA foreign_keys = ON');
+        if (DB::getDriverName() === 'sqlite') {
+            DB::statement('PRAGMA foreign_keys = ON');
+        }
     }
 
     public function down(): void
     {
-        DB::statement('PRAGMA foreign_keys = OFF');
+        if (DB::getDriverName() === 'sqlite') {
+            DB::statement('PRAGMA foreign_keys = OFF');
+        }
 
         Schema::table('staff', function (Blueprint $table) {
             $table->string('position_old')->nullable()->after('employee_no');
@@ -78,6 +84,8 @@ return new class extends Migration
             $table->renameColumn('position_old', 'position');
         });
 
-        DB::statement('PRAGMA foreign_keys = ON');
+        if (DB::getDriverName() === 'sqlite') {
+            DB::statement('PRAGMA foreign_keys = ON');
+        }
     }
 };

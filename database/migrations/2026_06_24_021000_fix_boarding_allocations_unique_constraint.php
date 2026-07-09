@@ -7,6 +7,43 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (DB::getDriverName() === 'sqlite') {
+            $this->sqliteUp();
+
+            return;
+        }
+
+        // MySQL/MariaDB has no partial indexes. A generated column that is 1 for
+        // active rows and NULL otherwise gives the same guarantee: NULLs are
+        // distinct in unique indexes, so vacated/suspended rows never conflict.
+        // STORED (not VIRTUAL) because MariaDB only indexes stored generated
+        // columns. The new index is added before dropping the old one so the
+        // school_id foreign key always has a leftmost-prefix index available.
+        DB::statement("ALTER TABLE boarding_allocations
+            ADD COLUMN active_key TINYINT AS (IF(status = 'active', 1, NULL)) STORED,
+            ADD UNIQUE INDEX boarding_allocations_active_unique (school_id, pupil_id, term_id, active_key)");
+
+        DB::statement('ALTER TABLE boarding_allocations
+            DROP INDEX boarding_allocations_school_id_pupil_id_term_id_unique');
+    }
+
+    public function down(): void
+    {
+        if (DB::getDriverName() === 'sqlite') {
+            $this->sqliteDown();
+
+            return;
+        }
+
+        DB::statement('ALTER TABLE boarding_allocations
+            ADD UNIQUE INDEX boarding_allocations_school_id_pupil_id_term_id_unique (school_id, pupil_id, term_id)');
+
+        DB::statement('ALTER TABLE boarding_allocations DROP INDEX boarding_allocations_active_unique');
+        DB::statement('ALTER TABLE boarding_allocations DROP COLUMN active_key');
+    }
+
+    private function sqliteUp(): void
+    {
         DB::statement('PRAGMA foreign_keys = OFF');
 
         DB::statement('CREATE TABLE boarding_allocations_new (
@@ -39,7 +76,7 @@ return new class extends Migration
         DB::statement('PRAGMA foreign_keys = ON');
     }
 
-    public function down(): void
+    private function sqliteDown(): void
     {
         DB::statement('PRAGMA foreign_keys = OFF');
 
