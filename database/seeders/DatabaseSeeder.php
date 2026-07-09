@@ -29,5 +29,9 @@ class DatabaseSeeder extends Seeder
         $admin->assignRole('super-admin');
 
         $this->call(DemoSchoolSeeder::class);
+        $this->call(LeaveTypesSeeder::class);
+        $this->call(MenuSeeder::class);
+        $this->call(RolesAndPermissionsSeeder::class);
+
     }
 }
