@@ -20,6 +20,7 @@ const images = {
     galMuseumVisit: '/images/coh10.jpeg',   // Gallery — museum visit
     galHeritageDay: '/images/coh11.jpeg',   // Gallery — Heritage Day celebrations
     galCosySmiles: '/images/coh15.jpeg',    // Gallery — young learners in cosy onesies
+    galIndependence: '/images/coh13.jpeg',    // Gallery — young learners in cosy onesies
 }
 
 function ph(label: string, w = 800, h = 600): string {
@@ -192,6 +193,7 @@ onMounted(() => {
                     <figure class="tile rv"><img :src="images.galMuseumVisit || ph('Museum visit photo')" alt="Learners in uniform visiting the museum" /><figcaption>Museum visit — learning our history</figcaption></figure>
                     <figure class="tile rv"><img :src="images.galHeritageDay || ph('Heritage Day photo')" alt="Learners celebrating Heritage Day in traditional colours" /><figcaption>Heritage Day celebrations</figcaption></figure>
                     <figure class="tile rv"><img :src="images.galCosySmiles || ph('Cosy season photo')" alt="Young learners smiling in cosy onesies" /><figcaption>Cosy season smiles</figcaption></figure>
+                    <figure class="tile rv"><img :src="images.galIndependence || ph('Independence Day photo')" alt="Learners celebrating Independence Day" /><figcaption>Independence Day celebrations</figcaption></figure>
                 </div>
             </div>
         </section>
