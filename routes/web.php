@@ -66,16 +66,15 @@ use App\Http\Controllers\TermController;
 use App\Http\Controllers\TermResultController;
 use App\Http\Controllers\TimetableController;
 use App\Http\Controllers\TransportRouteController;
-use App\Http\Controllers\Admin\ApplicationController as AdminApplicationController;
 use App\Http\Controllers\Admin\MenuController as AdminMenuController;
 use App\Http\Controllers\Admin\MenuRoleController;
 use App\Http\Controllers\Admin\MenuUserController;
 use App\Http\Controllers\Admin\ReorderMenuController;
 use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\RoleController;
-use App\Http\Controllers\SchoolApplicationController;
 use App\Http\Controllers\SchoolController;
 use App\Http\Controllers\SettingsController;
+use App\Http\Controllers\SetupController;
 use App\Http\Controllers\WaiveInvoiceController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -86,6 +85,12 @@ Route::get('/about', fn () => Inertia::render('About'))->name('about');
 
 Route::middleware(['auth', 'verified', 'school.context'])->group(function () {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
+});
+
+// Fresh-install setup wizard — no school context yet
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('setup', [SetupController::class, 'create'])->name('setup.create');
+    Route::post('setup', [SetupController::class, 'store'])->name('setup.store');
 });
 
 // Module 1 — School & Class Structure
@@ -263,7 +268,15 @@ Route::middleware(['auth', 'verified', 'school.context', 'can:settings.manage'])
 
 Route::middleware(['auth', 'verified', 'school.context', 'can:school.view'])->group(function () {
     Route::get('schools', [SchoolController::class, 'index'])->name('schools.index');
-    Route::put('schools', [SchoolController::class, 'update'])->name('schools.update');
+    Route::get('schools/create', [SchoolController::class, 'create'])->name('schools.create')
+        ->middleware('can:school.create');
+    Route::post('schools', [SchoolController::class, 'store'])->name('schools.store')
+        ->middleware('can:school.create');
+    Route::get('schools/{school}', [SchoolController::class, 'show'])->name('schools.show');
+    Route::put('schools/{school}', [SchoolController::class, 'update'])->name('schools.update')
+        ->middleware('can:school.update');
+    Route::delete('schools/{school}', [SchoolController::class, 'destroy'])->name('schools.destroy')
+        ->middleware('can:school.delete');
 });
 
 // Module 4 — Attendance
@@ -276,24 +289,8 @@ Route::middleware(['auth', 'verified', 'school.context'])->group(function () {
 });
 
 
-// School Onboarding — applicant-facing (no school context required)
-Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('onboarding/apply', [SchoolApplicationController::class, 'create'])->name('onboarding.create');
-    Route::post('onboarding/apply', [SchoolApplicationController::class, 'store'])->name('onboarding.store');
-    Route::get('onboarding/{application}', [SchoolApplicationController::class, 'show'])->name('onboarding.show');
-    Route::get('onboarding/{application}/edit', [SchoolApplicationController::class, 'edit'])->name('onboarding.edit');
-    Route::put('onboarding/{application}', [SchoolApplicationController::class, 'update'])->name('onboarding.update');
-});
-
-// School Onboarding — super-admin review queue
+// Admin — menu management
 Route::middleware(['auth', 'verified', 'role:super-admin'])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('applications', [AdminApplicationController::class, 'index'])->name('applications.index');
-    Route::get('applications/{application}', [AdminApplicationController::class, 'show'])->name('applications.show');
-    Route::post('applications/{application}/approve', [AdminApplicationController::class, 'approve'])->name('applications.approve');
-    Route::post('applications/{application}/needs-info', [AdminApplicationController::class, 'needsInfo'])->name('applications.needs-info');
-    Route::post('applications/{application}/reject', [AdminApplicationController::class, 'reject'])->name('applications.reject');
-
-    // Menu management
     Route::patch('menus/reorder', ReorderMenuController::class)->name('menus.reorder');
     Route::post('menus/role-assignments', MenuRoleController::class)->name('menus.role-assignments');
     Route::post('menus/user-overrides', MenuUserController::class)->name('menus.user-overrides');

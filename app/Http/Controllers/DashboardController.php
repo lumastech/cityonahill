@@ -12,10 +12,12 @@ use App\Models\FeedingSession;
 use App\Models\Notice;
 use App\Models\Pupil;
 use App\Models\PupilTransport;
+use App\Models\School;
 use App\Models\Staff;
 use App\Models\Stream;
 use App\Models\Term;
 use App\Models\TransportRoute;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -23,15 +25,20 @@ use Inertia\Response;
 
 class DashboardController extends Controller
 {
-    public function __invoke(Request $request): Response
+    public function __invoke(Request $request): Response|RedirectResponse
     {
         $user   = $request->user();
         $school = app('current_school');
         $role   = $user->getRoleNames()->first() ?? '';
 
+        // Fresh install: no branches exist yet — send the admin to the setup wizard.
+        if ($school === null && $user->hasRole('super-admin') && ! School::exists()) {
+            return redirect()->route('setup.create');
+        }
+
         $data = match (true) {
-            // No school context (e.g. super-admin on the root domain before
-            // selecting a school) — every stats builder needs a school.
+            // No school context (e.g. a user not yet assigned to a branch)
+            // — every stats builder needs a school.
             $school === null => ['type' => 'default', 'stats' => []],
             in_array($role, ['super-admin', 'school-admin', 'headteacher', 'deputy-headteacher'])
                 => $this->adminStats($school, $user),

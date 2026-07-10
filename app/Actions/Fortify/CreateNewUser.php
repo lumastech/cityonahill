@@ -2,6 +2,7 @@
 
 namespace App\Actions\Fortify;
 
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -26,10 +27,20 @@ class CreateNewUser implements CreatesNewUsers
             'terms' => Jetstream::hasTermsAndPrivacyPolicyFeature() ? ['accepted', 'required'] : '',
         ])->validate();
 
-        return User::create([
+        $isFirstUser = User::count() === 0;
+
+        $user = User::create([
             'name' => $input['name'],
             'email' => $input['email'],
             'password' => Hash::make($input['password']),
         ]);
+
+        // The first account on a fresh install administers the organization.
+        if ($isFirstUser) {
+            Role::firstOrCreate(['name' => 'super-admin', 'guard_name' => 'web']);
+            $user->assignRole('super-admin');
+        }
+
+        return $user;
     }
 }

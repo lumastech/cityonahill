@@ -20,7 +20,6 @@ class School extends Model implements HasMedia
     protected $fillable = [
         'name',
         'code',
-        'subdomain',
         'type',
         'level',
         'province',

@@ -145,8 +145,7 @@ class MenuSeeder extends Seeder
                 'name'  => 'Admin',
                 'icon'  => 'cog',
                 'items' => [
-                    ['name' => 'Schools',      'route' => 'schools.index'],
-                    ['name' => 'Applications', 'route' => 'admin.applications.index'],
+                    ['name' => 'Branches',     'route' => 'schools.index'],
                     ['name' => 'Menus',        'route' => 'admin.menus.index'],
                     ['name' => 'Roles',        'route' => 'roles.index'],
                     ['name' => 'Settings',     'route' => 'settings.index'],

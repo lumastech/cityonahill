@@ -24,26 +24,15 @@ class SetSchoolContext
 
     private function resolveSchool(Request $request): ?School
     {
-        // Single-school mode
-        if (! config('CITYONAHILL.multi_school')) {
-            $defaultId = config('CITYONAHILL.default_school');
-
-            return $defaultId ? School::find($defaultId) : null;
-        }
-
-        // Subdomain-based resolution — primary resolver in multi-school mode
-        $school = $this->resolveBySubdomain($request);
-        if ($school) {
-            return $school;
-        }
-
         $user = $request->user();
 
         if (! $user) {
             return null;
         }
 
-        // Super-admin can switch schools via query param or session
+        // Super-admin can switch branches via query param or session,
+        // defaulting to the first active branch so a fresh selection
+        // is never required on single-branch installs.
         if ($user->hasRole('super-admin')) {
             $schoolId = $request->query('school_id') ?? $request->session()->get('school_id');
 
@@ -57,20 +46,20 @@ class SetSchoolContext
                 }
             }
 
-            return null;
+            return School::active()->orderBy('id')->first();
         }
 
-        // Staff: use their assigned school
+        // Staff: use their assigned branch
         if (class_exists(Staff::class) && $user->staff?->school_id) {
             return School::find($user->staff->school_id);
         }
 
-        // Direct school assignment on user record
+        // Direct branch assignment on user record
         if ($user->school_id) {
             return School::find($user->school_id);
         }
 
-        // Parent: use first child's school
+        // Parent: use first child's branch
         if ($user->is_parent && class_exists(Pupil::class)) {
             $pupil = Pupil::whereHas('guardians', fn ($q) => $q->where('user_id', $user->id))
                 ->first();
@@ -81,25 +70,5 @@ class SetSchoolContext
         }
 
         return null;
-    }
-
-    private function resolveBySubdomain(Request $request): ?School
-    {
-        $host     = $request->getHost();
-        $appHost  = parse_url(config('app.url'), PHP_URL_HOST) ?? '';
-
-        // Strip the root domain to get the subdomain part
-        if (! str_ends_with($host, '.' . $appHost)) {
-            return null;
-        }
-
-        $subdomain = rtrim(substr($host, 0, -strlen('.' . $appHost)), '.');
-
-        // Reserved subdomains that are never school portals
-        if (in_array($subdomain, ['www', 'admin', 'api', 'mail', 'ftp', ''])) {
-            return null;
-        }
-
-        return School::where('subdomain', $subdomain)->where('status', 'active')->first();
     }
 }

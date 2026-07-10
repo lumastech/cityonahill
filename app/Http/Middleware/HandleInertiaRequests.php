@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\School;
 use App\Models\SchoolSetting;
 use App\Models\Setting;
 use App\Models\Staff;
@@ -37,6 +38,10 @@ class HandleInertiaRequests extends Middleware
             'current_school' => fn () => app()->bound('current_school')
                 ? app('current_school')
                 : null,
+
+            'school_options' => fn () => $request->user()?->hasRole('super-admin')
+                ? School::active()->orderBy('name')->get(['id', 'name'])
+                : [],
 
             'terms' => fn () => $this->currentTerms(),
 

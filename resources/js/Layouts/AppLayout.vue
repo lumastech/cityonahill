@@ -5,7 +5,7 @@ import FlashToast from '@/Components/FlashToast.vue'
 import { usePermissions } from '@/composables/usePermissions'
 import { useSchool } from '@/composables/useSchool'
 import { Head, router, usePage } from '@inertiajs/vue3'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 
 defineProps<{ title?: string }>()
 
@@ -15,6 +15,10 @@ const page = usePage()
 
 const sidebarOpen = ref(true)
 const schoolSwitchId = ref<number | null>(null)
+
+const schools = computed<{ id: number; name: string }[]>(
+    () => (page.props.school_options as { id: number; name: string }[]) ?? [],
+)
 
 function logout() {
     router.post(route('logout'))
@@ -100,11 +104,12 @@ function switchSchool() {
                         {{ schoolName }}
                     </span>
 
-                    <!-- School switcher for super-admin -->
-                    <div v-if="isSuperAdmin()" class="flex items-center gap-2">
+                    <!-- Branch switcher for super-admin -->
+                    <div v-if="isSuperAdmin() && schools.length > 1" class="flex items-center gap-2">
                         <select v-model="schoolSwitchId" class="rounded-lg border border-gray-300 px-2 py-1 text-xs"
                             @change="switchSchool">
-                            <option :value="null">Switch School…</option>
+                            <option :value="null">Switch Branch…</option>
+                            <option v-for="s in schools" :key="s.id" :value="s.id">{{ s.name }}</option>
                         </select>
                     </div>
                 </div>

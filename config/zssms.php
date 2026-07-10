@@ -1,9 +1,6 @@
 <?php
 
 return [
-    'multi_school' => env('MULTI_SCHOOL', true),
-    'default_school' => env('SCHOOL_ID', null),
-
     'zambia_provinces' => [
         'Central',
         'Copperbelt',

@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -16,22 +15,12 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call(RolesAndPermissionsSeeder::class);
-
-        $admin = User::firstOrCreate(
-            ['email' => 'admin@admin.com'],
-            [
-                'name' => 'System Administrator',
-                'password' => bcrypt('password'),
-                'email_verified_at' => now(),
-            ]
-        );
-
-        $admin->assignRole('super-admin');
-
-        $this->call(DemoSchoolSeeder::class);
         $this->call(LeaveTypesSeeder::class);
         $this->call(MenuSeeder::class);
-        $this->call(RolesAndPermissionsSeeder::class);
 
+        // No admin user or school is seeded: on a fresh install the first
+        // registered user becomes super-admin and is guided through the
+        // /setup wizard to create the first branch. For a local demo run:
+        //   php artisan db:seed --class=DemoSchoolSeeder
     }
 }
