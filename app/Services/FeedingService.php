@@ -73,10 +73,10 @@ class FeedingService
 
         $byDay = FeedingSession::where('school_id', $schoolId)
             ->when($term, fn ($q) => $q->whereBetween('date', [$term->start_date, $term->end_date]))
-            ->selectRaw('date, SUM(served_count) as meals')
             ->withCount(['feedingRecords as served_count' => fn ($q) => $q->where('served', 1)])
             ->get()
-            ->map(fn ($s) => ['date' => $s->date->toDateString(), 'meals' => $s->served_count])
+            ->groupBy(fn ($s) => $s->date->toDateString())
+            ->map(fn ($sessions, $date) => ['date' => $date, 'meals' => $sessions->sum('served_count')])
             ->values();
 
         return [

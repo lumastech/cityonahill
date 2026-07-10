@@ -65,7 +65,7 @@ class HandleInertiaRequests extends Middleware
         }
 
         return Term::where('school_id', $school->id)
-            ->where('status', 'active')
+            ->current()
             ->get()
             ->toArray();
     }

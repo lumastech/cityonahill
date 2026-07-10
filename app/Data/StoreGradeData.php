@@ -17,10 +17,10 @@ class StoreGradeData extends Data
         #[Required, StringType]
         public readonly string $name,
 
-        #[Required, IntegerType, Min(1), Max(12)]
+        #[Required, IntegerType, Min(0), Max(12)]
         public readonly int $grade_number,
 
-        #[Required, In(['primary', 'junior_secondary', 'senior_secondary'])]
+        #[Required, In(['ece', 'primary', 'junior_secondary', 'senior_secondary'])]
         public readonly string $level,
 
         #[BooleanType]

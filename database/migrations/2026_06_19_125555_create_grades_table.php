@@ -13,7 +13,7 @@ return new class extends Migration
             $table->foreignId('school_id')->constrained()->cascadeOnDelete();
             $table->string('name', 50);
             $table->tinyInteger('grade_number')->unsigned();
-            $table->enum('level', ['primary', 'junior_secondary', 'senior_secondary']);
+            $table->enum('level', ['ece', 'primary', 'junior_secondary', 'senior_secondary']);
             $table->tinyInteger('is_ecz_year')->default(0);
             $table->tinyInteger('order_index');
             $table->timestamps();

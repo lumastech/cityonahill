@@ -74,6 +74,7 @@ class Grade extends Model
     {
         return Attribute::make(
             get: fn () => match ($this->level) {
+                'ece' => 'Early Childhood Education',
                 'primary' => 'Primary',
                 'junior_secondary' => 'Junior Secondary',
                 'senior_secondary' => 'Senior Secondary',

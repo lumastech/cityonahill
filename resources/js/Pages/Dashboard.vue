@@ -10,11 +10,11 @@ import { fmtDate } from '@/utils/date'
 interface PupilStats   { active: number; male: number; female: number }
 interface AttendStat   { present: number; absent: number; total: number; percentage: number | null; sessions?: number; recorded?: boolean }
 interface FinanceStat  { outstanding_amount: number; outstanding_count: number }
-interface Notice       { id: number; title: string; audience: string; published_at: string }
+interface Notice       { id: number; title: string; target_audience: string; published_at: string }
 interface Term         { id: number; name: string; start_date: string; end_date: string; number: number }
 interface Assessment   { id: number; name: string; type: string; date: string; max_marks: number; subject?: { name: string }; stream?: { name: string } }
 interface Stream       { id: number; name: string; grade?: { id: number; name: string; grade_number: number } }
-interface Payment      { amount: number; payment_date: string; method: string; pupil_name: string }
+interface Payment      { amount: number; payment_date: string; payment_method: string; pupil_name: string }
 interface Borrowing    { id: number; book?: { title: string }; issued_by?: { name: string }; borrowed_date: string; due_date: string; status: string }
 
 interface AdminStats {
@@ -69,7 +69,7 @@ interface BoardingStats {
 }
 
 interface TransportStats { routes: number; assigned_pupils: number; notices: Notice[] }
-interface FeedingStats   { today_session: unknown; low_stock: { item_name: string; quantity_kg: number }[]; notices: Notice[] }
+interface FeedingStats   { today_session: unknown; low_stock: { item_name: string; quantity_on_hand: number; unit: string }[]; notices: Notice[] }
 
 type DashType = 'admin' | 'class_teacher' | 'subject_teacher' | 'finance' | 'librarian' | 'boarding' | 'transport' | 'feeding' | 'default'
 
@@ -237,7 +237,7 @@ const TYPE_COLORS: Record<string, string> = {
                         <div v-if="adminStats.notices.length" class="space-y-3">
                             <div v-for="n in adminStats.notices" :key="n.id" class="border-l-2 border-indigo-200 pl-3">
                                 <p class="text-sm font-medium text-gray-800">{{ n.title }}</p>
-                                <p class="text-xs text-gray-400 mt-0.5">{{ fmtDate(n.published_at) }} · {{ n.audience }}</p>
+                                <p class="text-xs text-gray-400 mt-0.5">{{ fmtDate(n.published_at) }} · {{ n.target_audience }}</p>
                             </div>
                         </div>
                         <p v-else class="text-sm text-gray-400">No published notices.</p>
@@ -449,7 +449,7 @@ const TYPE_COLORS: Record<string, string> = {
                                 <tr v-for="(p, i) in financeStats.recent_payments" :key="i">
                                     <td class="py-2 font-medium text-gray-800">{{ p.pupil_name }}</td>
                                     <td class="py-2 text-green-700 font-medium">{{ fmtMoney(p.amount) }}</td>
-                                    <td class="py-2 text-gray-600 capitalize">{{ p.method }}</td>
+                                    <td class="py-2 text-gray-600 capitalize">{{ p.payment_method }}</td>
                                     <td class="py-2 text-gray-500">{{ fmtDate(p.payment_date) }}</td>
                                 </tr>
                             </tbody>
@@ -645,7 +645,7 @@ const TYPE_COLORS: Record<string, string> = {
                         <div v-if="feedingStats.low_stock.length" class="space-y-2">
                             <div v-for="item in feedingStats.low_stock" :key="item.item_name" class="flex items-center justify-between text-sm">
                                 <span class="text-gray-700">{{ item.item_name }}</span>
-                                <span class="font-medium text-red-600">{{ item.quantity_kg }} kg</span>
+                                <span class="font-medium text-red-600">{{ item.quantity_on_hand }} {{ item.unit }}</span>
                             </div>
                         </div>
                         <p v-else class="text-sm text-gray-400">All stock levels OK.</p>

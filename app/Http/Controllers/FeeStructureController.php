@@ -29,7 +29,7 @@ class FeeStructureController extends Controller
         return Inertia::render('Finance/FeeStructures/Index', [
             'fee_structures'  => $feeStructures,
             'terms'           => Term::where('school_id', $school->id)->orderBy('number')->get(['id', 'name', 'number']),
-            'academic_years'  => AcademicYear::where('school_id', $school->id)->orderByDesc('start_year')->get(['id', 'name']),
+            'academic_years'  => AcademicYear::where('school_id', $school->id)->orderByDesc('start_date')->get(['id', 'name']),
             'grades'          => Grade::where('school_id', $school->id)->orderBy('order_index')->get(['id', 'name', 'grade_number']),
         ]);
     }

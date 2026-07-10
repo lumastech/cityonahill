@@ -157,7 +157,7 @@ class PupilController extends Controller
             'pupil'          => $pupil,
             'grades'         => Grade::where('school_id', $school->id)->orderBy('grade_number')->get(['id', 'name', 'grade_number']),
             'streams'        => Stream::where('school_id', $school->id)->with('grade:id,name')->orderBy('name')->get(['id', 'name', 'grade_id']),
-            'academic_years' => AcademicYear::where('school_id', $school->id)->orderByDesc('start_year')->get(['id', 'name']),
+            'academic_years' => AcademicYear::where('school_id', $school->id)->orderByDesc('start_date')->get(['id', 'name']),
         ]);
     }
 

@@ -58,11 +58,11 @@ class DashboardController extends Controller
     private function recentNotices(int $schoolId, array $audiences = ['all']): \Illuminate\Database\Eloquent\Collection
     {
         return Notice::where('school_id', $schoolId)
-            ->where('status', 'published')
-            ->whereIn('audience', $audiences)
+            ->active()
+            ->whereIn('target_audience', $audiences)
             ->orderByDesc('published_at')
             ->limit(3)
-            ->get(['id', 'title', 'audience', 'published_at']);
+            ->get(['id', 'title', 'target_audience', 'published_at']);
     }
 
     private function adminStats(mixed $school, mixed $user): array
@@ -113,7 +113,7 @@ class DashboardController extends Controller
 
         // Current term
         $currentTerm = Term::where('school_id', $schoolId)
-            ->where('status', 'active')
+            ->current()
             ->first(['id', 'name', 'start_date', 'end_date', 'number']);
 
         // Grade distribution
@@ -269,7 +269,7 @@ class DashboardController extends Controller
             ->orderByDesc('fee_payments.payment_date')
             ->limit(5)
             ->get(['fee_payments.amount', 'fee_payments.payment_date', 'fee_payments.payment_method',
-                   DB::raw("pupils.first_name || ' ' || pupils.last_name as pupil_name")]);
+                   DB::raw("concat_ws(' ', pupils.first_name, pupils.last_name) as pupil_name")]);
 
         return [
             'type'  => 'finance',
@@ -357,10 +357,10 @@ class DashboardController extends Controller
             ->whereDate('date', now()->toDateString())
             ->first();
 
-        $lowStock = DB::table('feeding_stocks')
+        $lowStock = DB::table('feeding_stock')
             ->where('school_id', $schoolId)
-            ->where('quantity_kg', '<', 10)
-            ->get(['id', 'item_name', 'quantity_kg']);
+            ->whereColumn('quantity_on_hand', '<=', 'reorder_level')
+            ->get(['id', 'item_name', 'quantity_on_hand', 'unit']);
 
         return [
             'type'  => 'feeding',

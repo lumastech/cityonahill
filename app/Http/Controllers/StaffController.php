@@ -75,7 +75,7 @@ class StaffController extends Controller
             $user = User::create([
                 'name'               => $validated['name'],
                 'email'              => $validated['email'],
-                'password'           => Hash::make(Str::random(12)),
+                'password'           => Hash::make("Coah@2026"),
                 'email_verified_at'  => now(),
             ]);
             $userId = $user->id;

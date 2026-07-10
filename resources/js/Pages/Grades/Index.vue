@@ -39,12 +39,14 @@ function remove(id: number) {
 }
 
 const LEVEL_LABELS: Record<string, string> = {
+    ece: 'Early Childhood Education',
     primary: 'Primary',
     junior_secondary: 'Junior Secondary',
     senior_secondary: 'Senior Secondary',
 }
 
 const LEVEL_COLORS: Record<string, string> = {
+    ece: 'bg-amber-100 text-amber-700',
     primary: 'bg-green-100 text-green-700',
     junior_secondary: 'bg-blue-100 text-blue-700',
     senior_secondary: 'bg-purple-100 text-purple-700',
@@ -81,12 +83,13 @@ const LEVEL_COLORS: Record<string, string> = {
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-gray-600 mb-1">Grade No.</label>
-                        <input v-model="form.grade_number" type="number" min="1" max="12" class="w-full rounded-md border-gray-300 text-sm shadow-sm" :class="{ 'border-red-400': form.errors.grade_number }" required />
+                        <input v-model="form.grade_number" type="number" min="0" max="12" class="w-full rounded-md border-gray-300 text-sm shadow-sm" :class="{ 'border-red-400': form.errors.grade_number }" required />
                         <p v-if="form.errors.grade_number" class="text-xs text-red-600 mt-1">{{ form.errors.grade_number }}</p>
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-gray-600 mb-1">Level</label>
                         <select v-model="form.level" class="w-full rounded-md border-gray-300 text-sm shadow-sm" :class="{ 'border-red-400': form.errors.level }">
+                            <option value="ece">Early Childhood Education</option>
                             <option value="primary">Primary</option>
                             <option value="junior_secondary">Junior Secondary</option>
                             <option value="senior_secondary">Senior Secondary</option>

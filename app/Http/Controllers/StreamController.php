@@ -35,7 +35,7 @@ class StreamController extends Controller
             'filterGradeId'  => $request->integer('grade_id') ?: null,
             'grades'         => Grade::where('school_id', $school->id)->orderBy('grade_number')->get(['id', 'name', 'grade_number']),
             'teachers'       => User::whereHas('staff', fn ($q) => $q->where('school_id', $school->id))->orderBy('name')->get(['id', 'name']),
-            'academic_years' => AcademicYear::where('school_id', $school->id)->orderByDesc('start_year')->get(['id', 'name']),
+            'academic_years' => AcademicYear::where('school_id', $school->id)->orderByDesc('start_date')->get(['id', 'name']),
         ]);
     }
 
@@ -62,7 +62,7 @@ class StreamController extends Controller
             'stream'         => $stream->load(['grade', 'classTeacher']),
             'grades'         => Grade::where('school_id', $school->id)->orderBy('grade_number')->get(['id', 'name', 'grade_number']),
             'teachers'       => User::whereHas('staff', fn ($q) => $q->where('school_id', $school->id))->orderBy('name')->get(['id', 'name']),
-            'academic_years' => AcademicYear::where('school_id', $school->id)->orderByDesc('start_year')->get(['id', 'name']),
+            'academic_years' => AcademicYear::where('school_id', $school->id)->orderByDesc('start_date')->get(['id', 'name']),
         ]);
     }
 
