@@ -12,7 +12,7 @@ class SchoolController extends Controller
     public function index(): Response
     {
         $school = app('current_school');
-        $school->load('headteacher:id,name');
+        $school?->load('headteacher:id,name');
 
         return Inertia::render('Schools/Index', [
             'school' => $school,
@@ -22,6 +22,10 @@ class SchoolController extends Controller
     public function update(Request $request): RedirectResponse
     {
         $school = app('current_school');
+
+        if (! $school) {
+            return redirect()->route('schools.index');
+        }
 
         $validated = $request->validate([
             'name'    => ['required', 'string', 'max:200'],

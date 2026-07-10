@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import AppLayout from '@/Layouts/AppLayout.vue'
-import { Head, useForm } from '@inertiajs/vue3'
+import { Head, Link, useForm } from '@inertiajs/vue3'
 
 interface School {
     id: number
@@ -20,14 +20,14 @@ interface School {
     headteacher?: { id: number; name: string } | null
 }
 
-const props = defineProps<{ school: School }>()
+const props = defineProps<{ school: School | null }>()
 
 const form = useForm({
-    name: props.school.name,
-    phone: props.school.phone ?? '',
-    email: props.school.email ?? '',
-    address: props.school.address ?? '',
-    website: props.school.website ?? '',
+    name: props.school?.name ?? '',
+    phone: props.school?.phone ?? '',
+    email: props.school?.email ?? '',
+    address: props.school?.address ?? '',
+    website: props.school?.website ?? '',
 })
 
 function submit() {
@@ -56,6 +56,22 @@ const LEVEL_LABELS: Record<string, string> = {
         <div class="py-8 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
             <h1 class="mb-6 text-2xl font-bold text-gray-900">School Profile</h1>
 
+            <!-- Empty state: no school in context -->
+            <div v-if="!school" class="rounded-lg border border-dashed bg-white p-12 text-center shadow-sm">
+                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 3.75h.008v.008h-.008v-.008Zm0 3h.008v.008h-.008v-.008Zm0 3h.008v.008h-.008v-.008Z" />
+                </svg>
+                <h2 class="mt-4 text-sm font-semibold text-gray-900">No school yet</h2>
+                <p class="mt-1 text-sm text-gray-500">You don't have a school set up. Register your school to get started.</p>
+                <Link
+                    :href="route('onboarding.create')"
+                    class="mt-6 inline-flex rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
+                >
+                    Register a School
+                </Link>
+            </div>
+
+            <template v-else>
             <!-- Info card -->
             <div class="mb-6 grid grid-cols-2 gap-4 rounded-lg border bg-white p-6 shadow-sm sm:grid-cols-4">
                 <div>
@@ -126,6 +142,7 @@ const LEVEL_LABELS: Record<string, string> = {
                     </div>
                 </form>
             </div>
+            </template>
         </div>
     </AppLayout>
 </template>

@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -24,6 +25,11 @@ return new class extends Migration
 
     public function down(): void
     {
+        if (DB::getDriverName() === 'sqlite') {
+            // SQLite cannot DROP COLUMN on an indexed column
+            DB::statement('DROP INDEX IF EXISTS users_nrc_unique');
+        }
+
         Schema::table('users', function (Blueprint $table) {
             $table->dropForeign(['school_id']);
             $table->dropColumn([
