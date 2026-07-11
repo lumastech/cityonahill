@@ -26,6 +26,8 @@ class MenuSeeder extends Seeder
         }
 
         $this->assignToRoles();
+
+        app(\App\Services\MenuService::class)->clearAllCache();
     }
 
     private function assignToRoles(): void
@@ -82,7 +84,9 @@ class MenuSeeder extends Seeder
                 'name'  => 'Academic',
                 'icon'  => 'book-open',
                 'items' => [
-                    ['name' => 'Dashboard',  'route' => 'dashboard'],
+                    ['name' => 'Dashboard',       'route' => 'dashboard'],
+                    ['name' => 'Academic Years',  'route' => 'academic-years.index'],
+                    ['name' => 'Terms & Calendar', 'route' => 'terms.index'],
                     ['name' => 'Pupils',     'route' => 'pupils.index'],
                     ['name' => 'Guardians',  'route' => 'guardians.index'],
                     ['name' => 'Classes',    'route' => 'grades.index'],

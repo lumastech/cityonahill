@@ -31,6 +31,21 @@ class CalendarService
         });
     }
 
+    public function updateAcademicYear(AcademicYear $year, CreateAcademicYearData $data): AcademicYear
+    {
+        return DB::transaction(function () use ($year, $data) {
+            if ($data->is_current) {
+                AcademicYear::where('school_id', $year->school_id)
+                    ->whereKeyNot($year->id)
+                    ->update(['is_current' => 0]);
+            }
+
+            $year->update($data->toArray());
+
+            return $year->fresh();
+        });
+    }
+
     public function createTerm(int $schoolId, CreateTermData $data): Term
     {
         return DB::transaction(function () use ($schoolId, $data) {

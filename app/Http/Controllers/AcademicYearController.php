@@ -41,7 +41,7 @@ class AcademicYearController extends Controller
     {
         abort_if($academicYear->school_id !== app('current_school')?->id, 403);
 
-        $academicYear->update($data->toArray());
+        $this->calendarService->updateAcademicYear($academicYear, $data);
 
         return redirect()->route('academic-years.index')
             ->with('success', 'Academic year updated successfully.');

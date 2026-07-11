@@ -14,8 +14,8 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->call(RolesAndPermissionsSeeder::class);
-        $this->call(LeaveTypesSeeder::class);
+        // $this->call(RolesAndPermissionsSeeder::class);
+        // $this->call(LeaveTypesSeeder::class);
         $this->call(MenuSeeder::class);
 
         // No admin user or school is seeded: on a fresh install the first
