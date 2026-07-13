@@ -29,6 +29,22 @@ export interface Assessment {
     scores?: AssessmentScore[]
 }
 
+export interface AnswerSheet {
+    id: number
+    score_id: number
+    name: string
+    mime_type: string
+    size: number
+    is_image: boolean
+    url: string
+}
+
+/** Answer sheets on a report card also carry where they came from. */
+export interface ReportAnswerSheet extends Omit<AnswerSheet, 'score_id'> {
+    assessment: string | null
+    subject: string | null
+}
+
 export interface AssessmentScore {
     id: number
     assessment_id: number

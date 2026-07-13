@@ -64,9 +64,66 @@ class ResultsService
             ['marks_obtained', 'grade_letter', 'remarks', 'entered_by', 'entered_at', 'updated_at']
         );
 
-        return AssessmentScore::where('assessment_id', $assessment->id)
+        $scores = AssessmentScore::where('assessment_id', $assessment->id)
             ->with('pupil:id,first_name,last_name,admission_no')
             ->get();
+
+        $this->attachAnswerSheets($data, $scores);
+
+        return $scores;
+    }
+
+    /**
+     * Attach any uploaded answer sheets to the score row of the pupil they belong to.
+     *
+     * @param  Collection<int, AssessmentScore>  $scores
+     */
+    private function attachAnswerSheets(EnterScoresData $data, Collection $scores): void
+    {
+        $byPupil = $scores->keyBy('pupil_id');
+
+        foreach ($data->scores as $score) {
+            $files = array_filter($score['files'] ?? []);
+
+            if ($files === []) {
+                continue;
+            }
+
+            $model = $byPupil->get((int) $score['pupil_id']);
+
+            if (! $model) {
+                continue;
+            }
+
+            foreach ($files as $file) {
+                $model->addMedia($file)->toMediaCollection(AssessmentScore::ANSWER_SHEETS);
+            }
+        }
+    }
+
+    /**
+     * Answer sheets a pupil has attached across every assessment in a term,
+     * grouped for display alongside their report card.
+     */
+    public function getPupilAnswerSheets(int $pupilId, int $termId): Collection
+    {
+        return AssessmentScore::where('pupil_id', $pupilId)
+            ->whereHas('assessment', fn ($q) => $q->where('term_id', $termId))
+            ->with(['media', 'assessment:id,name,type,subject_id', 'assessment.subject:id,name,code'])
+            ->get()
+            ->flatMap(fn (AssessmentScore $score) => $score->getMedia(AssessmentScore::ANSWER_SHEETS)
+                ->map(fn ($media) => [
+                    'id' => $media->id,
+                    'name' => $media->file_name,
+                    'mime_type' => $media->mime_type,
+                    'size' => $media->size,
+                    'is_image' => str_starts_with((string) $media->mime_type, 'image/'),
+                    'url' => route('assessment-scores.attachments.show', [$score->id, $media->id]),
+                    'assessment' => $score->assessment?->name,
+                    'subject' => $score->assessment?->subject?->name,
+                ])
+            )
+            ->values();
     }
 
     public function computeCAMarks(int $pupilId, int $subjectId, int $termId): ?float
@@ -283,6 +340,7 @@ class ResultsService
                 'days' => $reportCard?->attendance_days,
                 'present' => $reportCard?->attendance_present,
             ],
+            'answer_sheets' => $this->getPupilAnswerSheets($pupilId, $termId),
         ];
     }
 }

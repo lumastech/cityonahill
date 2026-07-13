@@ -52,6 +52,7 @@ class ReportCardController extends Controller
             'results' => $report['results'],
             'position' => $report['position'],
             'attendance' => $report['attendance'],
+            'answer_sheets' => $report['answer_sheets'],
         ]);
     }
 

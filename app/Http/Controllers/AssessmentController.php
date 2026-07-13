@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Data\CreateAssessmentData;
 use App\Models\Assessment;
+use App\Models\AssessmentScore;
 use App\Models\Pupil;
 use App\Models\Stream;
 use App\Models\Subject;
@@ -69,7 +70,7 @@ class AssessmentController extends Controller
             'stream:id,name',
             'term:id,name,number',
             'createdBy:id,name',
-            'scores',
+            'scores.media',
         ]);
 
         $pupils = Pupil::where('stream_id', $assessment->stream_id)
@@ -79,9 +80,30 @@ class AssessmentController extends Controller
             ->get(['id', 'first_name', 'last_name', 'admission_no']);
 
         return Inertia::render('Assessments/Show', [
-            'assessment' => $assessment,
-            'pupils'     => $pupils,
+            'assessment'  => $assessment,
+            'pupils'      => $pupils,
+            'attachments' => $this->answerSheetsByPupil($assessment),
         ]);
+    }
+
+    /**
+     * Answer sheets already on file, keyed by pupil so each score row can show its own.
+     */
+    private function answerSheetsByPupil(Assessment $assessment): array
+    {
+        return $assessment->scores->mapWithKeys(fn (AssessmentScore $score) => [
+            $score->pupil_id => $score->getMedia(AssessmentScore::ANSWER_SHEETS)
+                ->map(fn ($media) => [
+                    'id' => $media->id,
+                    'score_id' => $score->id,
+                    'name' => $media->file_name,
+                    'mime_type' => $media->mime_type,
+                    'size' => $media->size,
+                    'is_image' => str_starts_with((string) $media->mime_type, 'image/'),
+                    'url' => route('assessment-scores.attachments.show', [$score->id, $media->id]),
+                ])
+                ->values(),
+        ])->filter(fn ($media) => $media->isNotEmpty())->all();
     }
 
     public function destroy(Assessment $assessment): RedirectResponse

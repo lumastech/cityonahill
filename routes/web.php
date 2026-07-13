@@ -5,6 +5,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AllocationController;
 use App\Http\Controllers\ApproveLeaveController;
 use App\Http\Controllers\ApprovePayrollController;
+use App\Http\Controllers\AssessmentAttachmentController;
 use App\Http\Controllers\AssessmentController;
 use App\Http\Controllers\AssessmentScoreController;
 use App\Http\Controllers\AttendanceController;
@@ -140,6 +141,10 @@ Route::middleware(['auth', 'verified', 'school.context'])->group(function () {
     Route::resource('assessments', AssessmentController::class)->except(['create', 'edit', 'update']);
     Route::post('assessments/{assessment}/scores', AssessmentScoreController::class)
         ->name('assessments.scores.enter');
+    Route::get('assessment-scores/{score}/attachments/{media}', [AssessmentAttachmentController::class, 'show'])
+        ->name('assessment-scores.attachments.show');
+    Route::delete('assessment-scores/{score}/attachments/{media}', [AssessmentAttachmentController::class, 'destroy'])
+        ->name('assessment-scores.attachments.destroy');
     Route::post('term-results/compute-ca', ComputeCAMarksController::class)->name('term-results.compute-ca');
     Route::post('term-results/publish', PublishResultsController::class)->name('term-results.publish');
     Route::get('term-results', [TermResultController::class, 'index'])->name('term-results.index');

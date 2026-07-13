@@ -2,9 +2,12 @@
 
 use App\Data\AddReportCommentData;
 use App\Data\BulkEnterTermResultsData;
+use App\Data\EnterScoresData;
 use App\Data\GenerateReportCardData;
 use App\Data\PublishResultsData;
 use App\Models\AcademicYear;
+use App\Models\Assessment;
+use App\Models\AssessmentScore;
 use App\Models\Grade;
 use App\Models\Pupil;
 use App\Models\ReportCard;
@@ -17,7 +20,9 @@ use App\Models\User;
 use App\Services\ResultsService;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Storage;
 
 uses(RefreshDatabase::class);
 
@@ -49,6 +54,22 @@ function makePupils(int $count): Collection
         'stream_id' => test()->stream->id,
         'academic_year_id' => test()->year->id,
         'status' => 'active',
+    ]);
+}
+
+function makeAssessment(): Assessment
+{
+    return Assessment::create([
+        'school_id' => test()->school->id,
+        'stream_id' => test()->stream->id,
+        'subject_id' => test()->subject->id,
+        'term_id' => test()->term->id,
+        'name' => 'Mid-Term Test',
+        'type' => 'mid_term',
+        'max_marks' => 100,
+        'weight_percent' => 20,
+        'date' => now()->toDateString(),
+        'created_by' => test()->teacher->id,
     ]);
 }
 
@@ -220,4 +241,152 @@ it('headteacher comment added to report card', function () {
     expect($card->headteacher_comment)->toBe('Excellent performance this term.')
         ->and($card->attendance_days)->toBe(60)
         ->and($card->attendance_present)->toBe(57);
+});
+
+it('answer sheets are optional when entering scores', function () {
+    $pupils = makePupils(2);
+    $assessment = makeAssessment();
+
+    $scores = $this->service->enterScores(new EnterScoresData(
+        assessment_id: $assessment->id,
+        scores: $pupils->map(fn ($p) => ['pupil_id' => $p->id, 'marks' => 40.0])->toArray(),
+    ), $this->teacher->id);
+
+    expect($scores)->toHaveCount(2);
+    expect($scores->first()->getMedia(AssessmentScore::ANSWER_SHEETS))->toHaveCount(0);
+});
+
+it('teacher can attach answer sheets to a pupil score', function () {
+    Storage::fake('public');
+
+    $pupils = makePupils(2);
+    $assessment = makeAssessment();
+    [$first, $second] = [$pupils->first(), $pupils->last()];
+
+    $this->service->enterScores(new EnterScoresData(
+        assessment_id: $assessment->id,
+        scores: [
+            [
+                'pupil_id' => $first->id,
+                'marks' => 55.0,
+                'files' => [
+                    UploadedFile::fake()->image('sheet-page-1.jpg'),
+                    UploadedFile::fake()->create('sheet-page-2.pdf', 100, 'application/pdf'),
+                ],
+            ],
+            ['pupil_id' => $second->id, 'marks' => 61.0],
+        ],
+    ), $this->teacher->id);
+
+    $firstScore = AssessmentScore::where('pupil_id', $first->id)->sole();
+    $secondScore = AssessmentScore::where('pupil_id', $second->id)->sole();
+
+    expect($firstScore->getMedia(AssessmentScore::ANSWER_SHEETS)->pluck('file_name')->all())
+        ->toBe(['sheet-page-1.jpg', 'sheet-page-2.pdf'])
+        ->and($secondScore->getMedia(AssessmentScore::ANSWER_SHEETS))->toHaveCount(0);
+});
+
+it('answer sheets are appended to the pupil term report', function () {
+    Storage::fake('public');
+
+    $pupil = makePupils(1)->first();
+    $assessment = makeAssessment();
+
+    $this->service->enterScores(new EnterScoresData(
+        assessment_id: $assessment->id,
+        scores: [[
+            'pupil_id' => $pupil->id,
+            'marks' => 72.0,
+            'files' => [UploadedFile::fake()->image('answers.jpg')],
+        ]],
+    ), $this->teacher->id);
+
+    $report = $this->service->getPupilTermReport($pupil->id, $this->term->id);
+
+    expect($report['answer_sheets'])->toHaveCount(1);
+
+    $sheet = $report['answer_sheets']->first();
+
+    expect($sheet['name'])->toBe('answers.jpg')
+        ->and($sheet['is_image'])->toBeTrue()
+        ->and($sheet['subject'])->toBe($this->subject->name)
+        ->and($sheet['assessment'])->toBe($assessment->name);
+});
+
+it('answer sheets from another term are left off the report', function () {
+    Storage::fake('public');
+
+    $pupil = makePupils(1)->first();
+    $otherTerm = Term::factory()->create([
+        'school_id' => $this->school->id,
+        'academic_year_id' => $this->year->id,
+        'number' => 2,
+    ]);
+
+    $assessment = makeAssessment();
+
+    $this->service->enterScores(new EnterScoresData(
+        assessment_id: $assessment->id,
+        scores: [[
+            'pupil_id' => $pupil->id,
+            'marks' => 72.0,
+            'files' => [UploadedFile::fake()->image('answers.jpg')],
+        ]],
+    ), $this->teacher->id);
+
+    $report = $this->service->getPupilTermReport($pupil->id, $otherTerm->id);
+
+    expect($report['answer_sheets'])->toHaveCount(0);
+});
+
+it('rejects an answer sheet of an unsupported type', function () {
+    Storage::fake('public');
+    $this->seed(RolesAndPermissionsSeeder::class);
+
+    $pupil = makePupils(1)->first();
+    $assessment = makeAssessment();
+
+    $teacher = User::factory()->create(['school_id' => $this->school->id]);
+    $teacher->assignRole('subject-teacher');
+
+    $this->actingAs($teacher)
+        ->post(route('assessments.scores.enter', $assessment), [
+            'assessment_id' => $assessment->id,
+            'scores' => [[
+                'pupil_id' => $pupil->id,
+                'marks' => 50,
+                'files' => [UploadedFile::fake()->create('malware.exe', 20)],
+            ]],
+        ])
+        ->assertSessionHasErrors('scores.0.files.0');
+
+    expect(AssessmentScore::where('pupil_id', $pupil->id)->first()?->getMedia(AssessmentScore::ANSWER_SHEETS) ?? collect())
+        ->toHaveCount(0);
+});
+
+it('saves an answer sheet posted through the score entry route', function () {
+    Storage::fake('public');
+    $this->seed(RolesAndPermissionsSeeder::class);
+
+    $pupil = makePupils(1)->first();
+    $assessment = makeAssessment();
+
+    $teacher = User::factory()->create(['school_id' => $this->school->id]);
+    $teacher->assignRole('subject-teacher');
+
+    $this->actingAs($teacher)
+        ->post(route('assessments.scores.enter', $assessment), [
+            'assessment_id' => $assessment->id,
+            'scores' => [[
+                'pupil_id' => $pupil->id,
+                'marks' => 50,
+                'files' => [UploadedFile::fake()->image('answers.jpg')],
+            ]],
+        ])
+        ->assertSessionHasNoErrors();
+
+    $score = AssessmentScore::where('pupil_id', $pupil->id)->sole();
+
+    expect($score->getMedia(AssessmentScore::ANSWER_SHEETS))->toHaveCount(1)
+        ->and($score->marks_obtained)->toEqual(50.0);
 });

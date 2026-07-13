@@ -2,6 +2,7 @@
 import AppLayout from '@/Layouts/AppLayout.vue'
 import { Head, Link, useForm } from '@inertiajs/vue3'
 import { computed } from 'vue'
+import type { ReportAnswerSheet } from '@/types/results'
 
 interface Subject  { id: number; name: string; code: string }
 interface Result   { id: number; subject: Subject; ca_marks: string | null; exam_marks: string | null; total_marks: string | null; grade_letter: string | null; points: number | null; teacher_comment: string | null; position_in_stream: number | null }
@@ -26,7 +27,20 @@ const props = defineProps<{
     results: Result[]
     position: number | null
     attendance: { days: number | null; present: number | null }
+    answer_sheets: ReportAnswerSheet[]
 }>()
+
+/** Answer sheets attached during score entry, grouped under the subject they belong to. */
+const sheetsBySubject = computed(() => {
+    const groups = new Map<string, ReportAnswerSheet[]>()
+
+    for (const sheet of props.answer_sheets) {
+        const key = sheet.subject ?? 'Other'
+        groups.set(key, [...(groups.get(key) ?? []), sheet])
+    }
+
+    return [...groups.entries()]
+})
 
 const GRADE_COLORS: Record<string, string> = {
     A: 'bg-green-100 text-green-800',
@@ -150,6 +164,44 @@ function saveComments() {
                         </tr>
                     </tfoot>
                 </table>
+            </div>
+
+            <!-- Answer sheets attached during score entry -->
+            <div v-if="answer_sheets.length" class="mb-6 break-before-page rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
+                <h2 class="mb-1 text-sm font-semibold text-gray-900">Answer Sheets</h2>
+                <p class="mb-4 text-xs text-gray-500">
+                    {{ answer_sheets.length }} file(s) attached to this pupil's assessments in {{ report_card.term.name }}.
+                </p>
+
+                <div v-for="[subject, sheets] in sheetsBySubject" :key="subject" class="mb-5 last:mb-0">
+                    <h3 class="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">{{ subject }}</h3>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <a
+                            v-for="sheet in sheets"
+                            :key="sheet.id"
+                            :href="sheet.url"
+                            target="_blank"
+                            class="block overflow-hidden rounded-md border border-gray-200 hover:border-indigo-400"
+                        >
+                            <img
+                                v-if="sheet.is_image"
+                                :src="sheet.url"
+                                :alt="sheet.name"
+                                class="max-h-80 w-full bg-gray-50 object-contain"
+                            />
+                            <div v-else class="flex items-center gap-2 bg-gray-50 px-3 py-4 text-sm text-gray-700">
+                                <svg class="h-5 w-5 shrink-0 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                <span class="truncate">{{ sheet.name }}</span>
+                            </div>
+                            <p class="truncate border-t border-gray-100 px-3 py-1.5 text-xs text-gray-500">
+                                {{ sheet.assessment ?? sheet.name }}
+                            </p>
+                        </a>
+                    </div>
+                </div>
             </div>
 
             <!-- Comments & attendance form -->
