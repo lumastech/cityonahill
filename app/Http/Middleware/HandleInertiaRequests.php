@@ -33,6 +33,9 @@ class HandleInertiaRequests extends Middleware
                 'error'    => $request->session()->get('error'),
                 'info'     => $request->session()->get('info'),
                 'link_url' => $request->session()->get('link_url'),
+
+                // Shown once, immediately after an admin resets a staff password.
+                'generated_password' => $request->session()->get('generated_password'),
             ],
 
             'current_school' => fn () => app()->bound('current_school')

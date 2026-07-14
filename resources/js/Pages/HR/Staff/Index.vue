@@ -5,7 +5,7 @@ import { ref } from 'vue'
 import { useHR } from '@/composables/useHR'
 import type { Staff } from '@/types/hr'
 
-defineProps<{ staff: Staff[] }>()
+defineProps<{ staff: Staff[]; can_export: boolean }>()
 
 const { positionLabel, positionColor, statusColor } = useHR()
 const search = ref('')
@@ -18,9 +18,19 @@ const search = ref('')
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div class="mb-6 flex items-center justify-between">
                 <h1 class="text-2xl font-semibold text-gray-900">Staff Directory</h1>
-                <Link :href="route('staff.create')" class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">
-                    Add Staff
-                </Link>
+                <div class="flex items-center gap-3">
+                    <!-- Plain anchor, not Inertia Link: this is a file download, not a page visit. -->
+                    <a
+                        v-if="can_export"
+                        :href="route('staff.export')"
+                        class="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                    >
+                        Export CSV
+                    </a>
+                    <Link :href="route('staff.create')" class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">
+                        Add Staff
+                    </Link>
+                </div>
             </div>
 
             <div class="mb-4">

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import AppLayout from '@/Layouts/AppLayout.vue'
-import { Head, useForm } from '@inertiajs/vue3'
+import { Head, useForm, usePage } from '@inertiajs/vue3'
 import { computed, ref } from 'vue'
 import { useHR, MONTH_NAMES, STATUS_COLORS } from '@/composables/useHR'
 import type { Leave, LeaveType, Payroll, Staff } from '@/types/hr'
@@ -26,6 +26,8 @@ function roleLabel(role: string): string {
 }
 
 const form = useForm({
+    name:            props.staff.user?.name ?? '',
+    email:           props.staff.user?.email ?? '',
     position:        props.staff.position ?? '',
     employment_type: props.staff.employment_type ?? '',
     department:      props.staff.department ?? '',
@@ -36,6 +38,29 @@ const form = useForm({
     bank_branch:     props.staff.bank_branch ?? '',
     subjects_taught: (props.staff.subjects_taught ?? []) as number[],
 })
+
+const page = usePage()
+
+// Surfaced once by the server after a reset; it is never stored in plain text.
+const generatedPassword = computed(
+    () => page.props.flash?.generated_password as string | undefined,
+)
+
+const resetForm = useForm({})
+const confirmingReset = ref(false)
+
+function resetPassword() {
+    resetForm.post(route('staff.reset-password', props.staff.id), {
+        preserveScroll: true,
+        onSuccess: () => { confirmingReset.value = false },
+    })
+}
+
+async function copyPassword() {
+    if (generatedPassword.value) {
+        await navigator.clipboard.writeText(generatedPassword.value)
+    }
+}
 
 const isTeacher = computed(() =>
     ['class-teacher', 'subject-teacher'].includes(form.position),
@@ -94,7 +119,8 @@ const leaveStatusColor: Record<string, string> = {
             </div>
 
             <!-- Employment tab -->
-            <div v-if="activeTab === 'employment'" class="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
+            <template v-if="activeTab === 'employment'">
+            <div class="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
 
                 <!-- View mode -->
                 <div v-if="!editing">
@@ -128,6 +154,19 @@ const leaveStatusColor: Record<string, string> = {
                 <!-- Edit mode -->
                 <form v-else-if="can_edit" class="space-y-5" @submit.prevent="save">
                     <div class="grid grid-cols-2 gap-4 sm:grid-cols-3">
+
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 mb-1">Full Name</label>
+                            <input v-model="form.name" type="text" class="w-full rounded-md border-gray-300 text-sm shadow-sm" />
+                            <p v-if="form.errors.name" class="mt-1 text-xs text-red-600">{{ form.errors.name }}</p>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 mb-1">Email</label>
+                            <input v-model="form.email" type="email" class="w-full rounded-md border-gray-300 text-sm shadow-sm" />
+                            <p v-if="form.errors.email" class="mt-1 text-xs text-red-600">{{ form.errors.email }}</p>
+                            <p class="mt-1 text-xs text-gray-400">Changing this requires the staff member to re-verify.</p>
+                        </div>
 
                         <div>
                             <label class="block text-xs font-medium text-gray-600 mb-1">Position</label>
@@ -217,6 +256,65 @@ const leaveStatusColor: Record<string, string> = {
                     </div>
                 </form>
             </div>
+
+            <!-- Password reset (admin / headteacher only) -->
+            <div v-if="can_edit" class="mt-6 rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
+                <h2 class="text-sm font-semibold text-gray-900">Reset Password</h2>
+                <p class="mt-1 text-sm text-gray-500">
+                    Generates a new temporary password for {{ staff.user?.name }} and emails it to
+                    {{ staff.user?.email }}. Their current password stops working immediately.
+                </p>
+
+                <!-- Shown once, on the response to the reset -->
+                <div v-if="generatedPassword" class="mt-4 rounded-md border border-green-200 bg-green-50 p-4">
+                    <p class="text-xs font-medium text-green-800">
+                        New temporary password — copy it now, it will not be shown again.
+                    </p>
+                    <div class="mt-2 flex items-center gap-3">
+                        <code class="rounded bg-white px-3 py-1.5 font-mono text-sm text-gray-900 border border-green-200">
+                            {{ generatedPassword }}
+                        </code>
+                        <button
+                            type="button"
+                            class="text-xs font-medium text-green-700 hover:text-green-900"
+                            @click="copyPassword"
+                        >
+                            Copy
+                        </button>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <button
+                        v-if="!confirmingReset"
+                        type="button"
+                        class="rounded-md border border-red-300 px-3 py-1.5 text-sm font-medium text-red-700 hover:bg-red-50"
+                        @click="confirmingReset = true"
+                    >
+                        Reset Password
+                    </button>
+
+                    <div v-else class="flex items-center gap-3">
+                        <span class="text-sm text-gray-700">Reset this staff member's password?</span>
+                        <button
+                            type="button"
+                            :disabled="resetForm.processing"
+                            class="rounded-md bg-red-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
+                            @click="resetPassword"
+                        >
+                            {{ resetForm.processing ? 'Resetting…' : 'Yes, reset' }}
+                        </button>
+                        <button
+                            type="button"
+                            class="rounded-md border px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-50"
+                            @click="confirmingReset = false"
+                        >
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            </div>
+            </template>
 
             <!-- Leave tab -->
             <div v-else-if="activeTab === 'leaves'">

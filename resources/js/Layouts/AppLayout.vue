@@ -4,7 +4,7 @@ import ConfirmDialog from '@/Components/ConfirmDialog.vue'
 import FlashToast from '@/Components/FlashToast.vue'
 import { usePermissions } from '@/composables/usePermissions'
 import { useSchool } from '@/composables/useSchool'
-import { Head, router, usePage } from '@inertiajs/vue3'
+import { Head, Link, router, usePage } from '@inertiajs/vue3'
 import { computed, ref } from 'vue'
 
 defineProps<{ title?: string }>()
@@ -74,6 +74,13 @@ function switchSchool() {
                                 d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                         </svg>
                     </a>
+                    <Link :href="route('profile.show')" class="shrink-0 text-gray-400 hover:text-gray-600"
+                        title="Account settings & password">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M15 7a2 2 0 012 2m4-2a6 6 0 01-7.743 5.743L11 14H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                        </svg>
+                    </Link>
                     <button class="shrink-0 text-gray-400 hover:text-gray-600" @click="logout" title="Logout">
                         <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

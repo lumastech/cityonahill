@@ -1,1 +1,0 @@
-import{P as e,R as t,k as n,n as r,v as i,y as a}from"./app-y7du3mDl.js";var o={__name:`AuthenticationCardLogo`,setup(o){return(o,s)=>(n(),a(t(r),{href:`/`},{default:e(()=>[...s[0]||=[i(`img`,{src:`/images/logo.jpeg`,alt:`Logo`,class:`w-20 h-20 fill-current text-gray-500`},null,-1)]]),_:1}))}};export{o as t};

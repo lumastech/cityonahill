@@ -165,7 +165,9 @@ return [
         Features::registration(),
         Features::resetPasswords(),
         Features::emailVerification(),
-        Features::updateProfileInformation(),
+        // Name and email are managed by admins on the staff record, not self-service.
+        // Disabling this also unregisters PUT /user/profile-information.
+        // Features::updateProfileInformation(),
         Features::updatePasswords(),
         Features::twoFactorAuthentication([
             'confirm' => true,

@@ -48,6 +48,7 @@ export interface FlashMessages {
     error: string | null
     info: string | null
     link_url: string | null
+    generated_password: string | null
 }
 
 export interface SharedProps {

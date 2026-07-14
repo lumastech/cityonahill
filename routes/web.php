@@ -162,6 +162,8 @@ Route::middleware(['auth', 'verified', 'school.context'])->group(function () {
 
 // Module 8 — Staff & HR
 Route::middleware(['auth', 'verified', 'school.context'])->group(function () {
+    Route::get('staff/export', [StaffController::class, 'export'])->name('staff.export');
+    Route::post('staff/{staff}/reset-password', [StaffController::class, 'resetPassword'])->name('staff.reset-password');
     Route::resource('staff', StaffController::class)->except(['edit']);
     Route::get('leaves/apply', [LeaveController::class, 'create'])->name('leaves.apply');
     Route::get('leaves', [LeaveController::class, 'index'])->name('leaves.index');

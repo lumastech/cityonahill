@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Data\CreateStaffData;
+use App\Mail\StaffPasswordResetMail;
 use App\Models\LeaveType;
 use App\Models\Staff;
 use App\Models\Subject;
@@ -13,9 +14,11 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class StaffController extends Controller
 {
@@ -26,8 +29,68 @@ class StaffController extends Controller
         $school = app('current_school');
 
         return Inertia::render('HR/Staff/Index', [
-            'staff' => $this->hrService->getStaffDirectory($school->id),
+            'staff'      => $this->hrService->getStaffDirectory($school->id),
+            'can_export' => auth()->user()->can('staff.view'),
         ]);
+    }
+
+    public function export(): StreamedResponse
+    {
+        $school = app('current_school');
+
+        $this->authorize('staff.view');
+
+        $columns = [
+            'Name'            => fn (Staff $s) => $s->user?->name,
+            'Email'           => fn (Staff $s) => $s->user?->email,
+            'Employee No'     => fn (Staff $s) => $s->employee_no,
+            'Position'        => fn (Staff $s) => $s->position,
+            'Department'      => fn (Staff $s) => $s->department,
+            'Employment Type' => fn (Staff $s) => $s->employment_type,
+            'Employment Date' => fn (Staff $s) => $s->employment_date?->format('Y-m-d'),
+            'Status'          => fn (Staff $s) => $s->status,
+        ];
+
+        // Payroll and identity columns are only for those who can already see them in payroll.
+        if (auth()->user()->can('payroll.view')) {
+            $columns += [
+                'Basic Salary' => fn (Staff $s) => $s->basic_salary,
+                'Bank'         => fn (Staff $s) => $s->bank,
+                'Bank Account' => fn (Staff $s) => $s->bank_account,
+                'Bank Branch'  => fn (Staff $s) => $s->bank_branch,
+                'NRC'          => fn (Staff $s) => $s->nrc,
+                'TPIN'         => fn (Staff $s) => $s->tpin,
+                'NAPSA No'     => fn (Staff $s) => $s->napsa_no,
+            ];
+        }
+
+        $staff = $this->hrService->getStaffDirectory($school->id);
+
+        return response()->streamDownload(function () use ($staff, $columns) {
+            $out = fopen('php://output', 'wb');
+
+            fputcsv($out, array_keys($columns));
+
+            foreach ($staff as $member) {
+                fputcsv($out, array_map(
+                    fn (callable $value) => $this->csvSafe($value($member)),
+                    array_values($columns),
+                ));
+            }
+
+            fclose($out);
+        }, 'staff-'.now()->format('Y-m-d').'.csv', ['Content-Type' => 'text/csv']);
+    }
+
+    /**
+     * Neutralise spreadsheet formula injection: a leading =, +, - or @ makes
+     * Excel/Sheets evaluate the cell as a formula on open.
+     */
+    private function csvSafe(mixed $value): string
+    {
+        $value = (string) $value;
+
+        return Str::startsWith($value, ['=', '+', '-', '@']) ? "'".$value : $value;
     }
 
     public function create(): Response
@@ -114,6 +177,10 @@ class StaffController extends Controller
 
         abort_if(! $canViewAll && ! $isSelf, 403);
 
+        // Editing is gated on the permission the update endpoint itself enforces,
+        // not on the broader "can view everyone" role list.
+        $canEdit = $user->can('staff.update');
+
         $staff->load([
             'user:id,name,email',
             'leaves.leaveType:id,name',
@@ -132,13 +199,23 @@ class StaffController extends Controller
             'leave_balance' => $leaveBalance,
             'subjects'      => Subject::where('school_id', $staff->school_id)->orderBy('name')->get(['id', 'name']),
             'roles'         => Role::whereNotIn('name', ['super-admin', 'parent'])->orderBy('name')->pluck('name'),
-            'can_edit'      => $canViewAll,
+            'can_edit'      => $canEdit,
         ]);
     }
 
     public function update(Request $request, Staff $staff): RedirectResponse
     {
         abort_if($staff->school_id !== app('current_school')?->id, 403);
+
+        $this->authorize('staff.update');
+
+        $validated = $request->validate([
+            'name'  => ['sometimes', 'required', 'string', 'max:200'],
+            'email' => [
+                'sometimes', 'required', 'email',
+                Rule::unique('users', 'email')->ignore($staff->user_id),
+            ],
+        ]);
 
         $oldPosition = $staff->position;
 
@@ -148,14 +225,50 @@ class StaffController extends Controller
             'bank', 'bank_account', 'bank_branch',
         ]));
 
-        if ($request->filled('position') && $staff->position !== $oldPosition) {
-            $user = $staff->user;
-            if ($user) {
+        $user = $staff->user;
+
+        if ($user) {
+            $identity = array_intersect_key($validated, array_flip(['name', 'email']));
+
+            if ($identity !== []) {
+                // A changed email is unverified until the new address is confirmed.
+                // email_verified_at is not fillable, so it is set outside the update().
+                if (isset($identity['email']) && $identity['email'] !== $user->email) {
+                    $user->email_verified_at = null;
+                }
+
+                $user->fill($identity)->save();
+            }
+
+            if ($request->filled('position') && $staff->position !== $oldPosition) {
                 $this->hrService->syncPositionRole($user, $staff->position);
             }
         }
 
         return back()->with('success', 'Staff record updated.');
+    }
+
+    public function resetPassword(Staff $staff): RedirectResponse
+    {
+        abort_if($staff->school_id !== app('current_school')?->id, 403);
+
+        $this->authorize('staff.update');
+
+        $user = $staff->user;
+
+        abort_if(! $user, 404, 'This staff member has no linked user account.');
+
+        $temporaryPassword = Str::password(12);
+
+        $user->update(['password' => Hash::make($temporaryPassword)]);
+
+        Mail::to($user->email)->send(
+            new StaffPasswordResetMail($user, $temporaryPassword, route('login'))
+        );
+
+        return back()
+            ->with('success', 'Password reset. The new password was emailed to '.$user->email.'.')
+            ->with('generated_password', $temporaryPassword);
     }
 
     public function destroy(Staff $staff): RedirectResponse

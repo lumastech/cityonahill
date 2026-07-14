@@ -1,16 +1,26 @@
 <?php
 
 use App\Models\User;
+use Laravel\Fortify\Features;
 
-test('profile information can be updated', function () {
-    $this->actingAs($user = User::factory()->create());
+test('self-service profile information updates are disabled', function () {
+    expect(Features::enabled(Features::updateProfileInformation()))->toBeFalse();
+});
 
-    $this->put('/user/profile-information', [
-        'name' => 'Test Name',
-        'email' => 'test@example.com',
+test('users cannot change their own name or email', function () {
+    $user = User::factory()->create([
+        'name'  => 'Original Name',
+        'email' => 'original@example.com',
     ]);
 
+    $this->actingAs($user)
+        ->put('/user/profile-information', [
+            'name'  => 'Hacked Name',
+            'email' => 'hacked@example.com',
+        ])
+        ->assertNotFound();
+
     expect($user->fresh())
-        ->name->toEqual('Test Name')
-        ->email->toEqual('test@example.com');
+        ->name->toEqual('Original Name')
+        ->email->toEqual('original@example.com');
 });
