@@ -5,7 +5,7 @@ import FlashToast from '@/Components/FlashToast.vue'
 import { usePermissions } from '@/composables/usePermissions'
 import { useSchool } from '@/composables/useSchool'
 import { Head, Link, router, usePage } from '@inertiajs/vue3'
-import { computed, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 
 defineProps<{ title?: string }>()
 
@@ -13,12 +13,51 @@ const { isSuperAdmin } = usePermissions()
 const { currentSchool, schoolName } = useSchool()
 const page = usePage()
 
+const DESKTOP = '(min-width: 1024px)' // Tailwind `lg`
+
+// Desktop collapses the sidebar to zero width; mobile slides it in over the page.
 const sidebarOpen = ref(true)
+const mobileNavOpen = ref(false)
+const isDesktop = ref(true)
 const schoolSwitchId = ref<number | null>(null)
 
 const schools = computed<{ id: number; name: string }[]>(
     () => (page.props.school_options as { id: number; name: string }[]) ?? [],
 )
+
+let mql: MediaQueryList | undefined
+
+function syncBreakpoint(e: MediaQueryList | MediaQueryListEvent) {
+    isDesktop.value = e.matches
+    if (e.matches) mobileNavOpen.value = false
+}
+
+function onKeydown(e: KeyboardEvent) {
+    if (e.key === 'Escape') mobileNavOpen.value = false
+}
+
+onMounted(() => {
+    mql = window.matchMedia(DESKTOP)
+    syncBreakpoint(mql)
+    mql.addEventListener('change', syncBreakpoint)
+    window.addEventListener('keydown', onKeydown)
+})
+
+onBeforeUnmount(() => {
+    mql?.removeEventListener('change', syncBreakpoint)
+    window.removeEventListener('keydown', onKeydown)
+})
+
+// The drawer overlays the page on mobile, so close it once navigation lands.
+const stopNavigate = router.on('navigate', () => {
+    mobileNavOpen.value = false
+})
+onBeforeUnmount(() => stopNavigate())
+
+function toggleSidebar() {
+    if (isDesktop.value) sidebarOpen.value = !sidebarOpen.value
+    else mobileNavOpen.value = !mobileNavOpen.value
+}
 
 function logout() {
     router.post(route('logout'))
@@ -31,15 +70,26 @@ function switchSchool() {
 </script>
 
 <template>
-    <div class="flex h-screen overflow-hidden bg-gray-50">
+    <div class="flex h-dvh overflow-hidden bg-gray-50">
 
         <Head :title="title" />
 
-        <!-- Sidebar -->
-        <aside class="flex w-64 shrink-0 flex-col border-r border-gray-200 bg-white transition-all duration-300"
-            :class="{ 'w-0 overflow-hidden border-0': !sidebarOpen }">
+        <!-- Mobile drawer backdrop -->
+        <Transition enter-active-class="transition-opacity duration-200" enter-from-class="opacity-0"
+            leave-active-class="transition-opacity duration-200" leave-to-class="opacity-0">
+            <div v-if="mobileNavOpen" class="fixed inset-0 z-40 bg-gray-900/50 lg:hidden" aria-hidden="true"
+                @click="mobileNavOpen = false" />
+        </Transition>
+
+        <!-- Sidebar: off-canvas drawer below lg, static column from lg up -->
+        <aside
+            class="fixed inset-y-0 left-0 z-50 flex w-64 shrink-0 flex-col border-r border-gray-200 bg-white transition-all duration-300 lg:static lg:z-auto lg:translate-x-0"
+            :class="[
+                mobileNavOpen ? 'translate-x-0 shadow-xl' : '-translate-x-full',
+                sidebarOpen ? '' : 'lg:w-0 lg:overflow-hidden lg:border-0',
+            ]">
             <!-- Brand -->
-            <div class="flex h-16 items-center gap-3 border-b border-gray-200 px-4">
+            <div class="flex h-16 shrink-0 items-center gap-3 border-b border-gray-200 px-4">
                 <img v-if="currentSchool?.logo_url" :src="currentSchool.logo_url"
                     class="h-8 w-8 rounded-full object-cover" alt="School logo" />
                 <div v-else
@@ -49,6 +99,12 @@ function switchSchool() {
                 <span class="truncate text-sm font-semibold text-gray-900">
                     {{ schoolName || 'CITYONAHILL' }}
                 </span>
+                <button class="ml-auto shrink-0 rounded-lg p-1.5 text-gray-500 hover:bg-gray-100 lg:hidden"
+                    aria-label="Close navigation" @click="mobileNavOpen = false">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
             </div>
 
             <!-- Nav -->
@@ -94,36 +150,37 @@ function switchSchool() {
         <!-- Main content -->
         <div class="flex min-w-0 flex-1 flex-col">
             <!-- Header -->
-            <header class="flex h-16 shrink-0 items-center gap-4 border-b border-gray-200 bg-white px-4">
-                <button class="rounded-lg p-1.5 text-gray-500 hover:bg-gray-100" @click="sidebarOpen = !sidebarOpen">
+            <header class="flex h-16 shrink-0 items-center gap-2 border-b border-gray-200 bg-white px-3 sm:gap-4 sm:px-4">
+                <button class="shrink-0 rounded-lg p-1.5 text-gray-500 hover:bg-gray-100"
+                    :aria-expanded="isDesktop ? sidebarOpen : mobileNavOpen" aria-label="Toggle navigation"
+                    @click="toggleSidebar">
                     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M4 6h16M4 12h16M4 18h16" />
                     </svg>
                 </button>
 
-                <h1 v-if="title" class="text-base font-semibold text-gray-900">{{ title }}</h1>
+                <h1 v-if="title" class="truncate text-base font-semibold text-gray-900">{{ title }}</h1>
 
-                <div class="ml-auto flex items-center gap-3">
-                    <!-- School badge -->
+                <div class="ml-auto flex min-w-0 items-center gap-2 sm:gap-3">
+                    <!-- School badge — redundant with the sidebar brand on small screens -->
                     <span v-if="currentSchool"
-                        class="inline-flex items-center rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">
+                        class="hidden max-w-[12rem] items-center truncate rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10 md:inline-flex">
                         {{ schoolName }}
                     </span>
 
                     <!-- Branch switcher for super-admin -->
-                    <div v-if="isSuperAdmin() && schools.length > 1" class="flex items-center gap-2">
-                        <select v-model="schoolSwitchId" class="rounded-lg border border-gray-300 px-2 py-1 text-xs"
-                            @change="switchSchool">
-                            <option :value="null">Switch Branch…</option>
-                            <option v-for="s in schools" :key="s.id" :value="s.id">{{ s.name }}</option>
-                        </select>
-                    </div>
+                    <select v-if="isSuperAdmin() && schools.length > 1" v-model="schoolSwitchId"
+                        class="max-w-[9rem] shrink-0 truncate rounded-lg border border-gray-300 px-2 py-1 text-xs sm:max-w-none"
+                        aria-label="Switch branch" @change="switchSchool">
+                        <option :value="null">Switch Branch…</option>
+                        <option v-for="s in schools" :key="s.id" :value="s.id">{{ s.name }}</option>
+                    </select>
                 </div>
             </header>
 
             <!-- Page content -->
-            <main class="flex-1 overflow-y-auto p-6">
+            <main class="flex-1 overflow-y-auto p-4 sm:p-6">
                 <slot />
             </main>
         </div>
