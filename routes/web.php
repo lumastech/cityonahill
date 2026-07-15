@@ -25,6 +25,10 @@ use App\Http\Controllers\FeeInvoiceController;
 use App\Http\Controllers\FeePaymentController;
 use App\Http\Controllers\FeeReportController;
 use App\Http\Controllers\FeeStructureController;
+use App\Http\Controllers\FinanceDashboardController;
+use App\Http\Controllers\OtherIncomeController;
+use App\Http\Controllers\ProfitLossController;
+use App\Http\Controllers\ReceivablesController;
 use App\Http\Controllers\GeneratePayrollController;
 use App\Http\Controllers\GradeController;
 use App\Http\Controllers\GuardianAccountController;
@@ -249,7 +253,13 @@ Route::middleware(['auth', 'verified', 'school.context'])->group(function () {
     Route::post('fee-payments', FeePaymentController::class)->name('fee-payments.store');
     Route::resource('expenses', ExpenseController::class)->only(['index', 'store', 'destroy']);
     Route::resource('budgets', BudgetController::class)->only(['index', 'store', 'destroy']);
+    Route::resource('other-income', OtherIncomeController::class)
+        ->parameters(['other-income' => 'otherIncome'])
+        ->only(['index', 'store', 'destroy']);
     Route::get('finance/reports', FeeReportController::class)->name('finance.reports');
+    Route::get('finance/dashboard', FinanceDashboardController::class)->name('finance.dashboard');
+    Route::get('finance/profit-loss', ProfitLossController::class)->name('finance.profit-loss');
+    Route::get('finance/receivables', ReceivablesController::class)->name('finance.receivables');
 });
 
 // Module 14 — Communication

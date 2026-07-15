@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Data\BulkRaiseInvoicesData;
 use App\Data\CreateExpenseData;
 use App\Data\CreateFeeStructureData;
+use App\Data\CreateOtherIncomeData;
 use App\Data\RaiseInvoiceData;
 use App\Data\RecordPaymentData;
 use App\Models\Budget;
@@ -12,6 +13,7 @@ use App\Models\Expense;
 use App\Models\FeeInvoice;
 use App\Models\FeePayment;
 use App\Models\FeeStructure;
+use App\Models\OtherIncome;
 use App\Models\Pupil;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\UploadedFile;
@@ -116,33 +118,41 @@ class FinanceService
             'payment_date' => $data->payment_date,
         ]);
 
-        $totalPaid = (float) $invoice->payments()->sum('amount');
-        $balanceDue = (float) $invoice->balance_due;
-
-        if ($totalPaid >= $balanceDue) {
-            $invoice->update(['status' => 'paid']);
-        } elseif ($totalPaid > 0) {
-            $invoice->update(['status' => 'partial']);
-        }
+        $this->syncInvoiceStatus($invoice);
 
         return $payment;
     }
 
     public function reconcileInvoice(FeeInvoice $invoice): void
     {
-        $totalPaid = (float) $invoice->payments()
-            ->where(function ($q) {
-                $q->whereNull('gateway_status')
-                  ->orWhere('gateway_status', 'completed');
-            })
-            ->sum('amount');
+        $this->syncInvoiceStatus($invoice);
+    }
 
-        $balanceDue = (float) $invoice->total_amount;
+    /**
+     * Recompute an invoice's status from its completed payments.
+     *
+     * `balance_due` is the immutable net amount billed (amount − discount) and is
+     * never decremented here; the amount still owed is derived as balance_due − amount_paid.
+     */
+    private function syncInvoiceStatus(FeeInvoice $invoice): void
+    {
+        if ($invoice->status === 'waived') {
+            return;
+        }
 
-        if ($totalPaid >= $balanceDue) {
-            $invoice->update(['status' => 'paid', 'balance_due' => 0]);
+        $netBilled = (float) $invoice->balance_due;
+        $totalPaid = $invoice->amount_paid;
+
+        if ($netBilled > 0 && $totalPaid >= $netBilled) {
+            $status = 'paid';
         } elseif ($totalPaid > 0) {
-            $invoice->update(['status' => 'partial', 'balance_due' => $balanceDue - $totalPaid]);
+            $status = 'partial';
+        } else {
+            $status = 'unpaid';
+        }
+
+        if ($invoice->status !== $status) {
+            $invoice->update(['status' => $status]);
         }
     }
 
@@ -223,6 +233,104 @@ class FinanceService
         ];
     }
 
+    /**
+     * Accounts-receivable aging as of a given date. Outstanding invoices (unpaid/partial) are
+     * bucketed by how long they have been overdue relative to $asOf, using balance_due − amount_paid.
+     *
+     * @return array{
+     *     as_of: string,
+     *     buckets: array<int, array{key: string, label: string, amount: float, count: int}>,
+     *     total_outstanding: float,
+     *     total_count: int,
+     *     debtors: array<int, array{pupil_id: int, name: string, admission_no: string, grade: string|int, outstanding: float, invoice_count: int, oldest_due_date: ?string}>
+     * }
+     */
+    public function getReceivablesAging(int $schoolId, ?string $asOf = null): array
+    {
+        $asOfDate = $asOf ? \Carbon\Carbon::parse($asOf)->startOfDay() : now()->startOfDay();
+
+        $invoices = FeeInvoice::where('school_id', $schoolId)
+            ->whereIn('status', ['unpaid', 'partial'])
+            ->with('pupil:id,first_name,other_name,last_name,admission_no,grade_id', 'pupil.grade:id,grade_number', 'payments')
+            ->get();
+
+        $buckets = [
+            'current' => ['key' => 'current', 'label' => 'Not yet due', 'amount' => 0.0, 'count' => 0],
+            '1_30' => ['key' => '1_30', 'label' => '1–30 days', 'amount' => 0.0, 'count' => 0],
+            '31_60' => ['key' => '31_60', 'label' => '31–60 days', 'amount' => 0.0, 'count' => 0],
+            '61_90' => ['key' => '61_90', 'label' => '61–90 days', 'amount' => 0.0, 'count' => 0],
+            '90_plus' => ['key' => '90_plus', 'label' => '90+ days', 'amount' => 0.0, 'count' => 0],
+        ];
+
+        $debtors = [];
+        $totalOutstanding = 0.0;
+        $totalCount = 0;
+
+        foreach ($invoices as $invoice) {
+            $outstanding = max(0.0, (float) $invoice->balance_due - $invoice->amount_paid);
+
+            if ($outstanding <= 0) {
+                continue;
+            }
+
+            $bucketKey = $this->agingBucket($invoice->due_date, $asOfDate);
+            $buckets[$bucketKey]['amount'] += $outstanding;
+            $buckets[$bucketKey]['count']++;
+
+            $totalOutstanding += $outstanding;
+            $totalCount++;
+
+            $pupil = $invoice->pupil;
+            $pid = $invoice->pupil_id;
+
+            if (! isset($debtors[$pid])) {
+                $debtors[$pid] = [
+                    'pupil_id' => $pid,
+                    'name' => $pupil?->full_name ?? 'Unknown',
+                    'admission_no' => $pupil?->admission_no ?? '',
+                    'grade' => $pupil?->grade?->grade_number ?? '—',
+                    'outstanding' => 0.0,
+                    'invoice_count' => 0,
+                    'oldest_due_date' => null,
+                ];
+            }
+
+            $debtors[$pid]['outstanding'] += $outstanding;
+            $debtors[$pid]['invoice_count']++;
+
+            $due = $invoice->due_date?->toDateString();
+            if ($due && (! $debtors[$pid]['oldest_due_date'] || $due < $debtors[$pid]['oldest_due_date'])) {
+                $debtors[$pid]['oldest_due_date'] = $due;
+            }
+        }
+
+        usort($debtors, fn ($a, $b) => $b['outstanding'] <=> $a['outstanding']);
+
+        return [
+            'as_of' => $asOfDate->toDateString(),
+            'buckets' => array_values($buckets),
+            'total_outstanding' => $totalOutstanding,
+            'total_count' => $totalCount,
+            'debtors' => array_values($debtors),
+        ];
+    }
+
+    private function agingBucket(?\Carbon\Carbon $dueDate, \Carbon\Carbon $asOf): string
+    {
+        if (! $dueDate || $dueDate->startOfDay()->greaterThanOrEqualTo($asOf)) {
+            return 'current';
+        }
+
+        $daysOverdue = $dueDate->startOfDay()->diffInDays($asOf);
+
+        return match (true) {
+            $daysOverdue <= 30 => '1_30',
+            $daysOverdue <= 60 => '31_60',
+            $daysOverdue <= 90 => '61_90',
+            default => '90_plus',
+        };
+    }
+
     public function recordExpense(int $schoolId, CreateExpenseData $data, ?UploadedFile $receipt = null): Expense
     {
         $expense = Expense::create([
@@ -239,6 +347,131 @@ class FinanceService
         }
 
         return $expense;
+    }
+
+    /**
+     * Monthly income (fees + other) vs expenses for the trailing $months months, oldest first.
+     *
+     * @return array<int, array{month: string, label: string, income: float, expenses: float}>
+     */
+    public function getMonthlyIncomeExpense(int $schoolId, int $months = 6): array
+    {
+        $start = now()->startOfMonth()->subMonths($months - 1);
+
+        $series = [];
+        for ($cursor = $start->copy(); $cursor->lessThanOrEqualTo(now()); $cursor->addMonth()) {
+            $series[$cursor->format('Y-m')] = [
+                'month' => $cursor->format('Y-m'),
+                'label' => $cursor->format('M'),
+                'income' => 0.0,
+                'expenses' => 0.0,
+            ];
+        }
+
+        $fees = FeePayment::where('school_id', $schoolId)
+            ->where('payment_date', '>=', $start->toDateString())
+            ->where(function ($q) {
+                $q->whereNull('gateway_status')->orWhere('gateway_status', 'completed');
+            })
+            ->selectRaw("DATE_FORMAT(payment_date, '%Y-%m') as ym, SUM(amount) as total")
+            ->groupBy('ym')->pluck('total', 'ym');
+
+        $other = OtherIncome::where('school_id', $schoolId)
+            ->where('received_date', '>=', $start->toDateString())
+            ->selectRaw("DATE_FORMAT(received_date, '%Y-%m') as ym, SUM(amount) as total")
+            ->groupBy('ym')->pluck('total', 'ym');
+
+        $expenses = Expense::where('school_id', $schoolId)
+            ->where('expense_date', '>=', $start->toDateString())
+            ->selectRaw("DATE_FORMAT(expense_date, '%Y-%m') as ym, SUM(amount) as total")
+            ->groupBy('ym')->pluck('total', 'ym');
+
+        foreach ($series as $ym => &$row) {
+            $row['income'] = (float) ($fees[$ym] ?? 0) + (float) ($other[$ym] ?? 0);
+            $row['expenses'] = (float) ($expenses[$ym] ?? 0);
+        }
+
+        return array_values($series);
+    }
+
+    /**
+     * Cash-basis profit & loss for a date range. Income is fee payments actually received plus
+     * other income, less expenses paid, all keyed on their transaction dates within [$from, $to].
+     *
+     * @return array{
+     *     from: string,
+     *     to: string,
+     *     fees_collected: float,
+     *     other_income_total: float,
+     *     other_income_by_source: array<int, array{source: string, amount: float}>,
+     *     total_income: float,
+     *     expenses_by_category: array<int, array{category: string, amount: float}>,
+     *     total_expenses: float,
+     *     net: float
+     * }
+     */
+    public function getProfitAndLoss(int $schoolId, string $from, string $to): array
+    {
+        $feesCollected = (float) FeePayment::where('school_id', $schoolId)
+            ->whereBetween('payment_date', [$from, $to])
+            ->where(function ($q) {
+                $q->whereNull('gateway_status')->orWhere('gateway_status', 'completed');
+            })
+            ->sum('amount');
+
+        $otherBySource = OtherIncome::where('school_id', $schoolId)
+            ->whereBetween('received_date', [$from, $to])
+            ->selectRaw('source, SUM(amount) as amount')
+            ->groupBy('source')
+            ->orderByDesc('amount')
+            ->get()
+            ->map(fn ($row) => ['source' => $row->source, 'amount' => (float) $row->amount])
+            ->all();
+
+        $otherIncomeTotal = array_sum(array_column($otherBySource, 'amount'));
+        $totalIncome = $feesCollected + $otherIncomeTotal;
+
+        $expensesByCategory = Expense::where('school_id', $schoolId)
+            ->whereBetween('expense_date', [$from, $to])
+            ->selectRaw('category, SUM(amount) as amount')
+            ->groupBy('category')
+            ->orderByDesc('amount')
+            ->get()
+            ->map(fn ($row) => ['category' => $row->category, 'amount' => (float) $row->amount])
+            ->all();
+
+        $totalExpenses = array_sum(array_column($expensesByCategory, 'amount'));
+
+        return [
+            'from' => $from,
+            'to' => $to,
+            'fees_collected' => $feesCollected,
+            'other_income_total' => $otherIncomeTotal,
+            'other_income_by_source' => $otherBySource,
+            'total_income' => $totalIncome,
+            'expenses_by_category' => $expensesByCategory,
+            'total_expenses' => $totalExpenses,
+            'net' => $totalIncome - $totalExpenses,
+        ];
+    }
+
+    public function recordOtherIncome(int $schoolId, CreateOtherIncomeData $data, int $recordedBy, ?UploadedFile $receipt = null): OtherIncome
+    {
+        $income = OtherIncome::create([
+            'school_id' => $schoolId,
+            'source' => $data->source,
+            'description' => $data->description,
+            'amount' => $data->amount,
+            'received_date' => $data->received_date,
+            'recorded_by' => $recordedBy,
+            'reference' => $data->reference,
+        ]);
+
+        if ($receipt) {
+            $income->addMedia($receipt)->toMediaCollection('receipts');
+        }
+
+        return $income;
     }
 
     /** @return array{by_category: array<int, array{category: string, budget: float, actual: float, variance: float}>} */

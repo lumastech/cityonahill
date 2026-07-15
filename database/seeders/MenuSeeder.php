@@ -119,10 +119,14 @@ class MenuSeeder extends Seeder
                 'name'  => 'Finance',
                 'icon'  => 'banknotes',
                 'items' => [
-                    ['name' => 'Fee Structures', 'route' => 'fee-structures.index'],
+                    ['name' => 'Dashboard',       'route' => 'finance.dashboard'],
+                    ['name' => 'Fee Structures',  'route' => 'fee-structures.index'],
                     ['name' => 'Invoices',        'route' => 'fee-invoices.index'],
+                    ['name' => 'Receivables',     'route' => 'finance.receivables'],
                     ['name' => 'Expenses',        'route' => 'expenses.index'],
+                    ['name' => 'Other Income',    'route' => 'other-income.index'],
                     ['name' => 'Budget',          'route' => 'budgets.index'],
+                    ['name' => 'Profit & Loss',   'route' => 'finance.profit-loss'],
                 ],
             ],
             [

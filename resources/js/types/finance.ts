@@ -2,6 +2,19 @@ export type InvoiceStatus = 'unpaid' | 'partial' | 'paid' | 'waived'
 export type PaymentMethod = 'cash' | 'airtel_money' | 'mtn_momo' | 'bank_transfer' | 'cheque'
 export type ExpenseCategory = 'salaries' | 'utilities' | 'maintenance' | 'supplies' | 'transport' | 'feeding' | 'library' | 'other'
 export type FeeAppliesTo = 'all' | 'day_scholars' | 'boarders' | 'new_pupils'
+export type IncomeSource = 'donation' | 'grant' | 'uniform_sales' | 'book_sales' | 'feeding' | 'rental' | 'fundraising' | 'other'
+
+export interface OtherIncome {
+    id: number
+    school_id: number
+    source: IncomeSource
+    description: string
+    amount: number
+    received_date: string
+    recorded_by: number | null
+    reference: string | null
+    media?: Array<{ id: number; original_url: string; file_name: string }>
+}
 
 export interface FeeStructure {
     id: number
@@ -80,6 +93,43 @@ export interface BudgetVsActualItem {
     budget: number
     actual: number
     variance: number
+}
+
+export interface AgingBucket {
+    key: string
+    label: string
+    amount: number
+    count: number
+}
+
+export interface Debtor {
+    pupil_id: number
+    name: string
+    admission_no: string
+    grade: string | number
+    outstanding: number
+    invoice_count: number
+    oldest_due_date: string | null
+}
+
+export interface ReceivablesAging {
+    as_of: string
+    buckets: AgingBucket[]
+    total_outstanding: number
+    total_count: number
+    debtors: Debtor[]
+}
+
+export interface ProfitLoss {
+    from: string
+    to: string
+    fees_collected: number
+    other_income_total: number
+    other_income_by_source: Array<{ source: string; amount: number }>
+    total_income: number
+    expenses_by_category: Array<{ category: string; amount: number }>
+    total_expenses: number
+    net: number
 }
 
 export interface FeeStatement {
