@@ -49,5 +49,8 @@ class CreateStaffData extends Data
 
         #[Nullable, StringType, Max(15)]
         public readonly ?string $tpin = null,
+
+        #[Nullable, StringType, Max(25)]
+        public readonly ?string $nrc = null,
     ) {}
 }

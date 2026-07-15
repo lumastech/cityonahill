@@ -36,6 +36,7 @@ const form = useForm({
     bank:            props.staff.bank ?? '',
     bank_account:    props.staff.bank_account ?? '',
     bank_branch:     props.staff.bank_branch ?? '',
+    nrc:             props.staff.nrc ?? '',
     subjects_taught: (props.staff.subjects_taught ?? []) as number[],
 })
 
@@ -142,6 +143,7 @@ const leaveStatusColor: Record<string, string> = {
                         <div><dt class="text-gray-500">Status</dt>
                             <dd><span class="rounded-full px-2 py-0.5 text-xs font-medium" :class="statusColor(staff.status)">{{ staff.status }}</span></dd>
                         </div>
+                        <div><dt class="text-gray-500">NRC</dt><dd class="font-medium">{{ staff.nrc ?? '—' }}</dd></div>
                         <div><dt class="text-gray-500">NAPSA No</dt><dd class="font-medium">{{ staff.napsa_no ?? '—' }}</dd></div>
                         <div><dt class="text-gray-500">TPIN</dt><dd class="font-medium">{{ staff.tpin ?? '—' }}</dd></div>
                         <div><dt class="text-gray-500">Email</dt><dd class="font-medium">{{ staff.user?.email }}</dd></div>
@@ -205,6 +207,12 @@ const leaveStatusColor: Record<string, string> = {
                             <label class="block text-xs font-medium text-gray-600 mb-1">Basic Salary (ZMW)</label>
                             <input v-model="form.basic_salary" type="number" min="0" step="0.01" class="w-full rounded-md border-gray-300 text-sm shadow-sm" />
                             <p v-if="form.errors.basic_salary" class="mt-1 text-xs text-red-600">{{ form.errors.basic_salary }}</p>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 mb-1">NRC</label>
+                            <input v-model="form.nrc" type="text" placeholder="e.g. 123456/78/9" class="w-full rounded-md border-gray-300 text-sm shadow-sm" />
+                            <p v-if="form.errors.nrc" class="mt-1 text-xs text-red-600">{{ form.errors.nrc }}</p>
                         </div>
 
                         <div>

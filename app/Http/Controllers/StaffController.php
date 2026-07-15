@@ -132,6 +132,7 @@ class StaffController extends Controller
             'subjects_taught'  => ['nullable', 'array'],
             'napsa_no'         => ['nullable', 'string', 'max:25'],
             'tpin'             => ['nullable', 'string', 'max:15'],
+            'nrc'              => ['nullable', 'string', 'max:25'],
         ]);
 
         if ($validated['mode'] === 'new') {
@@ -157,6 +158,7 @@ class StaffController extends Controller
             'subjects_taught' => $validated['subjects_taught'] ?? null,
             'napsa_no'        => $validated['napsa_no'] ?? null,
             'tpin'            => $validated['tpin'] ?? null,
+            'nrc'             => $validated['nrc'] ?? null,
         ]);
 
         $staff = $this->hrService->createStaff($school->id, $data);
@@ -222,7 +224,7 @@ class StaffController extends Controller
         $staff->update($request->only([
             'position', 'department', 'subjects_taught',
             'employment_type', 'basic_salary', 'status',
-            'bank', 'bank_account', 'bank_branch',
+            'bank', 'bank_account', 'bank_branch', 'nrc',
         ]));
 
         $user = $staff->user;

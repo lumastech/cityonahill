@@ -42,7 +42,7 @@ function formatLastLogin(value?: string | null): string {
             </div>
 
             <div class="mb-4">
-                <input v-model="search" type="text" placeholder="Search name, position…" class="w-64 rounded-md border-gray-300 text-sm shadow-sm" />
+                <input v-model="search" type="text" placeholder="Search name, position, employee no…" class="w-64 rounded-md border-gray-300 text-sm shadow-sm" />
             </div>
 
             <div class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
@@ -60,7 +60,7 @@ function formatLastLogin(value?: string | null): string {
                     </thead>
                     <tbody class="divide-y divide-gray-100">
                         <tr
-                            v-for="member in staff.filter(s => !search || s.user?.name.toLowerCase().includes(search.toLowerCase()) || s.position.includes(search.toLowerCase()))"
+                            v-for="member in staff.filter(s => !search || s.user?.name.toLowerCase().includes(search.toLowerCase()) || s.position.includes(search.toLowerCase()) || s.employee_no.toLowerCase().includes(search.toLowerCase()))"
                             :key="member.id"
                             class="hover:bg-gray-50"
                         >

@@ -31,6 +31,7 @@ const form = useForm({
     subjects_taught: [] as number[],
     napsa_no: '',
     tpin: '',
+    nrc: '',
 })
 
 function setMode(m: 'existing' | 'new') {
@@ -164,6 +165,11 @@ const showSubjects = computed(() =>
                         <div>
                             <label class="block text-xs font-medium text-gray-600 mb-1">Department</label>
                             <input v-model="form.department" type="text" placeholder="e.g. Sciences" class="w-full rounded-md border-gray-300 text-sm shadow-sm" />
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 mb-1">NRC <span class="text-gray-400">(optional)</span></label>
+                            <input v-model="form.nrc" type="text" placeholder="e.g. 123456/78/9" class="w-full rounded-md border-gray-300 text-sm shadow-sm" />
+                            <p v-if="form.errors.nrc" class="text-xs text-red-600 mt-1">{{ form.errors.nrc }}</p>
                         </div>
                         <div>
                             <label class="block text-xs font-medium text-gray-600 mb-1">NAPSA No. <span class="text-gray-400">(optional)</span></label>

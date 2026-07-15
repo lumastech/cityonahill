@@ -18,6 +18,10 @@ export interface Staff {
     basic_salary: number
     napsa_no: string | null
     tpin: string | null
+    nrc: string | null
+    bank: string | null
+    bank_account: string | null
+    bank_branch: string | null
     status: StaffStatus
     full_name?: string
     user?: { id: number; name: string; email: string; profile_photo_path?: string | null; last_login_at?: string | null }
