@@ -182,6 +182,9 @@ class PupilController extends Controller
                 ->with('info', 'Pupil has academic records and cannot be deleted. Status set to withdrawn.');
         }
 
+        // Detach guardian links first — the pivot's foreign key has no cascade,
+        // so a hard delete would otherwise fail on databases that enforce it.
+        $pupil->guardians()->detach();
         $pupil->delete();
 
         return redirect()->route('pupils.index')

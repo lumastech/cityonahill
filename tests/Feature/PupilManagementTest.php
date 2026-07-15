@@ -12,6 +12,7 @@ use App\Models\User;
 use App\Services\PupilService;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 
 uses(RefreshDatabase::class);
 
@@ -222,6 +223,33 @@ it('does not crash on unparseable dates and reports them as row errors', functio
     ]);
 
     expect($result['created'])->toBe(1)->and($result['errors'])->toHaveCount(2);
+});
+
+it('deletes a pupil that has a guardian attached without a foreign key error', function () {
+    DB::statement('PRAGMA foreign_keys = ON');
+    $this->seed(RolesAndPermissionsSeeder::class);
+
+    $admin = User::factory()->create(['school_id' => $this->school->id]);
+    $admin->assignRole('school-admin');
+
+    // A freshly imported pupil: has a guardian pivot row, no academic records.
+    $this->service->bulkImport($this->school->id, [
+        'grade_id'          => $this->grade->id,
+        'stream_id'         => null,
+        'academic_year_id'  => $this->year->id,
+        'date_of_admission' => '2026-01-15',
+        'rows'              => [['name' => 'Ethan Daka', 'sex' => 'M', 'dob' => '20/09/22', 'guardian_name' => 'Edina Daka', 'guardian_phone' => '0977 966237']],
+    ]);
+
+    $pupil = Pupil::where('first_name', 'Ethan')->firstOrFail();
+    expect($pupil->guardians()->count())->toBe(1);
+
+    $this->actingAs($admin)
+        ->delete(route('pupils.destroy', $pupil->id))
+        ->assertRedirect(route('pupils.index'));
+
+    expect(Pupil::find($pupil->id))->toBeNull()
+        ->and(DB::table('pupil_guardians')->where('pupil_id', $pupil->id)->count())->toBe(0);
 });
 
 it('parent cannot admit pupils via HTTP', function () {

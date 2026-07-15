@@ -192,6 +192,15 @@ function confirmRemoveGuardian(guardian: Guardian) {
     }
 }
 
+const deleteForm = useForm({})
+
+function confirmDelete() {
+    if (!confirm(`Permanently delete ${props.pupil.full_name} (${props.pupil.admission_no})? This cannot be undone.\n\nIf the pupil has academic records they will be withdrawn instead of deleted.`)) {
+        return
+    }
+    deleteForm.delete(route('pupils.destroy', props.pupil.id))
+}
+
 const TABS = [
     { key: 'profile', label: 'Profile' },
     { key: 'guardians', label: 'Guardians' },
@@ -225,9 +234,20 @@ const TABS = [
                         <span class="text-xs text-gray-400">Age {{ pupil.age }}</span>
                     </div>
                 </div>
-                <Link v-if="can('pupil.update')" :href="route('pupils.edit', pupil.id)" class="text-sm text-indigo-600 hover:underline">
-                    Edit Profile
-                </Link>
+                <div class="flex items-center gap-4 self-start">
+                    <Link v-if="can('pupil.update')" :href="route('pupils.edit', pupil.id)" class="text-sm text-indigo-600 hover:underline">
+                        Edit Profile
+                    </Link>
+                    <button
+                        v-if="can('pupil.delete')"
+                        type="button"
+                        :disabled="deleteForm.processing"
+                        class="text-sm text-red-600 hover:underline disabled:opacity-50"
+                        @click="confirmDelete"
+                    >
+                        {{ deleteForm.processing ? 'Deleting…' : 'Delete' }}
+                    </button>
+                </div>
             </div>
 
             <!-- Tabs -->
