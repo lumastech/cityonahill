@@ -69,6 +69,227 @@ class PupilService
         });
     }
 
+    /**
+     * Bulk-admit a batch of pupils into a single grade / stream placement.
+     *
+     * Each row is a raw associative array with keys: name, sex, dob and the
+     * optional guardian_name / guardian_phone. Names are split into first /
+     * last, sex is normalised to male|female and the date of birth is parsed
+     * from the day-first formats commonly used on paper registers. Rows that
+     * cannot be parsed, or that duplicate an existing pupil, are skipped and
+     * reported rather than aborting the whole import.
+     *
+     * @param  array{grade_id:int, stream_id:?int, academic_year_id:int, date_of_admission:string, rows:array<int,array<string,mixed>>}  $data
+     * @return array{created:int, skipped:array<int,string>, errors:array<int,string>}
+     */
+    public function bulkImport(int $schoolId, array $data): array
+    {
+        $created = 0;
+        $skipped = [];
+        $errors = [];
+
+        // Spreadsheets often rewrite dates into US month-first order, so the
+        // whole batch is inspected once to decide day-first vs month-first and
+        // every row is then parsed the same way.
+        $dateOrder = $this->detectDateOrder($data['rows']);
+
+        DB::transaction(function () use ($schoolId, $data, $dateOrder, &$created, &$skipped, &$errors) {
+            $year = Carbon::parse($data['date_of_admission'])->year;
+
+            foreach ($data['rows'] as $index => $row) {
+                $line = $index + 1;
+                $rawName = trim((string) ($row['name'] ?? ''));
+
+                [$firstName, $lastName] = $this->splitName($rawName);
+
+                if ($firstName === '' || $lastName === '') {
+                    $errors[] = "Row {$line}: \"{$rawName}\" — a first and last name are both required.";
+
+                    continue;
+                }
+
+                $sex = $this->normaliseSex($row['sex'] ?? null);
+
+                if ($sex === null) {
+                    $errors[] = "Row {$line} ({$rawName}): sex must be M or F.";
+
+                    continue;
+                }
+
+                $dob = $this->parseDob($row['dob'] ?? null, $dateOrder);
+
+                if ($dob === null) {
+                    $errors[] = "Row {$line} ({$rawName}): could not read date of birth \"" . ($row['dob'] ?? '') . '".';
+
+                    continue;
+                }
+
+                $duplicate = Pupil::where('school_id', $schoolId)
+                    ->where('first_name', $firstName)
+                    ->where('last_name', $lastName)
+                    ->whereDate('dob', $dob)
+                    ->exists();
+
+                if ($duplicate) {
+                    $skipped[] = "{$firstName} {$lastName} — already on the register.";
+
+                    continue;
+                }
+
+                $pupil = Pupil::create([
+                    'school_id'         => $schoolId,
+                    'admission_no'      => Pupil::generateAdmissionNo($schoolId, $year),
+                    'first_name'        => $firstName,
+                    'last_name'         => $lastName,
+                    'sex'               => $sex,
+                    'dob'               => $dob,
+                    'nationality'       => 'Zambian',
+                    'disability'        => 'none',
+                    'date_of_admission' => $data['date_of_admission'],
+                    'grade_id'          => $data['grade_id'],
+                    'stream_id'         => $data['stream_id'],
+                    'academic_year_id'  => $data['academic_year_id'],
+                    'status'            => 'active',
+                ]);
+
+                $this->attachImportedGuardian($pupil, $row);
+
+                $created++;
+            }
+        });
+
+        return [
+            'created' => $created,
+            'skipped' => $skipped,
+            'errors'  => $errors,
+        ];
+    }
+
+    private function attachImportedGuardian(Pupil $pupil, array $row): void
+    {
+        $phone = preg_replace('/\s+/', '', (string) ($row['guardian_phone'] ?? ''));
+        [$guardianFirst, $guardianLast] = $this->splitName(trim((string) ($row['guardian_name'] ?? '')));
+
+        if ($phone === '' || $guardianFirst === '') {
+            return;
+        }
+
+        $guardian = Guardian::firstOrCreate(
+            ['phone' => $phone, 'school_id' => $pupil->school_id],
+            [
+                'school_id'    => $pupil->school_id,
+                'first_name'   => $guardianFirst,
+                'last_name'    => $guardianLast !== '' ? $guardianLast : $guardianFirst,
+                'relationship' => 'guardian',
+            ]
+        );
+
+        $pupil->guardians()->syncWithoutDetaching([
+            $guardian->id => [
+                'is_primary'   => true,
+                'is_emergency' => true,
+                'can_pickup'   => true,
+            ],
+        ]);
+    }
+
+    /**
+     * Split a full name into [first, last]. The first whitespace-delimited
+     * token is the first name; everything after it is the last name.
+     *
+     * @return array{0:string, 1:string}
+     */
+    private function splitName(string $name): array
+    {
+        $parts = preg_split('/\s+/', trim($name), -1, PREG_SPLIT_NO_EMPTY) ?: [];
+
+        if (count($parts) === 0) {
+            return ['', ''];
+        }
+
+        if (count($parts) === 1) {
+            return [$parts[0], ''];
+        }
+
+        $first = array_shift($parts);
+
+        return [$first, implode(' ', $parts)];
+    }
+
+    private function normaliseSex(mixed $value): ?string
+    {
+        $value = strtolower(trim((string) $value));
+
+        return match ($value) {
+            'm', 'male'   => 'male',
+            'f', 'female' => 'female',
+            default       => null,
+        };
+    }
+
+    /**
+     * Inspect every date of birth in the batch and decide whether the file is
+     * written day-first (10/05/21) or month-first (05/10/21). A part greater
+     * than 12 can only be a day, so those rows cast the deciding votes; when
+     * there is no evidence either way we default to day-first (Zambian norm).
+     *
+     * @param  array<int,array<string,mixed>>  $rows
+     */
+    private function detectDateOrder(array $rows): string
+    {
+        $dayFirst = 0;
+        $monthFirst = 0;
+
+        foreach ($rows as $row) {
+            $value = trim((string) ($row['dob'] ?? ''));
+
+            if (! preg_match('#^(\d{1,2})[/-](\d{1,2})[/-]\d{2,4}$#', $value, $m)) {
+                continue;
+            }
+
+            $a = (int) $m[1];
+            $b = (int) $m[2];
+
+            if ($a > 12 && $b <= 12) {
+                $dayFirst++;
+            } elseif ($b > 12 && $a <= 12) {
+                $monthFirst++;
+            }
+        }
+
+        return $monthFirst > $dayFirst ? 'mdy' : 'dmy';
+    }
+
+    private function parseDob(mixed $value, string $order = 'dmy'): ?string
+    {
+        $value = trim((string) $value);
+
+        if ($value === '') {
+            return null;
+        }
+
+        $formats = $order === 'mdy'
+            ? ['m/d/y', 'm/d/Y', 'n/j/y', 'n/j/Y', 'm-d-y', 'm-d-Y', 'n-j-y', 'n-j-Y', 'Y-m-d']
+            : ['d/m/y', 'd/m/Y', 'j/n/y', 'j/n/Y', 'd-m-y', 'd-m-Y', 'j-n-y', 'j-n-Y', 'Y-m-d'];
+
+        foreach ($formats as $format) {
+            // Carbon throws on genuinely unparseable input and silently rolls
+            // over out-of-range parts (e.g. month 15), so we swallow the
+            // exception and confirm the parse round-trips to the same string.
+            try {
+                $date = Carbon::createFromFormat($format, $value);
+            } catch (\Exception) {
+                continue;
+            }
+
+            if ($date !== false && $date->format($format) === $value) {
+                return $date->format('Y-m-d');
+            }
+        }
+
+        return null;
+    }
+
     public function addGuardian(int $pupilId, StoreGuardianData $data): Guardian
     {
         return DB::transaction(function () use ($pupilId, $data) {

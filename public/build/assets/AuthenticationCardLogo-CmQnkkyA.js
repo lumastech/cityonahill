@@ -1,1 +1,0 @@
-import{A as e,F as t,n,v as r,y as i,z as a}from"./app-DXDUf_Y5.js";var o={__name:`AuthenticationCardLogo`,setup(o){return(o,s)=>(e(),i(a(n),{href:`/`},{default:t(()=>[...s[0]||=[r(`img`,{src:`/images/logo.jpeg`,alt:`Logo`,class:`w-20 h-20 fill-current text-gray-500`},null,-1)]]),_:1}))}};export{o as t};

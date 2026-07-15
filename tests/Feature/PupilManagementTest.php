@@ -134,6 +134,96 @@ it('bulk promote updates all active pupils in a stream', function () {
     }
 });
 
+it('bulk imports pupils and attaches guardians, splitting names and parsing day-first dates', function () {
+    $result = $this->service->bulkImport($this->school->id, [
+        'grade_id'          => $this->grade->id,
+        'stream_id'         => null,
+        'academic_year_id'  => $this->year->id,
+        'date_of_admission' => '2025-01-15',
+        'rows'              => [
+            ['name' => 'Moses Muchimena', 'sex' => 'M', 'dob' => '10/05/21', 'guardian_name' => 'Moses Muchena', 'guardian_phone' => '0971 078901'],
+            ['name' => 'Jean Nambaye', 'sex' => 'F', 'dob' => '07/10/22', 'guardian_name' => 'Mulenga Sarah', 'guardian_phone' => '0966 044458'],
+        ],
+    ]);
+
+    expect($result['created'])->toBe(2)
+        ->and($result['errors'])->toBeEmpty()
+        ->and($result['skipped'])->toBeEmpty();
+
+    $moses = Pupil::where('school_id', $this->school->id)->where('first_name', 'Moses')->first();
+
+    expect($moses->last_name)->toBe('Muchimena')
+        ->and($moses->sex->value)->toBe('male')
+        ->and($moses->dob->format('Y-m-d'))->toBe('2021-05-10')
+        ->and($moses->grade_id)->toBe($this->grade->id)
+        ->and($moses->admission_no)->toMatch('/^MPS\/\d{4}\/\d{4}$/')
+        ->and($moses->guardians()->first()->phone)->toBe('0971078901');
+});
+
+it('reports bad rows and skips duplicates without aborting the import', function () {
+    $this->service->bulkImport($this->school->id, [
+        'grade_id'          => $this->grade->id,
+        'stream_id'         => null,
+        'academic_year_id'  => $this->year->id,
+        'date_of_admission' => '2025-01-15',
+        'rows'              => [['name' => 'David Pemba', 'sex' => 'M', 'dob' => '24/11/20', 'guardian_name' => '', 'guardian_phone' => '']],
+    ]);
+
+    $result = $this->service->bulkImport($this->school->id, [
+        'grade_id'          => $this->grade->id,
+        'stream_id'         => null,
+        'academic_year_id'  => $this->year->id,
+        'date_of_admission' => '2025-01-15',
+        'rows'              => [
+            ['name' => 'David Pemba', 'sex' => 'M', 'dob' => '24/11/20', 'guardian_name' => '', 'guardian_phone' => ''], // duplicate
+            ['name' => 'Nomonde', 'sex' => 'F', 'dob' => '01/01/21', 'guardian_name' => '', 'guardian_phone' => ''],       // single name
+            ['name' => 'Grace Zulu', 'sex' => 'X', 'dob' => '01/01/21', 'guardian_name' => '', 'guardian_phone' => ''],    // bad sex
+            ['name' => 'Ethan Daka', 'sex' => 'M', 'dob' => '20/09/22', 'guardian_name' => 'Edina Daka', 'guardian_phone' => '0771 966237'],
+        ],
+    ]);
+
+    expect($result['created'])->toBe(1)
+        ->and($result['skipped'])->toHaveCount(1)
+        ->and($result['errors'])->toHaveCount(2);
+});
+
+it('detects month-first dates and parses the whole batch consistently', function () {
+    // A spreadsheet rewrote the dates as MM-DD-YY: 07-15-20 and 11-24-20 only
+    // make sense month-first, which forces the ambiguous 05-10-21 to May too.
+    $result = $this->service->bulkImport($this->school->id, [
+        'grade_id'          => $this->grade->id,
+        'stream_id'         => null,
+        'academic_year_id'  => $this->year->id,
+        'date_of_admission' => '2026-01-15',
+        'rows'              => [
+            ['name' => 'Moses Muchimena', 'sex' => 'M', 'dob' => '05-10-21', 'guardian_name' => '', 'guardian_phone' => ''],
+            ['name' => 'Tariai Sande', 'sex' => 'F', 'dob' => '07-15-20', 'guardian_name' => '', 'guardian_phone' => ''],
+            ['name' => 'David Pemba', 'sex' => 'M', 'dob' => '11-24-20', 'guardian_name' => '', 'guardian_phone' => ''],
+        ],
+    ]);
+
+    expect($result['created'])->toBe(3)->and($result['errors'])->toBeEmpty();
+
+    expect(Pupil::where('first_name', 'Moses')->value('dob')->format('Y-m-d'))->toBe('2021-05-10')
+        ->and(Pupil::where('first_name', 'Tariai')->value('dob')->format('Y-m-d'))->toBe('2020-07-15');
+});
+
+it('does not crash on unparseable dates and reports them as row errors', function () {
+    $result = $this->service->bulkImport($this->school->id, [
+        'grade_id'          => $this->grade->id,
+        'stream_id'         => null,
+        'academic_year_id'  => $this->year->id,
+        'date_of_admission' => '2026-01-15',
+        'rows'              => [
+            ['name' => 'Good Pupil', 'sex' => 'M', 'dob' => '20/09/22', 'guardian_name' => '', 'guardian_phone' => ''],
+            ['name' => 'Bad Date', 'sex' => 'M', 'dob' => 'not-a-date', 'guardian_name' => '', 'guardian_phone' => ''],
+            ['name' => 'Also Bad', 'sex' => 'F', 'dob' => '99/99/99', 'guardian_name' => '', 'guardian_phone' => ''],
+        ],
+    ]);
+
+    expect($result['created'])->toBe(1)->and($result['errors'])->toHaveCount(2);
+});
+
 it('parent cannot admit pupils via HTTP', function () {
     $this->seed(RolesAndPermissionsSeeder::class);
 

@@ -50,6 +50,7 @@ use App\Http\Controllers\PublishReportCardsController;
 use App\Http\Controllers\PublishResultsController;
 use App\Http\Controllers\PupilBulkMoveController;
 use App\Http\Controllers\PupilController;
+use App\Http\Controllers\PupilImportController;
 use App\Http\Controllers\PupilPromotionController;
 use App\Http\Controllers\PupilStatisticsController;
 use App\Http\Controllers\PupilTransferController;
@@ -125,6 +126,8 @@ Route::middleware(['auth', 'verified', 'school.context'])->group(function () {
 Route::middleware(['auth', 'verified', 'school.context'])->group(function () {
     Route::get('pupils/search', [PupilController::class, 'search'])->name('pupils.search');
     Route::post('pupils/bulk-move', PupilBulkMoveController::class)->name('pupils.bulk-move');
+    Route::get('pupils/import', [PupilImportController::class, 'create'])->name('pupils.import');
+    Route::post('pupils/import', [PupilImportController::class, 'store'])->name('pupils.import.store');
     Route::resource('pupils', PupilController::class);
     Route::get('guardians', [GuardianController::class, 'index'])->name('guardians.index');
     Route::post('pupils/{pupil}/guardians', [GuardianController::class, 'store'])
