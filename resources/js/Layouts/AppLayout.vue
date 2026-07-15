@@ -180,7 +180,7 @@ function switchSchool() {
             </header>
 
             <!-- Page content -->
-            <main class="flex-1 overflow-y-auto p-4 sm:p-6">
+            <main scroll-region class="flex-1 overflow-y-auto p-4 sm:p-6">
                 <slot />
             </main>
         </div>

@@ -9,6 +9,14 @@ defineProps<{ staff: Staff[]; can_export: boolean }>()
 
 const { positionLabel, positionColor, statusColor } = useHR()
 const search = ref('')
+
+function formatLastLogin(value?: string | null): string {
+    if (!value) return 'Never'
+    return new Date(value).toLocaleString(undefined, {
+        dateStyle: 'medium',
+        timeStyle: 'short',
+    })
+}
 </script>
 
 <template>
@@ -46,6 +54,7 @@ const search = ref('')
                             <th class="px-4 py-3 text-left font-medium text-gray-600">Department</th>
                             <th class="px-4 py-3 text-left font-medium text-gray-600">Employee No</th>
                             <th class="px-4 py-3 text-left font-medium text-gray-600">Status</th>
+                            <th class="px-4 py-3 text-left font-medium text-gray-600">Last Login</th>
                             <th class="px-4 py-3"></th>
                         </tr>
                     </thead>
@@ -75,12 +84,15 @@ const search = ref('')
                                     {{ member.status }}
                                 </span>
                             </td>
+                            <td class="px-4 py-3 text-gray-600" :class="{ 'text-gray-400 italic': !member.user?.last_login_at }">
+                                {{ formatLastLogin(member.user?.last_login_at) }}
+                            </td>
                             <td class="px-4 py-3 text-right">
                                 <Link :href="route('staff.show', member.id)" class="text-indigo-600 hover:text-indigo-900 text-sm">View</Link>
                             </td>
                         </tr>
                         <tr v-if="!staff.length">
-                            <td colspan="6" class="px-4 py-8 text-center text-gray-400">No staff records found.</td>
+                            <td colspan="7" class="px-4 py-8 text-center text-gray-400">No staff records found.</td>
                         </tr>
                     </tbody>
                 </table>

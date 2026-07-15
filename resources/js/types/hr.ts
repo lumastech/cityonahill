@@ -20,7 +20,7 @@ export interface Staff {
     tpin: string | null
     status: StaffStatus
     full_name?: string
-    user?: { id: number; name: string; email: string; profile_photo_path?: string | null }
+    user?: { id: number; name: string; email: string; profile_photo_path?: string | null; last_login_at?: string | null }
     leaves?: Leave[]
     payrolls?: Payroll[]
 }

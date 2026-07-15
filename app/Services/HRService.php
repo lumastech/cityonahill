@@ -222,7 +222,7 @@ class HRService
     public function getStaffDirectory(int $schoolId): Collection
     {
         return Staff::where('school_id', $schoolId)
-            ->with('user:id,name,email,profile_photo_path')
+            ->with('user:id,name,email,profile_photo_path,last_login_at')
             ->orderBy('position')
             ->get();
     }
