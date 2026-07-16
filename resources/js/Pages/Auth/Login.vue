@@ -8,7 +8,7 @@ const props = defineProps<{
 }>()
 
 // Set to the school crest path (e.g. '/images/landing/crest.png') once the image is linked.
-const crest = ''
+const crest = '/logo.jpeg'
 
 const form = useForm({
     email: '',
