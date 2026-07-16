@@ -161,11 +161,23 @@ class Pupil extends Model implements HasMedia
     public static function generateAdmissionNo(int $schoolId, int $year): string
     {
         $school = School::findOrFail($schoolId);
+        $code = strtoupper($school->code);
+        $prefix = sprintf('%s/%d/', $code, $year);
 
-        $sequence = static::where('school_id', $schoolId)
-            ->whereYear('date_of_admission', $year)
-            ->count() + 1;
+        // Derive the next sequence from the highest number already issued for
+        // this school/year prefix rather than a row count. A count drifts out
+        // of sync with the real admission numbers whenever a pupil holds a
+        // number for a year that differs from their date_of_admission (late
+        // admits, corrected dates, deletions), which would regenerate a value
+        // that already exists and violate the unique constraint.
+        $highest = static::where('school_id', $schoolId)
+            ->where('admission_no', 'like', $prefix . '%')
+            ->pluck('admission_no')
+            ->map(fn (string $no) => (int) substr((string) strrchr($no, '/'), 1))
+            ->max();
 
-        return sprintf('%s/%d/%04d', strtoupper($school->code), $year, $sequence);
+        $sequence = ($highest ?? 0) + 1;
+
+        return sprintf('%s%04d', $prefix, $sequence);
     }
 }
