@@ -83,7 +83,7 @@ const LEVEL_COLORS: Record<string, string> = {
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-gray-600 mb-1">Grade No.</label>
-                        <input v-model="form.grade_number" type="number" min="0" max="12" class="w-full rounded-md border-gray-300 text-sm shadow-sm" :class="{ 'border-red-400': form.errors.grade_number }" required />
+                        <input v-model="form.grade_number" type="number" min="-10" max="12" class="w-full rounded-md border-gray-300 text-sm shadow-sm" :class="{ 'border-red-400': form.errors.grade_number }" required />
                         <p v-if="form.errors.grade_number" class="text-xs text-red-600 mt-1">{{ form.errors.grade_number }}</p>
                     </div>
                     <div>

@@ -86,7 +86,7 @@ function unlinkSubject(gradeSubjectId: number) {
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-gray-600 mb-1">Grade Number</label>
-                        <input v-model="detailForm.grade_number" type="number" min="0" max="12" class="w-full rounded-md border-gray-300 text-sm shadow-sm" required />
+                        <input v-model="detailForm.grade_number" type="number" min="-10" max="12" class="w-full rounded-md border-gray-300 text-sm shadow-sm" required />
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-gray-600 mb-1">Level</label>
