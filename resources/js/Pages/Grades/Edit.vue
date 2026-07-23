@@ -99,7 +99,7 @@ function unlinkSubject(gradeSubjectId: number) {
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-gray-600 mb-1">Sort Order</label>
-                        <input v-model="detailForm.order_index" type="number" min="0" class="w-full rounded-md border-gray-300 text-sm shadow-sm" />
+                        <input v-model="detailForm.order_index" type="number" min="-10" class="w-full rounded-md border-gray-300 text-sm shadow-sm" />
                     </div>
                     <div class="col-span-2 flex items-center justify-between">
                         <label class="flex items-center gap-2 text-sm text-gray-600">
