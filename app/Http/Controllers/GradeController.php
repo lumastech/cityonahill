@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Data\StoreGradeData;
+use App\Exceptions\ConflictException;
 use App\Models\Grade;
 use App\Models\Subject;
 use App\Services\ClassStructureService;
@@ -49,7 +50,11 @@ class GradeController extends Controller
     {
         $school = app('current_school');
 
-        $this->service->createGrade($school->id, $data);
+        try {
+            $this->service->createGrade($school->id, $data);
+        } catch (ConflictException $e) {
+            return back()->withErrors(['grade_number' => $e->getMessage()])->withInput();
+        }
 
         return redirect()->route('grades.index')
             ->with('success', 'Grade created successfully.');
@@ -59,7 +64,11 @@ class GradeController extends Controller
     {
         $this->authorizeSchool($grade);
 
-        $this->service->updateGrade($grade, $data);
+        try {
+            $this->service->updateGrade($grade, $data);
+        } catch (ConflictException $e) {
+            return back()->withErrors(['grade_number' => $e->getMessage()])->withInput();
+        }
 
         return redirect()->route('grades.index')
             ->with('success', 'Grade updated successfully.');

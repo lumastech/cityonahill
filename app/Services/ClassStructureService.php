@@ -17,8 +17,13 @@ use Illuminate\Support\Collection;
 
 class ClassStructureService
 {
+    /**
+     * @throws ConflictException
+     */
     public function createGrade(int $schoolId, StoreGradeData $data): Grade
     {
+        $this->guardUniqueGradeNumber($schoolId, $data->grade_number);
+
         return Grade::create([
             'school_id' => $schoolId,
             'name' => $data->name,
@@ -29,8 +34,13 @@ class ClassStructureService
         ]);
     }
 
+    /**
+     * @throws ConflictException
+     */
     public function updateGrade(Grade $grade, StoreGradeData $data): Grade
     {
+        $this->guardUniqueGradeNumber($grade->school_id, $data->grade_number, $grade->id);
+
         $grade->update([
             'name' => $data->name,
             'grade_number' => $data->grade_number,
@@ -40,6 +50,23 @@ class ClassStructureService
         ]);
 
         return $grade->fresh();
+    }
+
+    /**
+     * @throws ConflictException
+     */
+    private function guardUniqueGradeNumber(int $schoolId, int $gradeNumber, ?int $ignoreId = null): void
+    {
+        $exists = Grade::forSchool($schoolId)
+            ->where('grade_number', $gradeNumber)
+            ->when($ignoreId, fn ($query) => $query->whereKeyNot($ignoreId))
+            ->exists();
+
+        if ($exists) {
+            throw new ConflictException(
+                "Grade number {$gradeNumber} is already used by another grade at this school. Each grade must have a unique number (pre-primary classes can use negatives, e.g. -3, -2, -1)."
+            );
+        }
     }
 
     public function createStream(int $schoolId, StoreStreamData $data): Stream
