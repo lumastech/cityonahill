@@ -60,6 +60,7 @@ class NavService
                 'icon'  => 'clipboard',
                 'items' => [
                     ['label' => 'Assessments',    'route' => 'assessments.index',    'permission' => 'assessment.view'],
+                    ['label' => 'Lesson Plans',   'route' => 'lesson-plans.index',   'permission' => 'lesson-plan.view'],
                     ['label' => 'Term Results',   'route' => 'term-results.index',   'permission' => 'grade.view'],
                     ['label' => 'Report Cards',   'route' => 'report-cards.index',   'permission' => 'report-card.view'],
                     ['label' => 'ECZ Candidates', 'route' => 'ecz-candidates.index', 'permission' => 'ecz.view'],

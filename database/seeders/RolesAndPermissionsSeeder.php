@@ -54,6 +54,9 @@ class RolesAndPermissionsSeeder extends Seeder
             // Assessments
             'assessment.view', 'assessment.create', 'assessment.update', 'assessment.delete',
 
+            // Lesson plans
+            'lesson-plan.view', 'lesson-plan.create', 'lesson-plan.update', 'lesson-plan.delete', 'lesson-plan.approve',
+
             // Grade entry
             'grade.enter', 'grade.publish',
 
@@ -112,6 +115,7 @@ class RolesAndPermissionsSeeder extends Seeder
                 'subject.view', 'subject.create', 'subject.update', 'subject.delete',
                 'attendance.view', 'attendance.record', 'attendance.edit',
                 'assessment.view', 'assessment.create', 'assessment.update', 'assessment.delete',
+                'lesson-plan.view', 'lesson-plan.create', 'lesson-plan.update', 'lesson-plan.delete', 'lesson-plan.approve',
                 'report-card.view', 'report-card.generate', 'report-card.publish',
                 'ecz.view', 'ecz.register', 'ecz.enter-results',
                 'fee.view', 'fee.create', 'fee.collect', 'fee.waive',
@@ -139,6 +143,7 @@ class RolesAndPermissionsSeeder extends Seeder
                 'subject.view', 'subject.create', 'subject.update', 'subject.delete',
                 'attendance.view', 'attendance.record', 'attendance.edit',
                 'assessment.view', 'assessment.create', 'assessment.update',
+                'lesson-plan.view', 'lesson-plan.create', 'lesson-plan.update', 'lesson-plan.delete', 'lesson-plan.approve',
                 'report-card.view', 'report-card.generate', 'report-card.publish',
                 'ecz.view', 'ecz.register', 'ecz.enter-results',
                 'fee.view',
@@ -165,6 +170,7 @@ class RolesAndPermissionsSeeder extends Seeder
                 'subject.view', 'subject.create', 'subject.update',
                 'attendance.view', 'attendance.record', 'attendance.edit',
                 'assessment.view', 'assessment.create', 'assessment.update',
+                'lesson-plan.view', 'lesson-plan.create', 'lesson-plan.update', 'lesson-plan.delete', 'lesson-plan.approve',
                 'report-card.view', 'report-card.generate', 'report-card.publish',
                 'ecz.view', 'ecz.register',
                 'fee.view',
@@ -183,6 +189,7 @@ class RolesAndPermissionsSeeder extends Seeder
                 'guardian.view',
                 'attendance.view', 'attendance.record', 'attendance.edit',
                 'assessment.view', 'assessment.create', 'assessment.update',
+                'lesson-plan.view', 'lesson-plan.create', 'lesson-plan.update', 'lesson-plan.delete',
                 'grade.enter',
                 'report-card.view', 'report-card.generate',
                 'notice.view', 'notice.create',
@@ -193,6 +200,7 @@ class RolesAndPermissionsSeeder extends Seeder
                 'pupil.view',
                 'attendance.view', 'attendance.record',
                 'assessment.view', 'assessment.create', 'assessment.update',
+                'lesson-plan.view', 'lesson-plan.create', 'lesson-plan.update', 'lesson-plan.delete',
                 'grade.enter',
                 'notice.view', 'notice.create',
                 'leave.apply',

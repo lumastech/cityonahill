@@ -2,17 +2,17 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasAudit;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use App\Models\Concerns\HasAudit;
 
 class Subject extends Model
 {
-    use HasFactory;
     use HasAudit;
+    use HasFactory;
 
     protected $fillable = [
         'school_id',
@@ -42,6 +42,12 @@ class Subject extends Model
     public function gradeSubjects(): HasMany
     {
         return $this->hasMany(GradeSubject::class);
+    }
+
+    /** @return HasMany<SubjectLearningContent> */
+    public function learningContents(): HasMany
+    {
+        return $this->hasMany(SubjectLearningContent::class)->orderBy('sort_order');
     }
 
     /** @return HasMany<Assessment> */

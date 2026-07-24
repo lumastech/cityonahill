@@ -35,6 +35,11 @@ use App\Http\Controllers\GuardianAccountController;
 use App\Http\Controllers\GuardianController;
 use App\Http\Controllers\HolidayController;
 use App\Http\Controllers\LeaveController;
+use App\Http\Controllers\LessonPlanAttachmentController;
+use App\Http\Controllers\LessonPlanController;
+use App\Http\Controllers\ReviewLessonPlanController;
+use App\Http\Controllers\SubjectContentAttachmentController;
+use App\Http\Controllers\SubjectContentController;
 use App\Http\Controllers\LibraryBookController;
 use App\Http\Controllers\LinkSubjectController;
 use App\Http\Controllers\UnlinkSubjectController;
@@ -104,6 +109,16 @@ Route::middleware(['auth', 'verified', 'school.context'])->group(function () {
     Route::resource('grades', GradeController::class)->except(['show', 'create']);
     Route::resource('streams', StreamController::class)->except(['create']);
     Route::resource('subjects', SubjectController::class)->except(['show', 'create']);
+    Route::post('subjects/{subject}/contents', [SubjectContentController::class, 'store'])
+        ->name('subjects.contents.store');
+    Route::put('subjects/{subject}/contents/{content}', [SubjectContentController::class, 'update'])
+        ->name('subjects.contents.update');
+    Route::delete('subjects/{subject}/contents/{content}', [SubjectContentController::class, 'destroy'])
+        ->name('subjects.contents.destroy');
+    Route::get('subject-contents/{content}/media/{media}', [SubjectContentAttachmentController::class, 'show'])
+        ->name('subject-contents.media.show');
+    Route::delete('subject-contents/{content}/media/{media}', [SubjectContentAttachmentController::class, 'destroy'])
+        ->name('subject-contents.media.destroy');
     Route::post('grades/{grade}/subjects', LinkSubjectController::class)
         ->name('grades.subjects.link');
     Route::delete('grades/{grade}/subjects/{gradeSubject}', UnlinkSubjectController::class)
@@ -158,6 +173,18 @@ Route::middleware(['auth', 'verified', 'school.context'])->group(function () {
     Route::post('term-results', [TermResultController::class, 'store'])->name('term-results.store');
     Route::post('report-cards/publish', PublishReportCardsController::class)->name('report-cards.publish');
     Route::resource('report-cards', ReportCardController::class)->only(['index', 'show', 'store', 'update']);
+});
+
+// Module — Lesson Plans
+Route::middleware(['auth', 'verified', 'school.context'])->group(function () {
+    Route::resource('lesson-plans', LessonPlanController::class)->except(['show'])
+        ->parameters(['lesson-plans' => 'lessonPlan']);
+    Route::post('lesson-plans/{lessonPlan}/review', ReviewLessonPlanController::class)
+        ->name('lesson-plans.review');
+    Route::get('lesson-plans/{lessonPlan}/attachments/{media}', [LessonPlanAttachmentController::class, 'show'])
+        ->name('lesson-plans.attachments.show');
+    Route::delete('lesson-plans/{lessonPlan}/attachments/{media}', [LessonPlanAttachmentController::class, 'destroy'])
+        ->name('lesson-plans.attachments.destroy');
 });
 
 // Module 6 — ECZ Exam Management

@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Data\StoreSubjectData;
+use App\Models\Grade;
 use App\Models\Subject;
+use App\Models\SubjectLearningContent;
 use App\Services\ClassStructureService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -34,8 +36,25 @@ class SubjectController extends Controller
     {
         $this->authorizeSchool($subject);
 
+        $school = app('current_school');
+
+        $subject->load(['learningContents.media']);
+
         return Inertia::render('Subjects/Edit', [
             'subject' => $subject,
+            'contents' => $subject->learningContents->map(fn ($content) => [
+                'id' => $content->id,
+                'title' => $content->title,
+                'body' => $content->body,
+                'grade_id' => $content->grade_id,
+                'sort_order' => $content->sort_order,
+                'media' => $content->getMedia(SubjectLearningContent::MEDIA)->map(fn ($m) => [
+                    'id' => $m->id,
+                    'name' => $m->file_name,
+                    'url' => route('subject-contents.media.show', [$content->id, $m->id]),
+                ]),
+            ]),
+            'grades' => Grade::where('school_id', $school->id)->orderBy('grade_number')->get(['id', 'name']),
         ]);
     }
 

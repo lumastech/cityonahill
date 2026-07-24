@@ -40,7 +40,8 @@ class MenuSeeder extends Seeder
             $superAdmin->menus()->sync($allMenuIds);
         }
 
-        // Role → menu group names they should see
+        // Role → menu group names they should see.
+        // Role names must match those in RolesAndPermissionsSeeder (kebab-case).
         $roleMenuGroups = [
             'headteacher' => [
                 'Academic', 'Exams & Results', 'Staff & HR', 'Finance',
@@ -50,13 +51,17 @@ class MenuSeeder extends Seeder
                 'Academic', 'Exams & Results', 'Staff & HR', 'Finance',
                 'Campus', 'Communication', 'Admin',
             ],
-            'class_teacher' => ['Academic', 'Exams & Results', 'Communication'],
-            'subject_teacher' => ['Academic', 'Exams & Results'],
-            'bursar' => ['Finance', 'Academic'],
+            'deputy-headteacher' => [
+                'Academic', 'Exams & Results', 'Staff & HR', 'Finance',
+                'Campus', 'Communication',
+            ],
+            'class-teacher' => ['Academic', 'Exams & Results', 'Communication'],
+            'subject-teacher' => ['Academic', 'Exams & Results'],
+            'finance-officer' => ['Finance', 'Academic'],
             'librarian' => ['Campus'],
-            'boarding_master' => ['Campus'],
-            'transport_coordinator' => ['Campus'],
-            'feeding_coordinator' => ['Campus'],
+            'boarding-master' => ['Campus'],
+            'transport-coordinator' => ['Campus'],
+            'feeding-coordinator' => ['Campus'],
         ];
 
         foreach ($roleMenuGroups as $roleName => $groupNames) {
@@ -101,6 +106,7 @@ class MenuSeeder extends Seeder
                 'icon'  => 'clipboard',
                 'items' => [
                     ['name' => 'Assessments',    'route' => 'assessments.index'],
+                    ['name' => 'Lesson Plans',   'route' => 'lesson-plans.index'],
                     ['name' => 'Term Results',   'route' => 'term-results.index'],
                     ['name' => 'Report Cards',   'route' => 'report-cards.index'],
                     ['name' => 'ECZ Candidates', 'route' => 'ecz-candidates.index'],
