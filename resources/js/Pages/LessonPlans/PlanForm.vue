@@ -44,7 +44,7 @@ function onFiles(event: Event, form: any) {
                     <label class="mb-1 block text-xs font-medium text-gray-600">Class / Stream</label>
                     <select v-model="form.stream_id" class="w-full rounded-md border-gray-300 text-sm shadow-sm" required>
                         <option :value="null" disabled>Select class</option>
-                        <option v-for="st in streams" :key="st.id" :value="st.id">{{ st.name }}</option>
+                        <option v-for="st in streams" :key="st.id" :value="st.id">{{ st.grade ? `${st.grade.name} - ${st.name}` : st.name }}</option>
                     </select>
                     <p v-if="form.errors.stream_id" class="mt-1 text-xs text-red-600">{{ form.errors.stream_id }}</p>
                 </div>

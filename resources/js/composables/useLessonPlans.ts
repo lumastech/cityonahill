@@ -5,6 +5,7 @@ export interface LessonPlanOption {
 
 export interface StreamOption extends LessonPlanOption {
     grade_id?: number
+    grade?: { id: number; name: string }
 }
 
 export interface TermOption extends LessonPlanOption {
