@@ -139,30 +139,32 @@ function submitDecision() {
     <AppLayout :title="lessonPlan.topic">
         <Head :title="lessonPlan.topic" />
 
-        <div class="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
+        <div class="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8 print:max-w-none print:p-0">
 
             <div class="mb-6 flex flex-wrap items-start gap-x-3 gap-y-2">
                 <div class="min-w-0 flex-1">
-                    <Link :href="route('lesson-plans.index')" class="text-sm text-indigo-600 hover:underline">← Lesson Plans</Link>
+                    <Link :href="route('lesson-plans.index')" class="text-sm text-indigo-600 hover:underline print:hidden">← Lesson Plans</Link>
                     <h1 class="mt-1 text-xl font-bold text-gray-900">{{ lessonPlan.topic }}</h1>
                     <p v-if="lessonPlan.sub_topic" class="text-sm text-gray-500">{{ lessonPlan.sub_topic }}</p>
                 </div>
 
-                <div class="flex items-center gap-2 print:hidden">
+                <div class="flex items-center gap-2">
                     <span :class="['rounded-full px-2.5 py-1 text-xs font-medium', LESSON_PLAN_STATUS_COLOR[lessonPlan.status]]">
                         {{ LESSON_PLAN_STATUS_LABEL[lessonPlan.status] }}
                     </span>
-                    <button class="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                    <button class="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 print:hidden"
                         @click="printPlan">Print</button>
+                    <a :href="route('lesson-plans.pdf', lessonPlan.id)"
+                        class="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 print:hidden">Download PDF</a>
                     <Link v-if="canEdit" :href="route('lesson-plans.edit', lessonPlan.id)"
-                        class="rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-700">Edit</Link>
+                        class="rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-700 print:hidden">Edit</Link>
                 </div>
             </div>
 
             <!-- Review outcomes, newest first -->
             <div v-if="decisions.length" class="mb-5 space-y-3">
                 <div v-for="d in decisions" :key="d.label"
-                    :class="['rounded-md border px-4 py-3 text-sm', d.tone]">
+                    :class="['print-keep rounded-md border px-4 py-3 text-sm', d.tone]">
                     <span class="font-semibold">{{ d.label }}:</span>
                     <span class="whitespace-pre-line">{{ d.text }}</span>
                     <span class="mt-0.5 block text-xs opacity-75">
@@ -171,10 +173,10 @@ function submitDecision() {
                 </div>
             </div>
 
-            <div class="space-y-6 rounded-lg border bg-white p-6 shadow-sm">
+            <div class="space-y-6 rounded-lg border bg-white p-6 shadow-sm print:space-y-4 print:rounded-none print:border-0 print:p-0 print:shadow-none">
 
                 <!-- Class block -->
-                <dl class="grid grid-cols-2 gap-x-4 gap-y-4 sm:grid-cols-4">
+                <dl class="print-keep grid grid-cols-2 gap-x-4 gap-y-4 sm:grid-cols-4 print:grid-cols-4">
                     <div>
                         <dt class="text-xs font-medium text-gray-500">Teacher</dt>
                         <dd class="text-sm text-gray-900">{{ lessonPlan.teacher?.name ?? '—' }}</dd>
@@ -223,7 +225,7 @@ function submitDecision() {
                 <hr class="border-gray-200" />
 
                 <!-- Header block -->
-                <dl class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <dl class="grid grid-cols-1 gap-4 sm:grid-cols-2 print:grid-cols-2">
                     <div v-for="[label, value] in headerFields" :key="label">
                         <dt class="mb-1 text-xs font-medium text-gray-600">{{ label }}</dt>
                         <dd class="whitespace-pre-line text-sm text-gray-800">
@@ -235,12 +237,12 @@ function submitDecision() {
                 <hr class="border-gray-200" />
 
                 <!-- Stage table: cards on phones, the four-column paper form on md and up. -->
-                <div>
+                <div class="print:break-inside-auto">
                     <h2 class="mb-2 text-sm font-semibold text-gray-900">Lesson development</h2>
 
                     <div v-if="stages.length"
-                        class="space-y-3 md:space-y-0 md:divide-y md:divide-gray-100 md:overflow-hidden md:rounded-md md:border md:border-gray-200">
-                        <div class="hidden border-b border-gray-200 bg-gray-50 px-3 py-2 md:grid md:grid-cols-[7rem_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] md:gap-3">
+                        class="space-y-3 md:space-y-0 md:divide-y md:divide-gray-100 md:overflow-hidden md:rounded-md md:border md:border-gray-200 print:space-y-0 print:overflow-visible print:divide-y print:divide-gray-200 print:rounded-none print:border print:border-gray-300">
+                        <div class="hidden border-b border-gray-200 bg-gray-50 px-3 py-2 md:grid md:grid-cols-[7rem_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] md:gap-3 print:grid print:grid-cols-[6rem_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] print:gap-3">
                             <span class="text-xs font-medium text-gray-600">Stage</span>
                             <span class="text-xs font-medium text-gray-600">Teacher activity</span>
                             <span class="text-xs font-medium text-gray-600">Learners activity</span>
@@ -248,20 +250,20 @@ function submitDecision() {
                         </div>
 
                         <div v-for="(stage, i) in stages" :key="i"
-                            class="rounded-md border border-gray-200 p-3 md:grid md:grid-cols-[7rem_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] md:gap-3 md:rounded-none md:border-0 md:px-3 md:py-3">
-                            <div class="mb-3 md:mb-0">
+                            class="print-keep rounded-md border border-gray-200 p-3 md:grid md:grid-cols-[7rem_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] md:gap-3 md:rounded-none md:border-0 md:px-3 md:py-3 print:grid print:grid-cols-[6rem_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] print:gap-3 print:rounded-none print:border-0 print:px-3 print:py-2">
+                            <div class="mb-3 md:mb-0 print:mb-0">
                                 <p class="text-sm font-medium text-gray-900">{{ stage.stage || '—' }}</p>
                             </div>
-                            <div class="mb-3 md:mb-0">
-                                <p class="mb-1 text-xs font-medium text-gray-500 md:hidden">Teacher activity</p>
+                            <div class="mb-3 md:mb-0 print:mb-0">
+                                <p class="mb-1 text-xs font-medium text-gray-500 md:hidden print:hidden">Teacher activity</p>
                                 <p class="whitespace-pre-line text-sm text-gray-800">{{ stage.teacher_activity || '—' }}</p>
                             </div>
-                            <div class="mb-3 md:mb-0">
-                                <p class="mb-1 text-xs font-medium text-gray-500 md:hidden">Learners activity</p>
+                            <div class="mb-3 md:mb-0 print:mb-0">
+                                <p class="mb-1 text-xs font-medium text-gray-500 md:hidden print:hidden">Learners activity</p>
                                 <p class="whitespace-pre-line text-sm text-gray-800">{{ stage.learner_activity || '—' }}</p>
                             </div>
                             <div>
-                                <p class="mb-1 text-xs font-medium text-gray-500 md:hidden">Assessment criteria</p>
+                                <p class="mb-1 text-xs font-medium text-gray-500 md:hidden print:hidden">Assessment criteria</p>
                                 <p class="whitespace-pre-line text-sm text-gray-800">{{ stage.assessment_criteria || '—' }}</p>
                             </div>
                         </div>
@@ -271,7 +273,7 @@ function submitDecision() {
                     </p>
                 </div>
 
-                <dl class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <dl class="grid grid-cols-1 gap-4 sm:grid-cols-2 print:grid-cols-2">
                     <div>
                         <dt class="mb-1 text-xs font-medium text-gray-600">Conclusion</dt>
                         <dd class="whitespace-pre-line text-sm text-gray-800">{{ lessonPlan.conclusion || '—' }}</dd>
@@ -284,7 +286,7 @@ function submitDecision() {
                     </div>
                 </dl>
 
-                <div v-if="lessonPlan.attachments?.length">
+                <div v-if="lessonPlan.attachments?.length" class="print-keep">
                     <h2 class="mb-1 text-xs font-medium text-gray-600">Attachments</h2>
                     <ul class="divide-y divide-gray-100 rounded-md border border-gray-200">
                         <li v-for="a in lessonPlan.attachments" :key="a.id"

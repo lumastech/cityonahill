@@ -37,6 +37,7 @@ use App\Http\Controllers\HolidayController;
 use App\Http\Controllers\LeaveController;
 use App\Http\Controllers\LessonPlanAttachmentController;
 use App\Http\Controllers\LessonPlanController;
+use App\Http\Controllers\LessonPlanPdfController;
 use App\Http\Controllers\ReviewLessonPlanController;
 use App\Http\Controllers\RevertLessonPlanController;
 use App\Http\Controllers\SubjectContentAttachmentController;
@@ -184,6 +185,8 @@ Route::middleware(['auth', 'verified', 'school.context'])->group(function () {
         ->name('lesson-plans.review');
     Route::post('lesson-plans/{lessonPlan}/revert', RevertLessonPlanController::class)
         ->name('lesson-plans.revert');
+    Route::get('lesson-plans/{lessonPlan}/pdf', LessonPlanPdfController::class)
+        ->name('lesson-plans.pdf');
     Route::get('lesson-plans/{lessonPlan}/attachments/{media}', [LessonPlanAttachmentController::class, 'show'])
         ->name('lesson-plans.attachments.show');
     Route::delete('lesson-plans/{lessonPlan}/attachments/{media}', [LessonPlanAttachmentController::class, 'destroy'])

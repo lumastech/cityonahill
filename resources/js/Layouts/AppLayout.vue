@@ -70,7 +70,7 @@ function switchSchool() {
 </script>
 
 <template>
-    <div class="flex h-dvh overflow-hidden bg-gray-50">
+    <div class="app-shell flex h-dvh overflow-hidden bg-gray-50">
 
         <Head :title="title" />
 
@@ -83,7 +83,7 @@ function switchSchool() {
 
         <!-- Sidebar: off-canvas drawer below lg, static column from lg up -->
         <aside
-            class="fixed inset-y-0 left-0 z-50 flex w-64 shrink-0 flex-col border-r border-gray-200 bg-white transition-all duration-300 lg:static lg:z-auto lg:translate-x-0"
+            class="fixed inset-y-0 left-0 z-50 flex w-64 shrink-0 flex-col border-r border-gray-200 bg-white transition-all duration-300 lg:static lg:z-auto lg:translate-x-0 print:hidden"
             :class="[
                 mobileNavOpen ? 'translate-x-0 shadow-xl' : '-translate-x-full',
                 sidebarOpen ? '' : 'lg:w-0 lg:overflow-hidden lg:border-0',
@@ -150,7 +150,7 @@ function switchSchool() {
         <!-- Main content -->
         <div class="flex min-w-0 flex-1 flex-col">
             <!-- Header -->
-            <header class="flex h-16 shrink-0 items-center gap-2 border-b border-gray-200 bg-white px-3 sm:gap-4 sm:px-4">
+            <header class="flex h-16 shrink-0 items-center gap-2 border-b border-gray-200 bg-white px-3 sm:gap-4 sm:px-4 print:hidden">
                 <button class="shrink-0 rounded-lg p-1.5 text-gray-500 hover:bg-gray-100"
                     :aria-expanded="isDesktop ? sidebarOpen : mobileNavOpen" aria-label="Toggle navigation"
                     @click="toggleSidebar">
@@ -180,7 +180,7 @@ function switchSchool() {
             </header>
 
             <!-- Page content -->
-            <main scroll-region class="flex-1 overflow-y-auto p-4 sm:p-6">
+            <main scroll-region class="app-main flex-1 overflow-y-auto p-4 sm:p-6 print:p-0">
                 <slot />
             </main>
         </div>

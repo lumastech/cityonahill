@@ -5,3 +5,48 @@
 [x-cloak] {
     display: none;
 }
+
+/*
+ * Printing.
+ *
+ * On screen the app shell is a fixed-height flex layout whose <main> owns the
+ * scrollbar. Left alone, a print job only ever paints the visible slice of that
+ * scroll region — one page, everything below the fold silently dropped. Under
+ * print the shell has to unwind back into a plain, flowing document.
+ */
+@page {
+    margin: 12mm;
+}
+
+@media print {
+
+    html,
+    body {
+        height: auto !important;
+        overflow: visible !important;
+        background: #fff !important;
+    }
+
+    /* The shell root, the main column inside it, and the scroll region itself. */
+    .app-shell,
+    .app-shell > div,
+    .app-main,
+    [scroll-region] {
+        display: block !important;
+        height: auto !important;
+        max-height: none !important;
+        overflow: visible !important;
+    }
+
+    /* Status pills and tinted review notes are meaningless without their fill. */
+    * {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    /* Rows and cards that read wrong when split across a page break. */
+    .print-keep {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+}

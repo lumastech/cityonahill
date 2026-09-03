@@ -524,3 +524,37 @@ it('offers the revert action to a reviewer reading a decided plan', function () 
             ->where('canReview', false)
             ->where('lessonPlan.reviewer.name', $this->headteacher->name));
 });
+
+it('downloads the plan as a pdf', function () {
+    $plan = LessonPlan::create(lessonPlanPayload([
+        'school_id' => $this->school->id,
+        'status' => 'approved',
+        'submitted_by' => $this->teacher->id,
+        'reviewed_by' => $this->headteacher->id,
+        'reviewed_at' => now(),
+        'comment' => 'Well structured.',
+    ]));
+
+    $response = $this->actingAs($this->teacher)
+        ->get(route('lesson-plans.pdf', $plan))
+        ->assertOk()
+        ->assertHeader('content-type', 'application/pdf');
+
+    expect($response->headers->get('content-disposition'))->toContain('lesson-plan-fractions')
+        ->and($response->getContent())->toStartWith('%PDF');
+});
+
+it('refuses a pdf of another teacher\'s plan', function () {
+    $plan = LessonPlan::create(lessonPlanPayload([
+        'school_id' => $this->school->id,
+        'status' => 'submitted',
+        'submitted_by' => $this->teacher->id,
+    ]));
+
+    $other = User::factory()->create(['school_id' => $this->school->id]);
+    $other->assignRole('subject-teacher');
+
+    $this->actingAs($other)
+        ->get(route('lesson-plans.pdf', $plan))
+        ->assertForbidden();
+});
