@@ -33,14 +33,14 @@ function levelBadgeClass(level: number): string {
         <Head title="Roles" />
 
         <div class="space-y-5">
-            <div class="flex items-center justify-between">
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                     <h2 class="text-lg font-semibold text-gray-900">Roles</h2>
                     <p class="text-sm text-gray-500">Manage roles and their permissions</p>
                 </div>
                 <Link
                     :href="route('roles.create')"
-                    class="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700"
+                    class="inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700 sm:w-auto"
                 >
                     <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -49,20 +49,20 @@ function levelBadgeClass(level: number): string {
                 </Link>
             </div>
 
-            <div class="overflow-hidden rounded-lg border border-gray-200 bg-white">
-                <table class="w-full text-sm">
+            <div class="overflow-x-auto rounded-lg border border-gray-200 bg-white">
+                <table class="min-w-full text-sm">
                     <thead>
                         <tr class="border-b border-gray-200 bg-gray-50">
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">Name</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">Level</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">Group</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">Permissions</th>
-                            <th class="px-4 py-3 text-right font-medium text-gray-600">Actions</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Name</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Level</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Group</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Permissions</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-right font-medium text-gray-600">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr v-for="role in roles" :key="role.id" class="border-b border-gray-100 last:border-0">
-                            <td class="px-4 py-3">
+                            <td class="whitespace-nowrap px-4 py-3">
                                 <span
                                     class="inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium"
                                     :class="levelBadgeClass(role.level)"
@@ -70,10 +70,10 @@ function levelBadgeClass(level: number): string {
                                     {{ role.name }}
                                 </span>
                             </td>
-                            <td class="px-4 py-3 text-gray-500">{{ role.level }}</td>
-                            <td class="px-4 py-3 text-gray-500">{{ role.group }}</td>
-                            <td class="px-4 py-3 text-gray-500">{{ role.permissions_count }}</td>
-                            <td class="px-4 py-3">
+                            <td class="whitespace-nowrap px-4 py-3 text-gray-500">{{ role.level }}</td>
+                            <td class="whitespace-nowrap px-4 py-3 text-gray-500">{{ role.group }}</td>
+                            <td class="whitespace-nowrap px-4 py-3 text-gray-500">{{ role.permissions_count }}</td>
+                            <td class="whitespace-nowrap px-4 py-3">
                                 <div class="flex items-center justify-end gap-2">
                                     <Link
                                         :href="route('roles.edit', role.id)"
