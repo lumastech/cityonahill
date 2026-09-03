@@ -143,7 +143,7 @@ it('headteacher can approve a submitted lesson plan', function () {
         ->and($plan->reviewed_at)->not->toBeNull();
 });
 
-it('rejecting a lesson plan requires a comment', function () {
+it('rejecting a lesson plan requires a reason', function () {
     $plan = LessonPlan::create(lessonPlanPayload([
         'school_id' => $this->school->id,
         'status' => 'submitted',
@@ -152,9 +152,30 @@ it('rejecting a lesson plan requires a comment', function () {
 
     $this->actingAs($this->headteacher)
         ->post(route('lesson-plans.review', $plan), ['status' => 'rejected'])
-        ->assertSessionHasErrors('comment');
+        ->assertSessionHasErrors('reject_reason');
 
     expect($plan->fresh()->status)->toBe('submitted');
+});
+
+it('records the reject reason separately from the approval comment', function () {
+    $plan = LessonPlan::create(lessonPlanPayload([
+        'school_id' => $this->school->id,
+        'status' => 'submitted',
+        'submitted_by' => $this->teacher->id,
+    ]));
+
+    $this->actingAs($this->headteacher)
+        ->post(route('lesson-plans.review', $plan), [
+            'status' => 'rejected',
+            'reject_reason' => 'The application stage has no assessment criteria.',
+        ])
+        ->assertRedirect();
+
+    $plan->refresh();
+
+    expect($plan->status)->toBe('rejected')
+        ->and($plan->reject_reason)->toBe('The application stage has no assessment criteria.')
+        ->and($plan->comment)->toBeNull();
 });
 
 it('teacher can resubmit a rejected lesson plan', function () {
@@ -164,7 +185,7 @@ it('teacher can resubmit a rejected lesson plan', function () {
         'submitted_by' => $this->teacher->id,
         'reviewed_by' => $this->headteacher->id,
         'reviewed_at' => now(),
-        'comment' => 'Add more detail.',
+        'reject_reason' => 'Add more detail.',
     ]));
 
     $this->actingAs($this->teacher)
@@ -177,6 +198,7 @@ it('teacher can resubmit a rejected lesson plan', function () {
     $plan->refresh();
 
     expect($plan->status)->toBe('submitted')
+        ->and($plan->reject_reason)->toBeNull()
         ->and($plan->comment)->toBeNull()
         ->and($plan->reviewed_by)->toBeNull();
 });
@@ -341,8 +363,12 @@ it('shows a lesson plan with its full content to the author', function () {
             ->where('lessonPlan.topic', 'Fractions')
             ->where('lessonPlan.stages.1.teacher_activity', 'Introduces numerators and denominators.')
             ->where('lessonPlan.total_pupils', 40)
+            ->where('lessonPlan.teacher.name', $this->teacher->name)
+            ->where('lessonPlan.submitted_by', $this->teacher->id)
+            ->where('lessonPlan.stream.grade.name', $this->grade->name)
             ->where('canEdit', true)
-            ->where('canReview', false));
+            ->where('canReview', false)
+            ->where('canRevert', false));
 });
 
 it('lets a reviewer read a submitted plan before approving it', function () {
@@ -358,6 +384,7 @@ it('lets a reviewer read a submitted plan before approving it', function () {
         ->assertInertia(fn ($page) => $page
             ->component('LessonPlans/Show')
             ->where('canReview', true)
+            ->where('canRevert', false)
             ->where('canEdit', false));
 });
 
@@ -387,4 +414,113 @@ it('does not show a lesson plan from another school', function () {
     $this->actingAs($this->headteacher)
         ->get(route('lesson-plans.show', $plan))
         ->assertForbidden();
+});
+
+it('a reviewer can revert an approved lesson plan with a reason', function () {
+    $plan = LessonPlan::create(lessonPlanPayload([
+        'school_id' => $this->school->id,
+        'status' => 'approved',
+        'submitted_by' => $this->teacher->id,
+        'reviewed_by' => $this->headteacher->id,
+        'reviewed_at' => now(),
+        'comment' => 'Well planned.',
+    ]));
+
+    $this->actingAs($this->headteacher)
+        ->post(route('lesson-plans.revert', $plan), [
+            'revert_reason' => 'The syllabus reference points at the wrong syllabus edition.',
+        ])
+        ->assertRedirect();
+
+    $plan->refresh();
+
+    expect($plan->status)->toBe('reverted')
+        ->and($plan->revert_reason)->toBe('The syllabus reference points at the wrong syllabus edition.')
+        ->and($plan->reverted_by)->toBe($this->headteacher->id)
+        ->and($plan->reverted_at)->not->toBeNull()
+        // The decision being withdrawn stays on the record.
+        ->and($plan->comment)->toBe('Well planned.');
+});
+
+it('reverting requires a reason', function () {
+    $plan = LessonPlan::create(lessonPlanPayload([
+        'school_id' => $this->school->id,
+        'status' => 'approved',
+        'submitted_by' => $this->teacher->id,
+    ]));
+
+    $this->actingAs($this->headteacher)
+        ->post(route('lesson-plans.revert', $plan), [])
+        ->assertSessionHasErrors('revert_reason');
+
+    expect($plan->fresh()->status)->toBe('approved');
+});
+
+it('a plan awaiting review cannot be reverted', function () {
+    $plan = LessonPlan::create(lessonPlanPayload([
+        'school_id' => $this->school->id,
+        'status' => 'submitted',
+        'submitted_by' => $this->teacher->id,
+    ]));
+
+    $this->actingAs($this->headteacher)
+        ->post(route('lesson-plans.revert', $plan), ['revert_reason' => 'Changed my mind.'])
+        ->assertStatus(422);
+});
+
+it('a teacher without approve permission cannot revert', function () {
+    $plan = LessonPlan::create(lessonPlanPayload([
+        'school_id' => $this->school->id,
+        'status' => 'approved',
+        'submitted_by' => $this->teacher->id,
+    ]));
+
+    $this->actingAs($this->teacher)
+        ->post(route('lesson-plans.revert', $plan), ['revert_reason' => 'Let me fix it.'])
+        ->assertForbidden();
+});
+
+it('the author can edit and resubmit a reverted lesson plan', function () {
+    $plan = LessonPlan::create(lessonPlanPayload([
+        'school_id' => $this->school->id,
+        'status' => 'reverted',
+        'submitted_by' => $this->teacher->id,
+        'reviewed_by' => $this->headteacher->id,
+        'reviewed_at' => now(),
+        'reverted_by' => $this->headteacher->id,
+        'reverted_at' => now(),
+        'revert_reason' => 'Update the reference.',
+    ]));
+
+    $this->actingAs($this->teacher)
+        ->put(route('lesson-plans.update', $plan), lessonPlanPayload([
+            'reference' => 'MOE syllabus, Grade 8 Mathematics (2026), p. 44',
+            'submit' => true,
+        ]))
+        ->assertRedirect();
+
+    $plan->refresh();
+
+    expect($plan->status)->toBe('submitted')
+        ->and($plan->revert_reason)->toBeNull()
+        ->and($plan->reverted_by)->toBeNull()
+        ->and($plan->reverted_at)->toBeNull();
+});
+
+it('offers the revert action to a reviewer reading a decided plan', function () {
+    $plan = LessonPlan::create(lessonPlanPayload([
+        'school_id' => $this->school->id,
+        'status' => 'approved',
+        'submitted_by' => $this->teacher->id,
+        'reviewed_by' => $this->headteacher->id,
+        'reviewed_at' => now(),
+    ]));
+
+    $this->actingAs($this->headteacher)
+        ->get(route('lesson-plans.show', $plan))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->where('canRevert', true)
+            ->where('canReview', false)
+            ->where('lessonPlan.reviewer.name', $this->headteacher->name));
 });

@@ -4,10 +4,16 @@ import { Head, Link, router, useForm, usePage } from '@inertiajs/vue3'
 import { computed, ref, watch } from 'vue'
 import { usePermissions } from '@/composables/usePermissions'
 import {
+    isRevertable,
+    LESSON_PLAN_DECISION_UI,
+    LESSON_PLAN_EDITABLE_STATUSES,
     LESSON_PLAN_STATUS_COLOR,
     LESSON_PLAN_STATUS_LABEL,
+    streamLabel,
     type LessonPlan,
+    type LessonPlanDecision,
     type LessonPlanOption,
+    type LessonPlanStatus,
 } from '@/composables/useLessonPlans'
 import { fmtDate } from '@/utils/date'
 
@@ -49,29 +55,69 @@ const STATUS_TABS = [
     ['submitted', 'Pending'],
     ['approved', 'Approved'],
     ['rejected', 'Rejected'],
+    ['reverted', 'Returned'],
 ]
 
 function canEdit(plan: LessonPlan): boolean {
-    return plan.submitted_by === currentUserId.value && ['draft', 'rejected'].includes(plan.status)
+    return plan.submitted_by === currentUserId.value
+        && LESSON_PLAN_EDITABLE_STATUSES.includes(plan.status as LessonPlanStatus)
 }
 
-// Review modal
-const reviewing = ref<LessonPlan | null>(null)
-const reviewForm = useForm({ status: 'approved', comment: '' })
+// Decision modal — approve, reject, or return a decided plan to its teacher.
+const deciding = ref<{ plan: LessonPlan; decision: LessonPlanDecision } | null>(null)
 
-function openReview(plan: LessonPlan, decision: 'approved' | 'rejected') {
-    reviewing.value = plan
-    reviewForm.status = decision
-    reviewForm.comment = ''
+const reviewForm = useForm({ status: 'approved', comment: '', reject_reason: '' })
+const revertForm = useForm({ revert_reason: '' })
+
+const activeForm = computed(() => (deciding.value?.decision === 'reverted' ? revertForm : reviewForm))
+
+/** Withdrawing a decision is offered to a reviewer once one has been made. */
+function canRevert(plan: LessonPlan): boolean {
+    return props.canReview && isRevertable(plan)
+}
+
+function openDecision(plan: LessonPlan, decision: LessonPlanDecision) {
+    deciding.value = { plan, decision }
+    reviewForm.reset()
+    revertForm.reset()
     reviewForm.clearErrors()
+    revertForm.clearErrors()
+
+    if (decision !== 'reverted') reviewForm.status = decision
 }
 
-function submitReview() {
-    if (!reviewing.value) return
-    reviewForm.post(route('lesson-plans.review', reviewing.value.id), {
+/** The one field each decision writes, so the modal keeps a single textarea. */
+const reasonText = computed({
+    get: () => {
+        if (deciding.value?.decision === 'reverted') return revertForm.revert_reason
+        return deciding.value?.decision === 'rejected' ? reviewForm.reject_reason : reviewForm.comment
+    },
+    set: (value: string) => {
+        if (deciding.value?.decision === 'reverted') revertForm.revert_reason = value
+        else if (deciding.value?.decision === 'rejected') reviewForm.reject_reason = value
+        else reviewForm.comment = value
+    },
+})
+
+const reasonError = computed(() => {
+    if (deciding.value?.decision === 'reverted') return revertForm.errors.revert_reason
+    return deciding.value?.decision === 'rejected' ? reviewForm.errors.reject_reason : reviewForm.errors.comment
+})
+
+function submitDecision() {
+    if (!deciding.value) return
+
+    const { plan, decision } = deciding.value
+    const options = {
         preserveScroll: true,
-        onSuccess: () => { reviewing.value = null },
-    })
+        onSuccess: () => { deciding.value = null },
+    }
+
+    if (decision === 'reverted') {
+        revertForm.post(route('lesson-plans.revert', plan.id), options)
+    } else {
+        reviewForm.post(route('lesson-plans.review', plan.id), options)
+    }
 }
 
 function destroy(plan: LessonPlan) {
@@ -144,10 +190,10 @@ function destroy(plan: LessonPlan) {
                                     <span v-if="plan.week_number" class="text-xs text-gray-400">Wk {{ plan.week_number }}</span>
                                 </td>
                                 <td class="px-4 py-3 text-gray-600">{{ plan.subject?.name }}</td>
-                                <td class="px-4 py-3 text-gray-600">{{ plan.stream?.name }}</td>
+                                <td class="px-4 py-3 text-gray-600">{{ streamLabel(plan.stream) }}</td>
                                 <td class="px-4 py-3 text-gray-600">{{ plan.term?.name }}</td>
                                 <td class="whitespace-nowrap px-4 py-3 text-gray-600">{{ plan.lesson_date ? fmtDate(plan.lesson_date) : '—' }}</td>
-                                <td v-if="canReview" class="px-4 py-3 text-gray-600">{{ plan.submittedBy?.name }}</td>
+                                <td v-if="canReview" class="px-4 py-3 text-gray-600">{{ plan.teacher?.name }}</td>
                                 <td class="px-4 py-3 text-gray-500">
                                     <span v-if="plan.media_count">{{ plan.media_count }}</span>
                                     <span v-else class="text-gray-300">—</span>
@@ -162,10 +208,14 @@ function destroy(plan: LessonPlan) {
                                         class="mr-3 text-xs font-medium text-indigo-600 hover:text-indigo-900">View</Link>
                                     <template v-if="canReview && plan.status === 'submitted'">
                                         <button class="mr-3 text-xs font-medium text-green-600 hover:text-green-900"
-                                            @click="openReview(plan, 'approved')">Approve</button>
+                                            @click="openDecision(plan, 'approved')">Approve</button>
                                         <button class="mr-3 text-xs font-medium text-red-600 hover:text-red-900"
-                                            @click="openReview(plan, 'rejected')">Reject</button>
+                                            @click="openDecision(plan, 'rejected')">Reject</button>
                                     </template>
+                                    <button v-if="canRevert(plan)"
+                                        class="mr-3 text-xs font-medium text-orange-600 hover:text-orange-900"
+                                        title="Withdraw this decision and return the plan to the teacher"
+                                        @click="openDecision(plan, 'reverted')">Return</button>
                                     <Link v-if="canEdit(plan)" :href="route('lesson-plans.edit', plan.id)"
                                         class="mr-3 text-xs font-medium text-indigo-600 hover:text-indigo-900">Edit</Link>
                                     <button v-if="canEdit(plan) && can('lesson-plan.delete')"
@@ -207,7 +257,7 @@ function destroy(plan: LessonPlan) {
                             </div>
                             <div>
                                 <dt class="text-xs text-gray-400">Class</dt>
-                                <dd class="truncate text-gray-700">{{ plan.stream?.name ?? '—' }}</dd>
+                                <dd class="truncate text-gray-700">{{ streamLabel(plan.stream) }}</dd>
                             </div>
                             <div>
                                 <dt class="text-xs text-gray-400">Date</dt>
@@ -222,7 +272,7 @@ function destroy(plan: LessonPlan) {
                             </div>
                             <div v-if="canReview">
                                 <dt class="text-xs text-gray-400">Teacher</dt>
-                                <dd class="truncate text-gray-700">{{ plan.submittedBy?.name ?? '—' }}</dd>
+                                <dd class="truncate text-gray-700">{{ plan.teacher?.name ?? '—' }}</dd>
                             </div>
                             <div v-if="plan.media_count">
                                 <dt class="text-xs text-gray-400">Files</dt>
@@ -235,10 +285,13 @@ function destroy(plan: LessonPlan) {
                                 class="rounded-md border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50">View</Link>
                             <template v-if="canReview && plan.status === 'submitted'">
                                 <button class="rounded-md bg-green-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-green-700"
-                                    @click="openReview(plan, 'approved')">Approve</button>
+                                    @click="openDecision(plan, 'approved')">Approve</button>
                                 <button class="rounded-md bg-red-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-700"
-                                    @click="openReview(plan, 'rejected')">Reject</button>
+                                    @click="openDecision(plan, 'rejected')">Reject</button>
                             </template>
+                            <button v-if="canRevert(plan)"
+                                class="rounded-md bg-orange-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-orange-700"
+                                @click="openDecision(plan, 'reverted')">Return</button>
                             <Link v-if="canEdit(plan)" :href="route('lesson-plans.edit', plan.id)"
                                 class="rounded-md border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50">Edit</Link>
                             <button v-if="canEdit(plan) && can('lesson-plan.delete')"
@@ -265,34 +318,40 @@ function destroy(plan: LessonPlan) {
             </div>
         </div>
 
-        <!-- Review modal -->
-        <div v-if="reviewing" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
-            @click.self="reviewing = null">
+        <!-- Decision modal — approve, reject or return -->
+        <div v-if="deciding" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+            @click.self="deciding = null">
             <div class="w-full max-w-lg rounded-lg bg-white p-6 shadow-xl">
                 <h2 class="mb-1 text-lg font-semibold text-gray-900">
-                    {{ reviewForm.status === 'approved' ? 'Approve' : 'Reject' }} lesson plan
+                    {{ LESSON_PLAN_DECISION_UI[deciding.decision].title }}
                 </h2>
-                <p class="mb-4 text-sm text-gray-500">{{ reviewing.topic }} — {{ reviewing.submittedBy?.name }}</p>
+                <p class="mb-4 text-sm text-gray-500">{{ deciding.plan.topic }} — {{ deciding.plan.teacher?.name }}</p>
 
                 <label class="mb-1 block text-xs font-medium text-gray-600">
-                    Comment {{ reviewForm.status === 'rejected' ? '(required)' : '(optional)' }}
+                    {{ LESSON_PLAN_DECISION_UI[deciding.decision].label }}
                 </label>
-                <textarea v-model="reviewForm.comment" rows="4" class="w-full rounded-md border-gray-300 text-sm shadow-sm"
-                    :placeholder="reviewForm.status === 'rejected' ? 'Explain what needs to change…' : 'Optional note to the teacher…'" />
-                <p v-if="reviewForm.errors.comment" class="mt-1 text-xs text-red-600">{{ reviewForm.errors.comment }}</p>
+                <textarea v-model="reasonText" rows="4" class="w-full rounded-md border-gray-300 text-sm shadow-sm"
+                    :placeholder="LESSON_PLAN_DECISION_UI[deciding.decision].hint" />
+                <p v-if="reasonError" class="mt-1 text-xs text-red-600">{{ reasonError }}</p>
+
+                <p v-if="deciding.decision === 'reverted'" class="mt-2 text-xs text-gray-500">
+                    The plan goes back to the teacher to edit and resubmit. The decision being
+                    withdrawn stays on the record.
+                </p>
 
                 <div class="mt-5 flex justify-end gap-3">
-                    <button class="text-sm text-gray-500 hover:underline" @click="reviewing = null">Cancel</button>
-                    <button :disabled="reviewForm.processing"
+                    <button class="text-sm text-gray-500 hover:underline" @click="deciding = null">Cancel</button>
+                    <button :disabled="activeForm.processing"
                         :class="[
                             'rounded-md px-4 py-2 text-sm font-medium text-white disabled:opacity-50',
-                            reviewForm.status === 'approved' ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700',
+                            LESSON_PLAN_DECISION_UI[deciding.decision].button,
                         ]"
-                        @click="submitReview">
-                        {{ reviewForm.status === 'approved' ? 'Approve' : 'Reject' }}
+                        @click="submitDecision">
+                        {{ LESSON_PLAN_DECISION_UI[deciding.decision].action }}
                     </button>
                 </div>
             </div>
         </div>
+
     </AppLayout>
 </template>

@@ -30,10 +30,11 @@ class LessonPlanController extends Controller
         $query = LessonPlan::where('school_id', $school->id)
             ->with([
                 'subject:id,name',
-                'stream:id,name',
+                'stream:id,name,grade_id',
+                'stream.grade:id,name',
                 'term:id,name',
-                'submittedBy:id,name',
-                'reviewedBy:id,name',
+                'teacher:id,name',
+                'reviewer:id,name',
             ])
             ->withCount('media')
             ->orderByDesc('created_at');
@@ -102,10 +103,12 @@ class LessonPlanController extends Controller
 
         $lessonPlan->load([
             'subject:id,name',
-            'stream:id,name',
+            'stream:id,name,grade_id',
+            'stream.grade:id,name',
             'term:id,name',
-            'submittedBy:id,name',
-            'reviewedBy:id,name',
+            'teacher:id,name',
+            'reviewer:id,name',
+            'reverter:id,name',
             'media',
         ]);
 
@@ -119,8 +122,10 @@ class LessonPlanController extends Controller
                 ]),
             ]),
             'canReview' => $canReview && $lessonPlan->status === 'submitted',
+            // A reviewer may withdraw a decision they have already made.
+            'canRevert' => $canReview && $lessonPlan->isRevertable(),
             'canEdit' => $lessonPlan->submitted_by === $request->user()->id
-                && in_array($lessonPlan->status, ['draft', 'rejected'], true),
+                && $lessonPlan->isEditable(),
         ]);
     }
 
@@ -130,10 +135,10 @@ class LessonPlanController extends Controller
         $this->authorizeSchool($lessonPlan);
         $this->authorizeEditable($lessonPlan);
 
-        $lessonPlan->load('media', 'submittedBy:id,name');
+        $lessonPlan->load('media', 'teacher:id,name');
 
         return Inertia::render('LessonPlans/Edit', array_merge($this->formOptions(), [
-            'teacherName' => $lessonPlan->submittedBy?->name,
+            'teacherName' => $lessonPlan->teacher?->name,
             'blankStages' => LessonPlan::blankStages(),
             'lessonPlan' => array_merge($lessonPlan->toArray(), [
                 'attachments' => $lessonPlan->getMedia(LessonPlan::ATTACHMENTS)->map(fn ($m) => [
@@ -196,13 +201,14 @@ class LessonPlanController extends Controller
     }
 
     /**
-     * Only the author may edit, and only while the plan is a draft or has been
-     * rejected. Approved and pending-review plans are locked.
+     * Only the author may edit, and only while the plan is back in their hands — a
+     * draft, or one a reviewer rejected or reverted. Approved and pending-review
+     * plans are locked.
      */
     private function authorizeEditable(LessonPlan $lessonPlan): void
     {
         abort_if($lessonPlan->submitted_by !== auth()->id(), 403);
-        abort_if(! in_array($lessonPlan->status, ['draft', 'rejected'], true), 403,
+        abort_if(! $lessonPlan->isEditable(), 403,
             'This lesson plan can no longer be edited.');
     }
 }

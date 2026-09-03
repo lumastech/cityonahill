@@ -78,9 +78,16 @@ function removeAttachment(mediaId: number) {
                 <h1 class="text-xl font-bold text-gray-900">{{ lessonPlan.topic }}</h1>
             </div>
 
-            <div v-if="lessonPlan.status === 'rejected' && lessonPlan.comment"
+            <div v-if="lessonPlan.reject_reason"
                 class="mb-5 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
-                <span class="font-semibold">Reviewer feedback:</span> {{ lessonPlan.comment }}
+                <span class="font-semibold">Reason for rejection:</span>
+                <span class="whitespace-pre-line">{{ lessonPlan.reject_reason }}</span>
+            </div>
+
+            <div v-if="lessonPlan.revert_reason"
+                class="mb-5 rounded-md border border-orange-200 bg-orange-50 px-4 py-3 text-sm text-orange-900">
+                <span class="font-semibold">Returned for changes:</span>
+                <span class="whitespace-pre-line">{{ lessonPlan.revert_reason }}</span>
             </div>
 
             <PlanForm

@@ -22,6 +22,9 @@ class LessonPlan extends Model implements HasMedia
     /** The stages of the lesson plan table, in the order they are taught. */
     public const STAGES = ['Introduction', 'Development', 'Application'];
 
+    /** Statuses that hand the plan back to its author to work on. */
+    public const EDITABLE_STATUSES = ['draft', 'rejected', 'reverted'];
+
     protected $fillable = [
         'school_id',
         'subject_id',
@@ -47,9 +50,13 @@ class LessonPlan extends Model implements HasMedia
         'status',
         'submitted_by',
         'reviewed_by',
+        'reverted_by',
         'submitted_at',
         'reviewed_at',
+        'reverted_at',
         'comment',
+        'reject_reason',
+        'revert_reason',
     ];
 
     /** @var list<string> */
@@ -61,6 +68,7 @@ class LessonPlan extends Model implements HasMedia
             'lesson_date' => 'date',
             'submitted_at' => 'datetime',
             'reviewed_at' => 'datetime',
+            'reverted_at' => 'datetime',
             'stages' => 'array',
         ];
     }
@@ -120,14 +128,24 @@ class LessonPlan extends Model implements HasMedia
         return $this->belongsTo(Term::class);
     }
 
-    public function submittedBy(): BelongsTo
+    /**
+     * Named `teacher` rather than `submittedBy`: toArray() snake-cases relation keys,
+     * so a `submittedBy` relation would serialise over the `submitted_by` column and
+     * the front end would lose the author's id.
+     */
+    public function teacher(): BelongsTo
     {
         return $this->belongsTo(User::class, 'submitted_by');
     }
 
-    public function reviewedBy(): BelongsTo
+    public function reviewer(): BelongsTo
     {
         return $this->belongsTo(User::class, 'reviewed_by');
+    }
+
+    public function reverter(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'reverted_by');
     }
 
     // Scopes
@@ -140,5 +158,18 @@ class LessonPlan extends Model implements HasMedia
     public function scopeForUser(Builder $query, int $userId): Builder
     {
         return $query->where('submitted_by', $userId);
+    }
+
+    // Helpers
+
+    public function isEditable(): bool
+    {
+        return in_array($this->status, self::EDITABLE_STATUSES, true);
+    }
+
+    /** A decision can only be withdrawn once one has been made. */
+    public function isRevertable(): bool
+    {
+        return in_array($this->status, ['approved', 'rejected'], true);
     }
 }

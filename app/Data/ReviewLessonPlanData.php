@@ -9,6 +9,7 @@ class ReviewLessonPlanData extends Data
     public function __construct(
         public readonly string $status,
         public readonly ?string $comment = null,
+        public readonly ?string $reject_reason = null,
     ) {}
 
     /** @return array<string, array<int, mixed>> */
@@ -16,8 +17,10 @@ class ReviewLessonPlanData extends Data
     {
         return [
             'status' => ['required', 'in:approved,rejected'],
-            // A comment is required when rejecting so the teacher gets actionable feedback.
-            'comment' => ['nullable', 'required_if:status,rejected', 'string', 'max:2000'],
+            // An optional note the reviewer leaves when approving.
+            'comment' => ['nullable', 'string', 'max:2000'],
+            // A reason is required when rejecting so the teacher gets actionable feedback.
+            'reject_reason' => ['nullable', 'required_if:status,rejected', 'string', 'max:2000'],
         ];
     }
 
@@ -25,7 +28,7 @@ class ReviewLessonPlanData extends Data
     public static function messages(): array
     {
         return [
-            'comment.required_if' => 'Please add a comment explaining why the lesson plan is rejected.',
+            'reject_reason.required_if' => 'Please give a reason why the lesson plan is rejected.',
         ];
     }
 }

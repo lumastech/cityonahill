@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Data\ReviewLessonPlanData;
+use App\Data\RevertLessonPlanData;
 use App\Data\StoreLessonPlanData;
 use App\Models\LessonPlan;
 use Illuminate\Support\Facades\DB;
@@ -42,7 +43,11 @@ class LessonPlanService
                 'submitted_at' => $data->submit ? now() : $plan->submitted_at,
                 'reviewed_by' => $data->submit ? null : $plan->reviewed_by,
                 'reviewed_at' => $data->submit ? null : $plan->reviewed_at,
+                'reverted_by' => $data->submit ? null : $plan->reverted_by,
+                'reverted_at' => $data->submit ? null : $plan->reverted_at,
                 'comment' => $data->submit ? null : $plan->comment,
+                'reject_reason' => $data->submit ? null : $plan->reject_reason,
+                'revert_reason' => $data->submit ? null : $plan->revert_reason,
             ]);
 
             $this->attachFiles($plan, $data);
@@ -53,11 +58,34 @@ class LessonPlanService
 
     public function review(LessonPlan $plan, ReviewLessonPlanData $data, int $reviewerId): LessonPlan
     {
+        $rejected = $data->status === 'rejected';
+
         $plan->update([
             'status' => $data->status,
-            'comment' => $data->comment,
+            'comment' => $rejected ? null : $data->comment,
+            'reject_reason' => $rejected ? $data->reject_reason : null,
             'reviewed_by' => $reviewerId,
             'reviewed_at' => now(),
+            // A fresh decision supersedes any earlier one that was withdrawn.
+            'revert_reason' => null,
+            'reverted_by' => null,
+            'reverted_at' => null,
+        ]);
+
+        return $plan;
+    }
+
+    /**
+     * Withdraws a decision that has already been made and hands the plan back to its
+     * author. The decision it replaces is kept on the record so both are readable.
+     */
+    public function revert(LessonPlan $plan, RevertLessonPlanData $data, int $reverterId): LessonPlan
+    {
+        $plan->update([
+            'status' => 'reverted',
+            'revert_reason' => $data->revert_reason,
+            'reverted_by' => $reverterId,
+            'reverted_at' => now(),
         ]);
 
         return $plan;

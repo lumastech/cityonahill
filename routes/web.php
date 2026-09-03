@@ -38,6 +38,7 @@ use App\Http\Controllers\LeaveController;
 use App\Http\Controllers\LessonPlanAttachmentController;
 use App\Http\Controllers\LessonPlanController;
 use App\Http\Controllers\ReviewLessonPlanController;
+use App\Http\Controllers\RevertLessonPlanController;
 use App\Http\Controllers\SubjectContentAttachmentController;
 use App\Http\Controllers\SubjectContentController;
 use App\Http\Controllers\LibraryBookController;
@@ -181,6 +182,8 @@ Route::middleware(['auth', 'verified', 'school.context'])->group(function () {
         ->parameters(['lesson-plans' => 'lessonPlan']);
     Route::post('lesson-plans/{lessonPlan}/review', ReviewLessonPlanController::class)
         ->name('lesson-plans.review');
+    Route::post('lesson-plans/{lessonPlan}/revert', RevertLessonPlanController::class)
+        ->name('lesson-plans.revert');
     Route::get('lesson-plans/{lessonPlan}/attachments/{media}', [LessonPlanAttachmentController::class, 'show'])
         ->name('lesson-plans.attachments.show');
     Route::delete('lesson-plans/{lessonPlan}/attachments/{media}', [LessonPlanAttachmentController::class, 'destroy'])
