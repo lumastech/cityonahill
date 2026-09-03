@@ -325,3 +325,66 @@ it('accepts a plan written before teaching, with no evaluation yet', function ()
         ->and($plan->conclusion)->toBeNull()
         ->and($plan->evaluation)->toBeNull();
 });
+
+it('shows a lesson plan with its full content to the author', function () {
+    $plan = LessonPlan::create(lessonPlanPayload([
+        'school_id' => $this->school->id,
+        'status' => 'draft',
+        'submitted_by' => $this->teacher->id,
+    ]));
+
+    $this->actingAs($this->teacher)
+        ->get(route('lesson-plans.show', $plan))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->component('LessonPlans/Show')
+            ->where('lessonPlan.topic', 'Fractions')
+            ->where('lessonPlan.stages.1.teacher_activity', 'Introduces numerators and denominators.')
+            ->where('lessonPlan.total_pupils', 40)
+            ->where('canEdit', true)
+            ->where('canReview', false));
+});
+
+it('lets a reviewer read a submitted plan before approving it', function () {
+    $plan = LessonPlan::create(lessonPlanPayload([
+        'school_id' => $this->school->id,
+        'status' => 'submitted',
+        'submitted_by' => $this->teacher->id,
+    ]));
+
+    $this->actingAs($this->headteacher)
+        ->get(route('lesson-plans.show', $plan))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->component('LessonPlans/Show')
+            ->where('canReview', true)
+            ->where('canEdit', false));
+});
+
+it('does not show one teacher the lesson plan of another', function () {
+    $otherTeacher = User::factory()->create(['school_id' => $this->school->id]);
+    $otherTeacher->assignRole('subject-teacher');
+
+    $plan = LessonPlan::create(lessonPlanPayload([
+        'school_id' => $this->school->id,
+        'status' => 'submitted',
+        'submitted_by' => $this->teacher->id,
+    ]));
+
+    $this->actingAs($otherTeacher)
+        ->get(route('lesson-plans.show', $plan))
+        ->assertForbidden();
+});
+
+it('does not show a lesson plan from another school', function () {
+    $otherSchool = School::factory()->create(['code' => 'OTH']);
+    $plan = LessonPlan::create(lessonPlanPayload([
+        'school_id' => $otherSchool->id,
+        'status' => 'submitted',
+        'submitted_by' => $this->teacher->id,
+    ]));
+
+    $this->actingAs($this->headteacher)
+        ->get(route('lesson-plans.show', $plan))
+        ->assertForbidden();
+});

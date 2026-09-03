@@ -137,7 +137,9 @@ function destroy(plan: LessonPlan) {
                         <tbody class="divide-y divide-gray-100">
                             <tr v-for="plan in lessonPlans.data" :key="plan.id" class="hover:bg-gray-50">
                                 <td class="px-4 py-3 font-medium text-gray-900">
-                                    {{ plan.topic }}
+                                    <Link :href="route('lesson-plans.show', plan.id)" class="hover:text-indigo-600 hover:underline">
+                                        {{ plan.topic }}
+                                    </Link>
                                     <span v-if="plan.sub_topic" class="block text-xs font-normal text-gray-500">{{ plan.sub_topic }}</span>
                                     <span v-if="plan.week_number" class="text-xs text-gray-400">Wk {{ plan.week_number }}</span>
                                 </td>
@@ -156,6 +158,8 @@ function destroy(plan: LessonPlan) {
                                     </span>
                                 </td>
                                 <td class="whitespace-nowrap px-4 py-3 text-right">
+                                    <Link :href="route('lesson-plans.show', plan.id)"
+                                        class="mr-3 text-xs font-medium text-indigo-600 hover:text-indigo-900">View</Link>
                                     <template v-if="canReview && plan.status === 'submitted'">
                                         <button class="mr-3 text-xs font-medium text-green-600 hover:text-green-900"
                                             @click="openReview(plan, 'approved')">Approve</button>
@@ -184,7 +188,11 @@ function destroy(plan: LessonPlan) {
                         class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
                         <div class="flex items-start justify-between gap-3">
                             <div class="min-w-0">
-                                <h2 class="truncate font-medium text-gray-900">{{ plan.topic }}</h2>
+                                <h2 class="truncate font-medium text-gray-900">
+                                    <Link :href="route('lesson-plans.show', plan.id)" class="hover:text-indigo-600 hover:underline">
+                                        {{ plan.topic }}
+                                    </Link>
+                                </h2>
                                 <p v-if="plan.sub_topic" class="truncate text-xs text-gray-500">{{ plan.sub_topic }}</p>
                             </div>
                             <span :class="['shrink-0 rounded-full px-2 py-0.5 text-xs font-medium', LESSON_PLAN_STATUS_COLOR[plan.status]]">
@@ -222,8 +230,9 @@ function destroy(plan: LessonPlan) {
                             </div>
                         </dl>
 
-                        <div v-if="(canReview && plan.status === 'submitted') || canEdit(plan)"
-                            class="mt-4 flex flex-wrap items-center gap-2 border-t border-gray-100 pt-3">
+                        <div class="mt-4 flex flex-wrap items-center gap-2 border-t border-gray-100 pt-3">
+                            <Link :href="route('lesson-plans.show', plan.id)"
+                                class="rounded-md border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50">View</Link>
                             <template v-if="canReview && plan.status === 'submitted'">
                                 <button class="rounded-md bg-green-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-green-700"
                                     @click="openReview(plan, 'approved')">Approve</button>

@@ -90,6 +90,40 @@ class LessonPlanController extends Controller
             ->with('success', $data->submit ? 'Lesson plan submitted for approval.' : 'Lesson plan saved as draft.');
     }
 
+    public function show(Request $request, LessonPlan $lessonPlan): Response
+    {
+        $this->authorize('lesson-plan.view');
+        $this->authorizeSchool($lessonPlan);
+
+        $canReview = $request->user()->can('lesson-plan.approve');
+
+        // Reviewers may read any plan in the school; everyone else only their own.
+        abort_if(! $canReview && $lessonPlan->submitted_by !== $request->user()->id, 403);
+
+        $lessonPlan->load([
+            'subject:id,name',
+            'stream:id,name',
+            'term:id,name',
+            'submittedBy:id,name',
+            'reviewedBy:id,name',
+            'media',
+        ]);
+
+        return Inertia::render('LessonPlans/Show', [
+            'lessonPlan' => array_merge($lessonPlan->toArray(), [
+                'attachments' => $lessonPlan->getMedia(LessonPlan::ATTACHMENTS)->map(fn ($m) => [
+                    'id' => $m->id,
+                    'name' => $m->file_name,
+                    'size' => $m->size,
+                    'url' => route('lesson-plans.attachments.show', [$lessonPlan->id, $m->id]),
+                ]),
+            ]),
+            'canReview' => $canReview && $lessonPlan->status === 'submitted',
+            'canEdit' => $lessonPlan->submitted_by === $request->user()->id
+                && in_array($lessonPlan->status, ['draft', 'rejected'], true),
+        ]);
+    }
+
     public function edit(LessonPlan $lessonPlan): Response
     {
         $this->authorize('lesson-plan.update');

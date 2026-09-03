@@ -19,6 +19,7 @@ export interface LessonPlanAttachment {
     id: number
     name: string
     url: string
+    size?: number
 }
 
 export interface LessonPlanStage {

@@ -177,7 +177,7 @@ Route::middleware(['auth', 'verified', 'school.context'])->group(function () {
 
 // Module — Lesson Plans
 Route::middleware(['auth', 'verified', 'school.context'])->group(function () {
-    Route::resource('lesson-plans', LessonPlanController::class)->except(['show'])
+    Route::resource('lesson-plans', LessonPlanController::class)
         ->parameters(['lesson-plans' => 'lessonPlan']);
     Route::post('lesson-plans/{lessonPlan}/review', ReviewLessonPlanController::class)
         ->name('lesson-plans.review');
