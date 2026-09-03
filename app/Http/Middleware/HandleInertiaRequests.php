@@ -26,12 +26,27 @@ class HandleInertiaRequests extends Middleware
         return [
             ...parent::share($request),
 
-            'auth.user' => fn () => $request->user()?->load(['roles', 'permissions', 'school']),
+            'auth.user' => function () use ($request) {
+                $user = $request->user();
+
+                if (! $user) {
+                    return null;
+                }
+
+                $user->load(['roles', 'school']);
+
+                // The `permissions` relation only holds permissions assigned
+                // directly to the user. Ours live on the roles, so expose the
+                // effective set the front end checks with can().
+                return array_merge($user->toArray(), [
+                    'permissions' => $user->getAllPermissions()->pluck('name')->values(),
+                ]);
+            },
 
             'flash' => fn () => [
-                'success'  => $request->session()->get('success'),
-                'error'    => $request->session()->get('error'),
-                'info'     => $request->session()->get('info'),
+                'success' => $request->session()->get('success'),
+                'error' => $request->session()->get('error'),
+                'info' => $request->session()->get('info'),
                 'link_url' => $request->session()->get('link_url'),
 
                 // Shown once, immediately after an admin resets a staff password.
@@ -75,7 +90,7 @@ class HandleInertiaRequests extends Middleware
 
     private function staffProfileUrl(Request $request): ?string
     {
-        $user   = $request->user();
+        $user = $request->user();
         $school = app()->bound('current_school') ? app('current_school') : null;
 
         if (! $user || ! $school) {
