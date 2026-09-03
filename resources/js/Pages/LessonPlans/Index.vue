@@ -90,22 +90,22 @@ function destroy(plan: LessonPlan) {
                 <div class="mb-5 flex flex-wrap items-center gap-3">
                     <h1 class="mr-4 text-2xl font-semibold text-gray-900">Lesson Plans</h1>
 
-                    <div class="flex overflow-hidden rounded-md border border-gray-300 text-sm">
+                    <div class="flex w-full overflow-x-auto rounded-md border border-gray-300 text-sm sm:w-auto sm:overflow-hidden">
                         <button v-for="tab in STATUS_TABS" :key="tab[0]"
                             @click="status = tab[0]"
                             :class="[
-                                'px-3 py-1.5 font-medium transition-colors',
+                                'shrink-0 whitespace-nowrap px-3 py-1.5 font-medium transition-colors',
                                 status === tab[0] ? 'bg-indigo-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-50',
                             ]">
                             {{ tab[1] }}
                         </button>
                     </div>
 
-                    <select v-model="subjectId" class="rounded-md border-gray-300 text-sm shadow-sm">
+                    <select v-model="subjectId" class="min-w-0 flex-1 rounded-md border-gray-300 text-sm shadow-sm sm:flex-none">
                         <option value="">All subjects</option>
                         <option v-for="s in subjects" :key="s.id" :value="s.id">{{ s.name }}</option>
                     </select>
-                    <select v-model="streamId" class="rounded-md border-gray-300 text-sm shadow-sm">
+                    <select v-model="streamId" class="min-w-0 flex-1 rounded-md border-gray-300 text-sm shadow-sm sm:flex-none">
                         <option value="">All classes</option>
                         <option v-for="st in streams" :key="st.id" :value="st.id">{{ st.name }}</option>
                     </select>
@@ -113,12 +113,13 @@ function destroy(plan: LessonPlan) {
                     <span class="ml-auto text-sm text-gray-400">{{ lessonPlans.total }} record{{ lessonPlans.total !== 1 ? 's' : '' }}</span>
 
                     <Link v-if="can('lesson-plan.create')" :href="route('lesson-plans.create')"
-                        class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">
+                        class="w-full shrink-0 rounded-md bg-indigo-600 px-4 py-2 text-center text-sm font-medium text-white hover:bg-indigo-700 sm:w-auto">
                         New Lesson Plan
                     </Link>
                 </div>
 
-                <div class="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm">
+                <!-- Table on md and up; the same rows render as cards on phones below. -->
+                <div class="hidden overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm md:block">
                     <table class="min-w-full divide-y divide-gray-200 text-sm">
                         <thead class="bg-gray-50">
                             <tr>
@@ -175,6 +176,72 @@ function destroy(plan: LessonPlan) {
                             </tr>
                         </tbody>
                     </table>
+                </div>
+
+                <!-- Card list for phones -->
+                <div class="space-y-3 md:hidden">
+                    <article v-for="plan in lessonPlans.data" :key="plan.id"
+                        class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+                        <div class="flex items-start justify-between gap-3">
+                            <div class="min-w-0">
+                                <h2 class="truncate font-medium text-gray-900">{{ plan.topic }}</h2>
+                                <p v-if="plan.sub_topic" class="truncate text-xs text-gray-500">{{ plan.sub_topic }}</p>
+                            </div>
+                            <span :class="['shrink-0 rounded-full px-2 py-0.5 text-xs font-medium', LESSON_PLAN_STATUS_COLOR[plan.status]]">
+                                {{ LESSON_PLAN_STATUS_LABEL[plan.status] }}
+                            </span>
+                        </div>
+
+                        <dl class="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                            <div>
+                                <dt class="text-xs text-gray-400">Subject</dt>
+                                <dd class="truncate text-gray-700">{{ plan.subject?.name ?? '—' }}</dd>
+                            </div>
+                            <div>
+                                <dt class="text-xs text-gray-400">Class</dt>
+                                <dd class="truncate text-gray-700">{{ plan.stream?.name ?? '—' }}</dd>
+                            </div>
+                            <div>
+                                <dt class="text-xs text-gray-400">Date</dt>
+                                <dd class="text-gray-700">{{ plan.lesson_date ? fmtDate(plan.lesson_date) : '—' }}</dd>
+                            </div>
+                            <div>
+                                <dt class="text-xs text-gray-400">Term</dt>
+                                <dd class="truncate text-gray-700">
+                                    {{ plan.term?.name ?? '—' }}
+                                    <span v-if="plan.week_number" class="text-gray-400">· Wk {{ plan.week_number }}</span>
+                                </dd>
+                            </div>
+                            <div v-if="canReview">
+                                <dt class="text-xs text-gray-400">Teacher</dt>
+                                <dd class="truncate text-gray-700">{{ plan.submittedBy?.name ?? '—' }}</dd>
+                            </div>
+                            <div v-if="plan.media_count">
+                                <dt class="text-xs text-gray-400">Files</dt>
+                                <dd class="text-gray-700">{{ plan.media_count }}</dd>
+                            </div>
+                        </dl>
+
+                        <div v-if="(canReview && plan.status === 'submitted') || canEdit(plan)"
+                            class="mt-4 flex flex-wrap items-center gap-2 border-t border-gray-100 pt-3">
+                            <template v-if="canReview && plan.status === 'submitted'">
+                                <button class="rounded-md bg-green-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-green-700"
+                                    @click="openReview(plan, 'approved')">Approve</button>
+                                <button class="rounded-md bg-red-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-700"
+                                    @click="openReview(plan, 'rejected')">Reject</button>
+                            </template>
+                            <Link v-if="canEdit(plan)" :href="route('lesson-plans.edit', plan.id)"
+                                class="rounded-md border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50">Edit</Link>
+                            <button v-if="canEdit(plan) && can('lesson-plan.delete')"
+                                class="ml-auto text-xs font-medium text-gray-500 hover:text-red-700"
+                                @click="destroy(plan)">Delete</button>
+                        </div>
+                    </article>
+
+                    <p v-if="!lessonPlans.data.length"
+                        class="rounded-lg border border-gray-200 bg-white px-4 py-10 text-center text-gray-400">
+                        No lesson plans found.
+                    </p>
                 </div>
 
                 <div v-if="lessonPlans.links.length > 3" class="mt-4 flex justify-center gap-1 text-sm">

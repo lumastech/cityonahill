@@ -219,7 +219,10 @@ function onFiles(event: Event, form: any) {
 
             <hr class="border-gray-200" />
 
-            <!-- Stage table -->
+            <!--
+                Stage table. One set of inputs for both layouts: a labelled card per
+                stage on phones, the four-column table from the paper form on md and up.
+            -->
             <div>
                 <div class="mb-2 flex items-center justify-between">
                     <h2 class="text-sm font-semibold text-gray-900">Lesson development</h2>
@@ -228,40 +231,42 @@ function onFiles(event: Event, form: any) {
                     </button>
                 </div>
 
-                <div class="overflow-x-auto rounded-md border border-gray-200">
-                    <table class="min-w-full divide-y divide-gray-200 text-sm">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="w-32 px-3 py-2 text-left text-xs font-medium text-gray-600">Stage</th>
-                                <th class="px-3 py-2 text-left text-xs font-medium text-gray-600">Teacher activity</th>
-                                <th class="px-3 py-2 text-left text-xs font-medium text-gray-600">Learners activity</th>
-                                <th class="px-3 py-2 text-left text-xs font-medium text-gray-600">Assessment criteria</th>
-                                <th class="w-10 px-3 py-2"></th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-100">
-                            <tr v-for="(stage, i) in form.stages" :key="i" class="align-top">
-                                <td class="px-3 py-2">
-                                    <input v-model="stage.stage" type="text" class="w-full rounded-md border-gray-300 text-sm shadow-sm" />
-                                    <p v-if="stageError(i, 'stage')" class="mt-1 text-xs text-red-600">{{ stageError(i, 'stage') }}</p>
-                                </td>
-                                <td class="px-3 py-2">
-                                    <textarea v-model="stage.teacher_activity" rows="3" class="w-full rounded-md border-gray-300 text-sm shadow-sm" />
-                                </td>
-                                <td class="px-3 py-2">
-                                    <textarea v-model="stage.learner_activity" rows="3" class="w-full rounded-md border-gray-300 text-sm shadow-sm" />
-                                </td>
-                                <td class="px-3 py-2">
-                                    <textarea v-model="stage.assessment_criteria" rows="3" class="w-full rounded-md border-gray-300 text-sm shadow-sm" />
-                                </td>
-                                <td class="px-3 py-2 text-right">
-                                    <button v-if="form.stages.length > 1" type="button"
-                                        class="text-xs font-medium text-gray-400 hover:text-red-600"
-                                        title="Remove stage" @click="removeStage(i)">✕</button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <div class="space-y-3 md:space-y-0 md:divide-y md:divide-gray-100 md:overflow-hidden md:rounded-md md:border md:border-gray-200">
+                    <div class="hidden border-b border-gray-200 bg-gray-50 px-3 py-2 md:grid md:grid-cols-[7rem_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_1.5rem] md:gap-3">
+                        <span class="text-xs font-medium text-gray-600">Stage</span>
+                        <span class="text-xs font-medium text-gray-600">Teacher activity</span>
+                        <span class="text-xs font-medium text-gray-600">Learners activity</span>
+                        <span class="text-xs font-medium text-gray-600">Assessment criteria</span>
+                        <span class="sr-only">Actions</span>
+                    </div>
+
+                    <div v-for="(stage, i) in form.stages" :key="i"
+                        class="rounded-md border border-gray-200 p-3 md:grid md:grid-cols-[7rem_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_1.5rem] md:gap-3 md:rounded-none md:border-0 md:px-3 md:py-2">
+                        <div class="mb-3 md:mb-0">
+                            <label class="mb-1 block text-xs font-medium text-gray-600 md:hidden">Stage</label>
+                            <input v-model="stage.stage" type="text" class="w-full rounded-md border-gray-300 text-sm shadow-sm" />
+                            <p v-if="stageError(i, 'stage')" class="mt-1 text-xs text-red-600">{{ stageError(i, 'stage') }}</p>
+                        </div>
+                        <div class="mb-3 md:mb-0">
+                            <label class="mb-1 block text-xs font-medium text-gray-600 md:hidden">Teacher activity</label>
+                            <textarea v-model="stage.teacher_activity" rows="3" class="w-full rounded-md border-gray-300 text-sm shadow-sm" />
+                        </div>
+                        <div class="mb-3 md:mb-0">
+                            <label class="mb-1 block text-xs font-medium text-gray-600 md:hidden">Learners activity</label>
+                            <textarea v-model="stage.learner_activity" rows="3" class="w-full rounded-md border-gray-300 text-sm shadow-sm" />
+                        </div>
+                        <div class="mb-3 md:mb-0">
+                            <label class="mb-1 block text-xs font-medium text-gray-600 md:hidden">Assessment criteria</label>
+                            <textarea v-model="stage.assessment_criteria" rows="3" class="w-full rounded-md border-gray-300 text-sm shadow-sm" />
+                        </div>
+                        <div v-if="form.stages.length > 1" class="flex justify-end md:block md:pt-1.5">
+                            <button type="button" class="text-xs font-medium text-gray-400 hover:text-red-600"
+                                title="Remove stage" @click="removeStage(i)">
+                                <span class="md:hidden">Remove stage</span>
+                                <span class="hidden md:inline" aria-hidden="true">&#10005;</span>
+                            </button>
+                        </div>
+                    </div>
                 </div>
                 <p v-if="form.errors.stages" class="mt-1 text-xs text-red-600">{{ form.errors.stages }}</p>
             </div>
@@ -304,15 +309,16 @@ function onFiles(event: Event, form: any) {
                 <p v-if="form.errors['attachments.0']" class="mt-1 text-xs text-red-600">{{ form.errors['attachments.0'] }}</p>
             </div>
 
-            <div class="flex items-center justify-end gap-3 pt-2">
-                <Link :href="route('lesson-plans.index')" class="text-sm text-gray-500 hover:underline">Cancel</Link>
+            <div class="flex flex-col-reverse gap-3 pt-2 sm:flex-row sm:items-center sm:justify-end">
+                <Link :href="route('lesson-plans.index')"
+                    class="text-center text-sm text-gray-500 hover:underline">Cancel</Link>
                 <button type="button" :disabled="processing"
-                    class="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                    class="w-full rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 sm:w-auto"
                     @click="emit('save-draft')">
                     Save draft
                 </button>
                 <button type="submit" :disabled="processing"
-                    class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50">
+                    class="w-full rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50 sm:w-auto">
                     Submit for approval
                 </button>
             </div>
