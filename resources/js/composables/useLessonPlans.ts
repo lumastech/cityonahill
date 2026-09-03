@@ -101,6 +101,5 @@ export interface LessonPlanFormFields {
     duration_minutes: number | null
     boys_count: number | null
     girls_count: number | null
-    submit: boolean
     attachments: File[]
 }

@@ -41,13 +41,15 @@ const form = useForm<LessonPlanFormFields>({
     duration_minutes: null,
     boys_count: null,
     girls_count: null,
-    submit: false,
     attachments: [],
 })
 
-function save(submit: boolean) {
-    form.submit = submit
-    form.post(route('lesson-plans.store'), { forceFormData: true })
+// `submit` is sent through transform rather than held as a form field: a field of
+// that name would shadow Inertia's own form.submit() method.
+function save(submitForApproval: boolean) {
+    form
+        .transform((data) => ({ ...data, submit: submitForApproval }))
+        .post(route('lesson-plans.store'), { forceFormData: true })
 }
 </script>
 
