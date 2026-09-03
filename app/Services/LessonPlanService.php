@@ -17,13 +17,7 @@ class LessonPlanService
                 'subject_id' => $data->subject_id,
                 'stream_id' => $data->stream_id,
                 'term_id' => $data->term_id,
-                'title' => $data->title,
-                'week_number' => $data->week_number,
-                'lesson_date' => $data->lesson_date,
-                'objectives' => $data->objectives,
-                'content' => $data->content,
-                'activities' => $data->activities,
-                'materials' => $data->materials,
+                ...$this->attributesFrom($data),
                 'status' => $data->submit ? 'submitted' : 'draft',
                 'submitted_by' => $userId,
                 'submitted_at' => $data->submit ? now() : null,
@@ -42,13 +36,7 @@ class LessonPlanService
                 'subject_id' => $data->subject_id,
                 'stream_id' => $data->stream_id,
                 'term_id' => $data->term_id,
-                'title' => $data->title,
-                'week_number' => $data->week_number,
-                'lesson_date' => $data->lesson_date,
-                'objectives' => $data->objectives,
-                'content' => $data->content,
-                'activities' => $data->activities,
-                'materials' => $data->materials,
+                ...$this->attributesFrom($data),
                 // Resubmitting clears the previous review outcome.
                 'status' => $data->submit ? 'submitted' : $plan->status,
                 'submitted_at' => $data->submit ? now() : $plan->submitted_at,
@@ -73,6 +61,34 @@ class LessonPlanService
         ]);
 
         return $plan;
+    }
+
+    /**
+     * The lesson plan template fields, shared by create and update.
+     *
+     * @return array<string, mixed>
+     */
+    private function attributesFrom(StoreLessonPlanData $data): array
+    {
+        return [
+            'topic' => $data->topic,
+            'sub_topic' => $data->sub_topic,
+            'general_competence' => $data->general_competence,
+            'specific_competence' => $data->specific_competence,
+            'lesson_goal' => $data->lesson_goal,
+            'reference' => $data->reference,
+            'prior_knowledge' => $data->prior_knowledge,
+            'learning_material' => $data->learning_material,
+            'learning_environment' => $data->learning_environment,
+            'stages' => $data->stages,
+            'conclusion' => $data->conclusion,
+            'evaluation' => $data->evaluation,
+            'week_number' => $data->week_number,
+            'lesson_date' => $data->lesson_date,
+            'duration_minutes' => $data->duration_minutes,
+            'boys_count' => $data->boys_count,
+            'girls_count' => $data->girls_count,
+        ];
     }
 
     private function attachFiles(LessonPlan $plan, StoreLessonPlanData $data): void

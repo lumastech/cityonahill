@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Data\StoreLessonPlanData;
+use App\Enums\SexEnum;
 use App\Models\LessonPlan;
 use App\Models\Stream;
 use App\Models\Subject;
@@ -67,11 +68,14 @@ class LessonPlanController extends Controller
         ]);
     }
 
-    public function create(): Response
+    public function create(Request $request): Response
     {
         $this->authorize('lesson-plan.create');
 
-        return Inertia::render('LessonPlans/Create', $this->formOptions());
+        return Inertia::render('LessonPlans/Create', array_merge($this->formOptions(), [
+            'teacherName' => $request->user()->name,
+            'blankStages' => LessonPlan::blankStages(),
+        ]));
     }
 
     public function store(StoreLessonPlanData $data): RedirectResponse
@@ -92,9 +96,11 @@ class LessonPlanController extends Controller
         $this->authorizeSchool($lessonPlan);
         $this->authorizeEditable($lessonPlan);
 
-        $lessonPlan->load('media');
+        $lessonPlan->load('media', 'submittedBy:id,name');
 
         return Inertia::render('LessonPlans/Edit', array_merge($this->formOptions(), [
+            'teacherName' => $lessonPlan->submittedBy?->name,
+            'blankStages' => LessonPlan::blankStages(),
             'lessonPlan' => array_merge($lessonPlan->toArray(), [
                 'attachments' => $lessonPlan->getMedia(LessonPlan::ATTACHMENTS)->map(fn ($m) => [
                     'id' => $m->id,
@@ -135,7 +141,17 @@ class LessonPlanController extends Controller
 
         return [
             'subjects' => Subject::where('school_id', $school->id)->orderBy('name')->get(['id', 'name']),
-            'streams' => Stream::where('school_id', $school->id)->with('grade:id,name')->orderBy('name')->get(['id', 'name', 'grade_id']),
+            // boys_count / girls_count let the form pre-fill the pupil stats from the
+            // class roll as soon as a class is picked.
+            'streams' => Stream::where('school_id', $school->id)
+                ->select(['id', 'name', 'grade_id'])
+                ->with('grade:id,name')
+                ->withCount([
+                    'pupils as boys_count' => fn ($q) => $q->active()->where('sex', SexEnum::Male),
+                    'pupils as girls_count' => fn ($q) => $q->active()->where('sex', SexEnum::Female),
+                ])
+                ->orderBy('name')
+                ->get(),
             'terms' => Term::where('school_id', $school->id)->orderBy('number')->get(['id', 'name', 'is_current']),
         ];
     }

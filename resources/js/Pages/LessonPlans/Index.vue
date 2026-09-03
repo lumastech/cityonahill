@@ -122,7 +122,7 @@ function destroy(plan: LessonPlan) {
                     <table class="min-w-full divide-y divide-gray-200 text-sm">
                         <thead class="bg-gray-50">
                             <tr>
-                                <th class="px-4 py-3 text-left font-medium text-gray-600">Title</th>
+                                <th class="px-4 py-3 text-left font-medium text-gray-600">Topic</th>
                                 <th class="px-4 py-3 text-left font-medium text-gray-600">Subject</th>
                                 <th class="px-4 py-3 text-left font-medium text-gray-600">Class</th>
                                 <th class="px-4 py-3 text-left font-medium text-gray-600">Term</th>
@@ -136,8 +136,9 @@ function destroy(plan: LessonPlan) {
                         <tbody class="divide-y divide-gray-100">
                             <tr v-for="plan in lessonPlans.data" :key="plan.id" class="hover:bg-gray-50">
                                 <td class="px-4 py-3 font-medium text-gray-900">
-                                    {{ plan.title }}
-                                    <span v-if="plan.week_number" class="ml-1 text-xs text-gray-400">· Wk {{ plan.week_number }}</span>
+                                    {{ plan.topic }}
+                                    <span v-if="plan.sub_topic" class="block text-xs font-normal text-gray-500">{{ plan.sub_topic }}</span>
+                                    <span v-if="plan.week_number" class="text-xs text-gray-400">Wk {{ plan.week_number }}</span>
                                 </td>
                                 <td class="px-4 py-3 text-gray-600">{{ plan.subject?.name }}</td>
                                 <td class="px-4 py-3 text-gray-600">{{ plan.stream?.name }}</td>
@@ -195,7 +196,7 @@ function destroy(plan: LessonPlan) {
                 <h2 class="mb-1 text-lg font-semibold text-gray-900">
                     {{ reviewForm.status === 'approved' ? 'Approve' : 'Reject' }} lesson plan
                 </h2>
-                <p class="mb-4 text-sm text-gray-500">{{ reviewing.title }} — {{ reviewing.submittedBy?.name }}</p>
+                <p class="mb-4 text-sm text-gray-500">{{ reviewing.topic }} — {{ reviewing.submittedBy?.name }}</p>
 
                 <label class="mb-1 block text-xs font-medium text-gray-600">
                     Comment {{ reviewForm.status === 'rejected' ? '(required)' : '(optional)' }}

@@ -2,39 +2,52 @@
 import AppLayout from '@/Layouts/AppLayout.vue'
 import { Head, Link, router, useForm } from '@inertiajs/vue3'
 import PlanForm from './PlanForm.vue'
-import type { LessonPlan, LessonPlanOption, StreamOption, TermOption } from '@/composables/useLessonPlans'
+import type {
+    LessonPlan,
+    LessonPlanFormFields,
+    LessonPlanOption,
+    LessonPlanStage,
+    StreamOption,
+    TermOption,
+} from '@/composables/useLessonPlans'
 
 const props = defineProps<{
     lessonPlan: LessonPlan
+    teacherName: string | null
     subjects: LessonPlanOption[]
     streams: StreamOption[]
     terms: TermOption[]
+    blankStages: LessonPlanStage[]
 }>()
 
-const form = useForm<{
-    subject_id: number | null
-    stream_id: number | null
-    term_id: number | null
-    title: string
-    week_number: number | null
-    lesson_date: string | null
-    objectives: string
-    content: string
-    activities: string
-    materials: string
-    submit: boolean
-    attachments: File[]
-}>({
+const savedStages = props.lessonPlan.stages?.length ? props.lessonPlan.stages : props.blankStages
+
+const form = useForm<LessonPlanFormFields>({
     subject_id: props.lessonPlan.subject_id,
     stream_id: props.lessonPlan.stream_id,
     term_id: props.lessonPlan.term_id,
-    title: props.lessonPlan.title,
+    topic: props.lessonPlan.topic,
+    sub_topic: props.lessonPlan.sub_topic ?? '',
+    general_competence: props.lessonPlan.general_competence ?? '',
+    specific_competence: props.lessonPlan.specific_competence ?? '',
+    lesson_goal: props.lessonPlan.lesson_goal,
+    reference: props.lessonPlan.reference ?? '',
+    prior_knowledge: props.lessonPlan.prior_knowledge ?? '',
+    learning_material: props.lessonPlan.learning_material ?? '',
+    learning_environment: props.lessonPlan.learning_environment ?? '',
+    stages: savedStages.map((s) => ({
+        stage: s.stage,
+        teacher_activity: s.teacher_activity ?? '',
+        learner_activity: s.learner_activity ?? '',
+        assessment_criteria: s.assessment_criteria ?? '',
+    })),
+    conclusion: props.lessonPlan.conclusion ?? '',
+    evaluation: props.lessonPlan.evaluation ?? '',
     week_number: props.lessonPlan.week_number,
     lesson_date: props.lessonPlan.lesson_date ? props.lessonPlan.lesson_date.substring(0, 10) : null,
-    objectives: props.lessonPlan.objectives,
-    content: props.lessonPlan.content,
-    activities: props.lessonPlan.activities ?? '',
-    materials: props.lessonPlan.materials ?? '',
+    duration_minutes: props.lessonPlan.duration_minutes,
+    boys_count: props.lessonPlan.boys_count,
+    girls_count: props.lessonPlan.girls_count,
     submit: false,
     attachments: [],
 })
@@ -55,14 +68,14 @@ function removeAttachment(mediaId: number) {
 </script>
 
 <template>
-    <AppLayout :title="`Edit ${lessonPlan.title}`">
-        <Head :title="`Edit ${lessonPlan.title}`" />
+    <AppLayout :title="`Edit ${lessonPlan.topic}`">
+        <Head :title="`Edit ${lessonPlan.topic}`" />
 
-        <div class="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
+        <div class="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
             <div class="mb-6 flex items-center gap-3">
                 <Link :href="route('lesson-plans.index')" class="text-sm text-indigo-600 hover:underline">← Lesson Plans</Link>
                 <span class="text-gray-400">/</span>
-                <h1 class="text-xl font-bold text-gray-900">{{ lessonPlan.title }}</h1>
+                <h1 class="text-xl font-bold text-gray-900">{{ lessonPlan.topic }}</h1>
             </div>
 
             <div v-if="lessonPlan.status === 'rejected' && lessonPlan.comment"
@@ -72,6 +85,7 @@ function removeAttachment(mediaId: number) {
 
             <PlanForm
                 :form="form"
+                :teacher-name="teacherName"
                 :subjects="subjects"
                 :streams="streams"
                 :terms="terms"
