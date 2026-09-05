@@ -82,28 +82,76 @@ window.onbeforeunload = () => (isDirty.value ? 'You have unsaved changes.' : nul
                 </div>
             </div>
 
-            <div class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+            <div class="rounded-lg border border-gray-200 bg-white shadow-sm">
+                <!-- Mobile: one card per pupil -->
+                <div class="divide-y divide-gray-100 sm:hidden">
+                    <div v-for="(pupil, idx) in pupils" :key="pupil.id" class="p-4">
+                        <div class="flex items-start justify-between gap-3">
+                            <div class="min-w-0">
+                                <Link :href="route('pupils.show', pupil.id)" class="text-sm font-medium text-indigo-700 hover:underline">
+                                    {{ pupil.last_name }}, {{ pupil.first_name }}
+                                </Link>
+                                <p class="mt-0.5 text-xs text-gray-500">{{ idx + 1 }} · {{ pupil.admission_no }}</p>
+                            </div>
+                            <span
+                                v-if="gradeForRow[idx]"
+                                class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold"
+                                :class="gradeColor(gradeForRow[idx])"
+                            >
+                                {{ gradeForRow[idx] }}
+                            </span>
+                            <span v-else class="shrink-0 text-gray-300">—</span>
+                        </div>
+
+                        <label class="mt-3 flex items-center gap-2">
+                            <span class="text-xs font-medium text-gray-600">Marks</span>
+                            <input
+                                v-model.number="rows[idx].marks"
+                                type="number"
+                                inputmode="decimal"
+                                :min="0"
+                                :max="maxMarks"
+                                step="0.5"
+                                class="w-24 rounded border text-center text-sm focus:ring-1 focus:ring-indigo-300"
+                                :class="isOutOfRange(rows[idx].marks) ? 'border-red-400 bg-red-50 text-red-700' : 'border-gray-200'"
+                                @input="markDirty"
+                            />
+                            <span class="text-xs text-gray-400">/ {{ maxMarks }}</span>
+                        </label>
+
+                        <input
+                            v-model="rows[idx].remarks"
+                            type="text"
+                            placeholder="Remarks (optional)"
+                            class="mt-2 w-full rounded border-gray-200 text-xs focus:border-indigo-300 focus:ring-1 focus:ring-indigo-300"
+                            @input="markDirty"
+                        />
+                    </div>
+                </div>
+
+                <!-- Desktop: table -->
+                <div class="hidden overflow-x-auto sm:block">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">#</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Pupil</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Adm. No.</th>
-                            <th class="px-4 py-3 text-center text-xs font-medium uppercase text-gray-500">Marks (/ {{ maxMarks }})</th>
-                            <th class="px-4 py-3 text-center text-xs font-medium uppercase text-gray-500">Grade</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Remarks</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">#</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Pupil</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Adm. No.</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-center text-xs font-medium uppercase text-gray-500">Marks (/ {{ maxMarks }})</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-center text-xs font-medium uppercase text-gray-500">Grade</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Remarks</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
                         <tr v-for="(pupil, idx) in pupils" :key="pupil.id">
-                            <td class="px-4 py-2 text-sm text-gray-400">{{ idx + 1 }}</td>
-                            <td class="px-4 py-2 text-sm font-medium text-gray-900">
+                            <td class="whitespace-nowrap px-4 py-2 text-sm text-gray-400">{{ idx + 1 }}</td>
+                            <td class="whitespace-nowrap px-4 py-2 text-sm font-medium text-gray-900">
                                 <Link :href="route('pupils.show', pupil.id)" class="hover:underline text-indigo-700">
                                     {{ pupil.last_name }}, {{ pupil.first_name }}
                                 </Link>
                             </td>
-                            <td class="px-4 py-2 text-sm text-gray-500">{{ pupil.admission_no }}</td>
-                            <td class="px-4 py-2 text-center">
+                            <td class="whitespace-nowrap px-4 py-2 text-sm text-gray-500">{{ pupil.admission_no }}</td>
+                            <td class="whitespace-nowrap px-4 py-2 text-center">
                                 <input
                                     v-model.number="rows[idx].marks"
                                     type="number"
@@ -115,7 +163,7 @@ window.onbeforeunload = () => (isDirty.value ? 'You have unsaved changes.' : nul
                                     @input="markDirty"
                                 />
                             </td>
-                            <td class="px-4 py-2 text-center">
+                            <td class="whitespace-nowrap px-4 py-2 text-center">
                                 <span
                                     v-if="gradeForRow[idx]"
                                     class="inline-flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold"
@@ -137,6 +185,7 @@ window.onbeforeunload = () => (isDirty.value ? 'You have unsaved changes.' : nul
                         </tr>
                     </tbody>
                 </table>
+                </div>
 
                 <div class="flex justify-end border-t border-gray-200 bg-gray-50 px-4 py-3">
                     <button

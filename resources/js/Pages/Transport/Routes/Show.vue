@@ -139,39 +139,41 @@ function removeAssignment(id: number) {
                         <option v-for="t in terms" :key="t.id" :value="t.id">{{ t.name }}</option>
                     </select>
                 </div>
-                <table class="min-w-full divide-y divide-gray-200 text-sm">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">Pupil</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">Admission No.</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">Grade</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">Pickup Stop</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">Direction</th>
-                            <th class="px-4 py-3"></th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-100">
-                        <tr v-for="a in manifest" :key="a.id">
-                            <td class="px-4 py-3 font-medium text-gray-900">
-                                <Link v-if="a.pupil" :href="route('pupils.show', a.pupil.id)" class="hover:underline text-indigo-700">{{ a.pupil.first_name }} {{ a.pupil.last_name }}</Link>
-                            </td>
-                            <td class="px-4 py-3 text-gray-600">{{ a.pupil?.admission_no }}</td>
-                            <td class="px-4 py-3 text-gray-600">
-                                {{ a.pupil?.stream?.grade?.name }} {{ a.pupil?.stream?.name }}
-                            </td>
-                            <td class="px-4 py-3 text-gray-600">{{ a.pickup_point }}</td>
-                            <td class="px-4 py-3 text-gray-500 capitalize">{{ a.direction.replace('_', ' ') }}</td>
-                            <td class="px-4 py-3 text-right">
-                                <button @click="removeAssignment(a.id)" class="text-xs text-red-500 hover:underline">Remove</button>
-                            </td>
-                        </tr>
-                        <tr v-if="!manifest.length">
-                            <td colspan="6" class="px-4 py-10 text-center text-gray-400">
-                                {{ term_id ? 'No pupils assigned for this term.' : 'Select a term to view manifest.' }}
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200 text-sm">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Pupil</th>
+                                <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Admission No.</th>
+                                <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Grade</th>
+                                <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Pickup Stop</th>
+                                <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Direction</th>
+                                <th class="whitespace-nowrap px-4 py-3"></th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">
+                            <tr v-for="a in manifest" :key="a.id">
+                                <td class="whitespace-nowrap px-4 py-3 font-medium text-gray-900">
+                                    <Link v-if="a.pupil" :href="route('pupils.show', a.pupil.id)" class="hover:underline text-indigo-700">{{ a.pupil.first_name }} {{ a.pupil.last_name }}</Link>
+                                </td>
+                                <td class="whitespace-nowrap px-4 py-3 text-gray-600">{{ a.pupil?.admission_no }}</td>
+                                <td class="whitespace-nowrap px-4 py-3 text-gray-600">
+                                    {{ a.pupil?.stream?.grade?.name }} {{ a.pupil?.stream?.name }}
+                                </td>
+                                <td class="whitespace-nowrap px-4 py-3 text-gray-600">{{ a.pickup_point }}</td>
+                                <td class="whitespace-nowrap px-4 py-3 text-gray-500 capitalize">{{ a.direction.replace('_', ' ') }}</td>
+                                <td class="whitespace-nowrap px-4 py-3 text-right">
+                                    <button @click="removeAssignment(a.id)" class="text-xs text-red-500 hover:underline">Remove</button>
+                                </td>
+                            </tr>
+                            <tr v-if="!manifest.length">
+                                <td colspan="6" class="px-4 py-10 text-center text-gray-400">
+                                    {{ term_id ? 'No pupils assigned for this term.' : 'Select a term to view manifest.' }}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>

@@ -102,17 +102,17 @@ const ACTION_COLORS: Record<string, string> = {
             </div>
 
             <!-- Table -->
-            <div class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+            <div class="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm">
                 <table class="min-w-full divide-y divide-gray-200 text-sm">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">When</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">User</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">Action</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">Model</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">ID</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">IP</th>
-                            <th class="px-4 py-3 w-8"></th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">When</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">User</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Action</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Model</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">ID</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">IP</th>
+                            <th class="whitespace-nowrap px-4 py-3 w-8"></th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
@@ -122,16 +122,16 @@ const ACTION_COLORS: Record<string, string> = {
                         <template v-for="log in logs.data" :key="log.id">
                             <tr class="hover:bg-gray-50" :class="{ 'bg-gray-50': expanded.has(log.id) }">
                                 <td class="px-4 py-2.5 text-xs text-gray-500 whitespace-nowrap">{{ formatDate(log.created_at) }}</td>
-                                <td class="px-4 py-2.5 text-gray-700">{{ log.user?.name ?? 'System' }}</td>
-                                <td class="px-4 py-2.5">
+                                <td class="whitespace-nowrap px-4 py-2.5 text-gray-700">{{ log.user?.name ?? 'System' }}</td>
+                                <td class="whitespace-nowrap px-4 py-2.5">
                                     <span class="rounded-full px-2 py-0.5 text-xs font-medium capitalize" :class="ACTION_COLORS[log.action] ?? 'bg-gray-100 text-gray-600'">
                                         {{ log.action }}
                                     </span>
                                 </td>
-                                <td class="px-4 py-2.5 font-medium text-gray-700">{{ modelLabel(log.auditable_type) }}</td>
-                                <td class="px-4 py-2.5 font-mono text-xs text-gray-500">{{ log.auditable_id }}</td>
-                                <td class="px-4 py-2.5 text-xs text-gray-400">{{ log.ip_address ?? '—' }}</td>
-                                <td class="px-4 py-2.5 text-right">
+                                <td class="whitespace-nowrap px-4 py-2.5 font-medium text-gray-700">{{ modelLabel(log.auditable_type) }}</td>
+                                <td class="whitespace-nowrap px-4 py-2.5 font-mono text-xs text-gray-500">{{ log.auditable_id }}</td>
+                                <td class="whitespace-nowrap px-4 py-2.5 text-xs text-gray-400">{{ log.ip_address ?? '—' }}</td>
+                                <td class="whitespace-nowrap px-4 py-2.5 text-right">
                                     <button v-if="hasChanges(log)"
                                         class="text-gray-400 hover:text-gray-600 transition-transform"
                                         :class="{ 'rotate-180': expanded.has(log.id) }"

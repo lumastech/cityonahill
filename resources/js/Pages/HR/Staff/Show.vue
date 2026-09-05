@@ -333,24 +333,24 @@ const leaveStatusColor: Record<string, string> = {
                     </div>
                 </div>
 
-                <div class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+                <div class="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm">
                     <table class="min-w-full divide-y divide-gray-200 text-sm">
                         <thead class="bg-gray-50">
                             <tr>
-                                <th class="px-4 py-3 text-left font-medium text-gray-600">Type</th>
-                                <th class="px-4 py-3 text-left font-medium text-gray-600">From</th>
-                                <th class="px-4 py-3 text-left font-medium text-gray-600">To</th>
-                                <th class="px-4 py-3 text-left font-medium text-gray-600">Days</th>
-                                <th class="px-4 py-3 text-left font-medium text-gray-600">Status</th>
+                                <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Type</th>
+                                <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">From</th>
+                                <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">To</th>
+                                <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Days</th>
+                                <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Status</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100">
                             <tr v-for="leave in staff.leaves" :key="leave.id">
-                                <td class="px-4 py-3 text-gray-900">{{ leave.leave_type?.name }}</td>
-                                <td class="px-4 py-3 text-gray-600">{{ fmtDate(leave.start_date) }}</td>
-                                <td class="px-4 py-3 text-gray-600">{{ fmtDate(leave.end_date) }}</td>
-                                <td class="px-4 py-3 text-gray-600">{{ leave.total_days }}</td>
-                                <td class="px-4 py-3">
+                                <td class="whitespace-nowrap px-4 py-3 text-gray-900">{{ leave.leave_type?.name }}</td>
+                                <td class="whitespace-nowrap px-4 py-3 text-gray-600">{{ fmtDate(leave.start_date) }}</td>
+                                <td class="whitespace-nowrap px-4 py-3 text-gray-600">{{ fmtDate(leave.end_date) }}</td>
+                                <td class="whitespace-nowrap px-4 py-3 text-gray-600">{{ leave.total_days }}</td>
+                                <td class="whitespace-nowrap px-4 py-3">
                                     <span :class="['rounded-full px-2 py-0.5 text-xs font-medium', leaveStatusColor[leave.status]]">
                                         {{ leave.status }}
                                     </span>
@@ -366,26 +366,26 @@ const leaveStatusColor: Record<string, string> = {
 
             <!-- Payroll tab -->
             <div v-else>
-                <div class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+                <div class="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm">
                     <table class="min-w-full divide-y divide-gray-200 text-sm">
                         <thead class="bg-gray-50">
                             <tr>
-                                <th class="px-4 py-3 text-left font-medium text-gray-600">Period</th>
-                                <th class="px-4 py-3 text-right font-medium text-gray-600">Gross</th>
-                                <th class="px-4 py-3 text-right font-medium text-gray-600">NAPSA</th>
-                                <th class="px-4 py-3 text-right font-medium text-gray-600">PAYE</th>
-                                <th class="px-4 py-3 text-right font-medium text-gray-600">Net Pay</th>
-                                <th class="px-4 py-3 text-left font-medium text-gray-600">Paid</th>
+                                <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Period</th>
+                                <th class="whitespace-nowrap px-4 py-3 text-right font-medium text-gray-600">Gross</th>
+                                <th class="whitespace-nowrap px-4 py-3 text-right font-medium text-gray-600">NAPSA</th>
+                                <th class="whitespace-nowrap px-4 py-3 text-right font-medium text-gray-600">PAYE</th>
+                                <th class="whitespace-nowrap px-4 py-3 text-right font-medium text-gray-600">Net Pay</th>
+                                <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Paid</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100">
                             <tr v-for="p in staff.payrolls" :key="p.id">
-                                <td class="px-4 py-3 font-medium text-gray-900">{{ MONTH_NAMES[p.month] }} {{ p.year }}</td>
-                                <td class="px-4 py-3 text-right text-gray-700">{{ formatZmw(p.basic_salary) }}</td>
-                                <td class="px-4 py-3 text-right text-gray-600">{{ formatZmw(p.napsa_employee) }}</td>
-                                <td class="px-4 py-3 text-right text-gray-600">{{ formatZmw(p.paye) }}</td>
-                                <td class="px-4 py-3 text-right font-semibold text-gray-900">{{ formatZmw(p.net_pay) }}</td>
-                                <td class="px-4 py-3 text-gray-600">{{ p.paid_at ? p.paid_at.slice(0, 10) : '—' }}</td>
+                                <td class="whitespace-nowrap px-4 py-3 font-medium text-gray-900">{{ MONTH_NAMES[p.month] }} {{ p.year }}</td>
+                                <td class="whitespace-nowrap px-4 py-3 text-right text-gray-700">{{ formatZmw(p.basic_salary) }}</td>
+                                <td class="whitespace-nowrap px-4 py-3 text-right text-gray-600">{{ formatZmw(p.napsa_employee) }}</td>
+                                <td class="whitespace-nowrap px-4 py-3 text-right text-gray-600">{{ formatZmw(p.paye) }}</td>
+                                <td class="whitespace-nowrap px-4 py-3 text-right font-semibold text-gray-900">{{ formatZmw(p.net_pay) }}</td>
+                                <td class="whitespace-nowrap px-4 py-3 text-gray-600">{{ p.paid_at ? p.paid_at.slice(0, 10) : '—' }}</td>
                             </tr>
                             <tr v-if="!staff.payrolls?.length">
                                 <td colspan="6" class="px-4 py-6 text-center text-gray-400">No payroll records.</td>

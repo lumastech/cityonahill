@@ -77,33 +77,33 @@ const summary = computed<PayrollSummary>(() => ({
             </div>
 
             <!-- Payroll table -->
-            <div class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+            <div class="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm">
                 <table class="min-w-full divide-y divide-gray-200 text-sm">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">Staff</th>
-                            <th class="px-4 py-3 text-right font-medium text-gray-600">Gross</th>
-                            <th class="px-4 py-3 text-right font-medium text-gray-600">NAPSA (Emp)</th>
-                            <th class="px-4 py-3 text-right font-medium text-gray-600">PAYE</th>
-                            <th class="px-4 py-3 text-right font-medium text-gray-600">Net Pay</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">Status</th>
-                            <th class="px-4 py-3"></th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Staff</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-right font-medium text-gray-600">Gross</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-right font-medium text-gray-600">NAPSA (Emp)</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-right font-medium text-gray-600">PAYE</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-right font-medium text-gray-600">Net Pay</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Status</th>
+                            <th class="whitespace-nowrap px-4 py-3"></th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
                         <tr v-for="p in payrolls" :key="p.id" class="hover:bg-gray-50">
-                            <td class="px-4 py-3 font-medium text-gray-900">
+                            <td class="whitespace-nowrap px-4 py-3 font-medium text-gray-900">
                                 <a :href="route('payroll.show', p.id)" class="hover:underline text-indigo-700">{{ p.staff?.user?.name }}</a>
                             </td>
-                            <td class="px-4 py-3 text-right text-gray-700">{{ formatZmw(p.basic_salary) }}</td>
-                            <td class="px-4 py-3 text-right text-gray-600">{{ formatZmw(p.napsa_employee) }}</td>
-                            <td class="px-4 py-3 text-right text-gray-600">{{ formatZmw(p.paye) }}</td>
-                            <td class="px-4 py-3 text-right font-semibold text-gray-900">{{ formatZmw(p.net_pay) }}</td>
-                            <td class="px-4 py-3">
+                            <td class="whitespace-nowrap px-4 py-3 text-right text-gray-700">{{ formatZmw(p.basic_salary) }}</td>
+                            <td class="whitespace-nowrap px-4 py-3 text-right text-gray-600">{{ formatZmw(p.napsa_employee) }}</td>
+                            <td class="whitespace-nowrap px-4 py-3 text-right text-gray-600">{{ formatZmw(p.paye) }}</td>
+                            <td class="whitespace-nowrap px-4 py-3 text-right font-semibold text-gray-900">{{ formatZmw(p.net_pay) }}</td>
+                            <td class="whitespace-nowrap px-4 py-3">
                                 <span v-if="p.paid_at" class="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800">Paid</span>
                                 <span v-else class="rounded-full bg-yellow-100 px-2 py-0.5 text-xs font-medium text-yellow-800">Pending</span>
                             </td>
-                            <td class="px-4 py-3 text-right">
+                            <td class="whitespace-nowrap px-4 py-3 text-right">
                                 <button v-if="!p.paid_at" class="text-xs text-indigo-600 hover:underline" @click="approvePayroll(p.id)">Approve</button>
                             </td>
                         </tr>

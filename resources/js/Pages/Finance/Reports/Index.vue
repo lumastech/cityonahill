@@ -59,25 +59,25 @@ const collectionDeg = computed(() => {
                 </div>
 
                 <!-- By-grade table -->
-                <div class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+                <div class="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm">
                     <h2 class="border-b border-gray-200 px-4 py-3 text-sm font-semibold text-gray-700">By Grade</h2>
                     <table class="min-w-full divide-y divide-gray-200 text-sm">
                         <thead class="bg-gray-50">
                             <tr>
-                                <th class="px-4 py-3 text-left font-medium text-gray-600">Grade</th>
-                                <th class="px-4 py-3 text-right font-medium text-gray-600">Invoiced</th>
-                                <th class="px-4 py-3 text-right font-medium text-gray-600">Collected</th>
-                                <th class="px-4 py-3 text-right font-medium text-gray-600">Outstanding</th>
-                                <th class="px-4 py-3 text-right font-medium text-gray-600">Rate</th>
+                                <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Grade</th>
+                                <th class="whitespace-nowrap px-4 py-3 text-right font-medium text-gray-600">Invoiced</th>
+                                <th class="whitespace-nowrap px-4 py-3 text-right font-medium text-gray-600">Collected</th>
+                                <th class="whitespace-nowrap px-4 py-3 text-right font-medium text-gray-600">Outstanding</th>
+                                <th class="whitespace-nowrap px-4 py-3 text-right font-medium text-gray-600">Rate</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100">
                             <tr v-for="row in report.by_grade" :key="row.grade">
-                                <td class="px-4 py-3 font-medium text-gray-900">Grade {{ row.grade }}</td>
-                                <td class="px-4 py-3 text-right text-gray-700">{{ formatZmw(row.invoiced) }}</td>
-                                <td class="px-4 py-3 text-right text-green-700">{{ formatZmw(row.collected) }}</td>
-                                <td class="px-4 py-3 text-right text-red-700">{{ formatZmw(row.outstanding) }}</td>
-                                <td class="px-4 py-3 text-right font-semibold" :class="row.collection_pct >= 80 ? 'text-green-600' : 'text-yellow-600'">
+                                <td class="whitespace-nowrap px-4 py-3 font-medium text-gray-900">Grade {{ row.grade }}</td>
+                                <td class="whitespace-nowrap px-4 py-3 text-right text-gray-700">{{ formatZmw(row.invoiced) }}</td>
+                                <td class="whitespace-nowrap px-4 py-3 text-right text-green-700">{{ formatZmw(row.collected) }}</td>
+                                <td class="whitespace-nowrap px-4 py-3 text-right text-red-700">{{ formatZmw(row.outstanding) }}</td>
+                                <td class="whitespace-nowrap px-4 py-3 text-right font-semibold" :class="row.collection_pct >= 80 ? 'text-green-600' : 'text-yellow-600'">
                                     {{ row.collection_pct }}%
                                 </td>
                             </tr>

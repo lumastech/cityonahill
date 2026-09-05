@@ -124,31 +124,31 @@ function saveComments() {
             </div>
 
             <!-- Results table -->
-            <div class="mb-6 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+            <div class="mb-6 overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm">
                 <table class="min-w-full divide-y divide-gray-200 text-sm">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Subject</th>
-                            <th class="px-4 py-3 text-center text-xs font-medium uppercase text-gray-500">CA</th>
-                            <th class="px-4 py-3 text-center text-xs font-medium uppercase text-gray-500">Exam</th>
-                            <th class="px-4 py-3 text-center text-xs font-medium uppercase text-gray-500">Total</th>
-                            <th class="px-4 py-3 text-center text-xs font-medium uppercase text-gray-500">Grade</th>
-                            <th class="px-4 py-3 text-center text-xs font-medium uppercase text-gray-500">Pos.</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Teacher Comment</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Subject</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-center text-xs font-medium uppercase text-gray-500">CA</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-center text-xs font-medium uppercase text-gray-500">Exam</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-center text-xs font-medium uppercase text-gray-500">Total</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-center text-xs font-medium uppercase text-gray-500">Grade</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-center text-xs font-medium uppercase text-gray-500">Pos.</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Teacher Comment</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
                         <tr v-for="r in results" :key="r.id" class="hover:bg-gray-50">
-                            <td class="px-4 py-2 font-medium text-gray-900">{{ r.subject?.name }}</td>
-                            <td class="px-4 py-2 text-center text-gray-600">{{ r.ca_marks ?? '—' }}</td>
-                            <td class="px-4 py-2 text-center text-gray-600">{{ r.exam_marks ?? '—' }}</td>
-                            <td class="px-4 py-2 text-center font-semibold text-gray-900">{{ r.total_marks ?? '—' }}</td>
-                            <td class="px-4 py-2 text-center">
+                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">{{ r.subject?.name }}</td>
+                            <td class="whitespace-nowrap px-4 py-2 text-center text-gray-600">{{ r.ca_marks ?? '—' }}</td>
+                            <td class="whitespace-nowrap px-4 py-2 text-center text-gray-600">{{ r.exam_marks ?? '—' }}</td>
+                            <td class="whitespace-nowrap px-4 py-2 text-center font-semibold text-gray-900">{{ r.total_marks ?? '—' }}</td>
+                            <td class="whitespace-nowrap px-4 py-2 text-center">
                                 <span class="inline-block rounded-full px-2 py-0.5 text-xs font-bold" :class="gradeColor(r.grade_letter)">
                                     {{ r.grade_letter ?? '—' }}
                                 </span>
                             </td>
-                            <td class="px-4 py-2 text-center text-gray-500">{{ r.position_in_stream ?? '—' }}</td>
+                            <td class="whitespace-nowrap px-4 py-2 text-center text-gray-500">{{ r.position_in_stream ?? '—' }}</td>
                             <td class="px-4 py-2 text-xs text-gray-500 italic">{{ r.teacher_comment ?? '' }}</td>
                         </tr>
                         <tr v-if="!results.length">
@@ -157,9 +157,9 @@ function saveComments() {
                     </tbody>
                     <tfoot v-if="results.length" class="bg-gray-50">
                         <tr>
-                            <td class="px-4 py-2 text-xs font-semibold uppercase text-gray-500">Total</td>
+                            <td class="whitespace-nowrap px-4 py-2 text-xs font-semibold uppercase text-gray-500">Total</td>
                             <td colspan="2"></td>
-                            <td class="px-4 py-2 text-center font-bold text-gray-900">{{ totalMarks.toFixed(1) }}</td>
+                            <td class="whitespace-nowrap px-4 py-2 text-center font-bold text-gray-900">{{ totalMarks.toFixed(1) }}</td>
                             <td colspan="3"></td>
                         </tr>
                     </tfoot>

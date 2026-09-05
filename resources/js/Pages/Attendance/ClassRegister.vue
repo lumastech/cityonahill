@@ -237,25 +237,66 @@ const totalCount = computed(() => records.value.length)
                 </div>
 
                 <!-- Pupil list -->
-                <div v-if="register" class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+                <div v-if="register" class="rounded-lg border border-gray-200 bg-white shadow-sm">
+                    <!-- Mobile: one card per pupil -->
+                    <div class="divide-y divide-gray-100 sm:hidden">
+                        <div v-for="(pupil, idx) in pupils" :key="pupil.id" class="p-4">
+                            <div class="min-w-0">
+                                <Link :href="route('pupils.show', pupil.id)" class="text-sm font-medium text-indigo-700 hover:underline">{{ pupil.full_name }}</Link>
+                                <p class="mt-0.5 text-xs text-gray-500">{{ idx + 1 }} · {{ pupil.admission_no }}</p>
+                            </div>
+
+                            <div v-if="isFinalized && !isEditing" class="mt-3">
+                                <span
+                                    class="inline-flex h-9 w-9 items-center justify-center rounded-full border text-sm font-bold"
+                                    :class="STATUS_COLORS[pupil.record?.status ?? 'absent']"
+                                >
+                                    {{ STATUS_LABELS[pupil.record?.status ?? 'absent'] }}
+                                </span>
+                            </div>
+                            <div v-else class="mt-3 flex gap-2">
+                                <button
+                                    v-for="(label, status) in STATUS_LABELS"
+                                    :key="status"
+                                    type="button"
+                                    class="h-9 w-9 rounded-full border text-sm font-bold transition-colors"
+                                    :class="pupil.record?.status === status ? STATUS_COLORS[status as AttendanceStatus] : 'border-gray-200 text-gray-400'"
+                                    @click="setStatus(pupil.id, status as AttendanceStatus)"
+                                >
+                                    {{ label }}
+                                </button>
+                            </div>
+
+                            <input
+                                v-if="!isFinalized || isEditing"
+                                v-model="pupil.record!.remarks"
+                                type="text"
+                                placeholder="Remarks…"
+                                class="mt-3 w-full rounded border-gray-200 text-xs focus:border-indigo-300 focus:ring-1 focus:ring-indigo-300"
+                            />
+                        </div>
+                    </div>
+
+                    <!-- Desktop: table -->
+                    <div class="hidden overflow-x-auto sm:block">
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                             <tr>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">#</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Pupil</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Adm. No.</th>
-                                <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Status</th>
-                                <th v-if="!isFinalized || isEditing" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Remarks</th>
+                                <th class="whitespace-nowrap px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">#</th>
+                                <th class="whitespace-nowrap px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Pupil</th>
+                                <th class="whitespace-nowrap px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Adm. No.</th>
+                                <th class="whitespace-nowrap px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Status</th>
+                                <th v-if="!isFinalized || isEditing" class="whitespace-nowrap px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Remarks</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100">
                             <tr v-for="(pupil, idx) in pupils" :key="pupil.id">
-                                <td class="px-4 py-2 text-sm text-gray-500">{{ idx + 1 }}</td>
-                                <td class="px-4 py-2 text-sm font-medium text-gray-900">
+                                <td class="whitespace-nowrap px-4 py-2 text-sm text-gray-500">{{ idx + 1 }}</td>
+                                <td class="whitespace-nowrap px-4 py-2 text-sm font-medium text-gray-900">
                                     <Link :href="route('pupils.show', pupil.id)" class="hover:underline text-indigo-700">{{ pupil.full_name }}</Link>
                                 </td>
-                                <td class="px-4 py-2 text-sm text-gray-500">{{ pupil.admission_no }}</td>
-                                <td class="px-4 py-2">
+                                <td class="whitespace-nowrap px-4 py-2 text-sm text-gray-500">{{ pupil.admission_no }}</td>
+                                <td class="whitespace-nowrap px-4 py-2">
                                     <div v-if="isFinalized && !isEditing" class="flex justify-center">
                                         <span
                                             class="inline-flex h-7 w-7 items-center justify-center rounded-full border text-xs font-bold"
@@ -287,8 +328,9 @@ const totalCount = computed(() => records.value.length)
                             </tr>
                         </tbody>
                     </table>
+                    </div>
 
-                    <div v-if="hasSession" class="flex justify-end gap-3 border-t border-gray-200 bg-gray-50 px-4 py-3">
+                    <div v-if="hasSession" class="flex flex-wrap justify-end gap-3 border-t border-gray-200 bg-gray-50 px-4 py-3">
                         <template v-if="isFinalized && !isEditing">
                             <button
                                 class="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"

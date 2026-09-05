@@ -79,11 +79,11 @@ function removeSlot(id: number) {
         <Head title="Timetable" />
 
         <div class="py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-            <div class="mb-6 flex items-center justify-between">
+            <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <h1 class="text-2xl font-bold text-gray-900">Timetable</h1>
                 <button
                     v-if="viewMode"
-                    class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
+                    class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 w-full sm:w-auto"
                     @click="showAddForm = !showAddForm"
                 >
                     + Add Slot

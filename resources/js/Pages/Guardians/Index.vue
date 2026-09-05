@@ -79,16 +79,16 @@ watch(search, (val) => {
             </div>
 
             <!-- Table -->
-            <div class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+            <div class="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm">
                 <table class="min-w-full divide-y divide-gray-200 text-sm">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">Name</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">Phone</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">Email</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">Linked Pupils</th>
-                            <th class="px-4 py-3 text-center font-medium text-gray-600">Portal</th>
-                            <th class="px-4 py-3"></th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Name</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Phone</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Email</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Linked Pupils</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-center font-medium text-gray-600">Portal</th>
+                            <th class="whitespace-nowrap px-4 py-3"></th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
@@ -96,16 +96,16 @@ watch(search, (val) => {
                             <td colspan="6" class="px-4 py-10 text-center text-gray-400">No guardians found.</td>
                         </tr>
                         <tr v-for="g in guardians.data" :key="g.id" class="hover:bg-gray-50">
-                            <td class="px-4 py-3">
+                            <td class="whitespace-nowrap px-4 py-3">
                                 <p class="font-medium text-gray-900">{{ g.full_name }}</p>
                                 <p class="text-xs text-gray-400 capitalize">{{ g.relationship }}</p>
                             </td>
-                            <td class="px-4 py-3 text-gray-700">
+                            <td class="whitespace-nowrap px-4 py-3 text-gray-700">
                                 {{ g.phone }}
                                 <span v-if="g.phone2" class="block text-xs text-gray-400">{{ g.phone2 }}</span>
                             </td>
-                            <td class="px-4 py-3 text-gray-500">{{ g.email ?? '—' }}</td>
-                            <td class="px-4 py-3">
+                            <td class="whitespace-nowrap px-4 py-3 text-gray-500">{{ g.email ?? '—' }}</td>
+                            <td class="whitespace-nowrap px-4 py-3">
                                 <div class="flex flex-wrap gap-1">
                                     <Link
                                         v-for="pupil in g.pupils"
@@ -118,7 +118,7 @@ watch(search, (val) => {
                                     <span v-if="!g.pupils.length" class="text-xs text-gray-400">—</span>
                                 </div>
                             </td>
-                            <td class="px-4 py-3 text-center">
+                            <td class="whitespace-nowrap px-4 py-3 text-center">
                                 <span
                                     v-if="g.portal_access"
                                     class="inline-flex items-center gap-1 text-xs font-medium text-green-700 bg-green-50 px-2 py-0.5 rounded-full"
@@ -128,7 +128,7 @@ watch(search, (val) => {
                                 </span>
                                 <span v-else class="text-xs text-gray-400">None</span>
                             </td>
-                            <td class="px-4 py-3 text-right">
+                            <td class="whitespace-nowrap px-4 py-3 text-right">
                                 <Link
                                     v-if="g.pupils.length"
                                     :href="route('pupils.show', g.pupils[0].id) + '#guardians'"

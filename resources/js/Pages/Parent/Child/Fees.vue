@@ -33,24 +33,24 @@ const statusColor: Record<string, string> = {
                 </p>
             </div>
 
-            <div class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+            <div class="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm">
                 <table class="min-w-full divide-y divide-gray-200 text-sm">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">Description</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">Amount</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">Paid</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">Due</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">Status</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Description</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Amount</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Paid</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Due</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Status</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
                         <tr v-for="inv in invoices" :key="inv.id">
                             <td class="px-4 py-3 text-gray-900">{{ inv.description }}</td>
-                            <td class="px-4 py-3 text-gray-700">{{ inv.amount.toFixed(2) }}</td>
-                            <td class="px-4 py-3 text-green-700">{{ inv.paid.toFixed(2) }}</td>
-                            <td class="px-4 py-3 text-gray-600">{{ fmtDate(inv.due_date) }}</td>
-                            <td class="px-4 py-3">
+                            <td class="whitespace-nowrap px-4 py-3 text-gray-700">{{ inv.amount.toFixed(2) }}</td>
+                            <td class="whitespace-nowrap px-4 py-3 text-green-700">{{ inv.paid.toFixed(2) }}</td>
+                            <td class="whitespace-nowrap px-4 py-3 text-gray-600">{{ fmtDate(inv.due_date) }}</td>
+                            <td class="whitespace-nowrap px-4 py-3">
                                 <span :class="['rounded-full px-2 py-0.5 text-xs font-medium', statusColor[inv.status] ?? 'bg-gray-100']">
                                     {{ inv.status }}
                                 </span>

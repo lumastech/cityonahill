@@ -75,7 +75,7 @@ function fmt(n: number | string) {
                     </div>
 
                     <!-- Amounts -->
-                    <div class="grid grid-cols-3 divide-x divide-gray-100 border-b border-gray-100">
+                    <div class="grid grid-cols-1 divide-y divide-gray-100 border-b border-gray-100 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
                         <div class="px-4 py-4 text-center">
                             <p class="text-base font-bold text-gray-900">{{ fmt(invoice.balance_due) }}</p>
                             <p class="text-xs text-gray-400 mt-0.5">Invoice Total</p>

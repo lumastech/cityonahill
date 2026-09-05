@@ -80,29 +80,29 @@ const STATUS_COLOR: Record<string, string> = {
             </div>
 
             <!-- Table -->
-            <div class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+            <div class="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm">
                 <table class="min-w-full divide-y divide-gray-200 text-sm">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">Staff</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">Type</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">Period</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">Days</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">Reason</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">Status</th>
-                            <th class="px-4 py-3"></th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Staff</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Type</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Period</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Days</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Reason</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Status</th>
+                            <th class="whitespace-nowrap px-4 py-3"></th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
                         <tr v-for="leave in leaves.data" :key="leave.id" class="hover:bg-gray-50">
-                            <td class="px-4 py-3 font-medium text-gray-900">{{ leave.staff?.user?.name }}</td>
-                            <td class="px-4 py-3 text-gray-600">{{ leave.leave_type?.name }}</td>
+                            <td class="whitespace-nowrap px-4 py-3 font-medium text-gray-900">{{ leave.staff?.user?.name }}</td>
+                            <td class="whitespace-nowrap px-4 py-3 text-gray-600">{{ leave.leave_type?.name }}</td>
                             <td class="px-4 py-3 text-gray-600 whitespace-nowrap">
                                 {{ fmtDate(leave.start_date) }} → {{ fmtDate(leave.end_date) }}
                             </td>
-                            <td class="px-4 py-3 text-gray-600">{{ leave.total_days }}</td>
+                            <td class="whitespace-nowrap px-4 py-3 text-gray-600">{{ leave.total_days }}</td>
                             <td class="px-4 py-3 text-gray-600 max-w-xs truncate">{{ leave.reason }}</td>
-                            <td class="px-4 py-3">
+                            <td class="whitespace-nowrap px-4 py-3">
                                 <span :class="['rounded-full px-2 py-0.5 text-xs font-medium capitalize', STATUS_COLOR[leave.status] ?? 'bg-gray-100 text-gray-600']">
                                     {{ leave.status }}
                                 </span>

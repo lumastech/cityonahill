@@ -108,22 +108,22 @@ const statusBadge: Record<string, string> = {
             </div>
 
             <!-- Subject entries table -->
-            <div class="mt-6 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+            <div class="mt-6 overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm">
                 <table class="min-w-full divide-y divide-gray-200 text-sm">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">Subject</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">Predicted</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">Actual Grade</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">Points</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Subject</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Predicted</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Actual Grade</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Points</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
                         <tr v-for="entry in candidate.subject_entries" :key="entry.id">
-                            <td class="px-4 py-3 font-medium text-gray-900">{{ entry.subject?.name }}</td>
-                            <td class="px-4 py-3 text-gray-600">{{ entry.predicted_grade ?? '—' }}</td>
-                            <td class="px-4 py-3 font-semibold">{{ entry.actual_grade ?? '—' }}</td>
-                            <td class="px-4 py-3 text-gray-600">{{ entry.actual_points ?? '—' }}</td>
+                            <td class="whitespace-nowrap px-4 py-3 font-medium text-gray-900">{{ entry.subject?.name }}</td>
+                            <td class="whitespace-nowrap px-4 py-3 text-gray-600">{{ entry.predicted_grade ?? '—' }}</td>
+                            <td class="whitespace-nowrap px-4 py-3 font-semibold">{{ entry.actual_grade ?? '—' }}</td>
+                            <td class="whitespace-nowrap px-4 py-3 text-gray-600">{{ entry.actual_points ?? '—' }}</td>
                         </tr>
                         <tr v-if="!candidate.subject_entries?.length">
                             <td colspan="4" class="px-4 py-6 text-center text-gray-400">No subject entries yet.</td>

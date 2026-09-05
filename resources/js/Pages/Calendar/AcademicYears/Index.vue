@@ -67,10 +67,10 @@ function deleteYear(year: AcademicYear) {
         <Head title="Academic Years" />
 
         <div class="py-8 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
-            <div class="flex items-center justify-between mb-6">
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
                 <h1 class="text-2xl font-bold text-gray-900">Academic Years</h1>
                 <button
-                    class="bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700"
+                    class="bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700 w-full sm:w-auto"
                     @click="openCreate"
                 >
                     + New Academic Year
@@ -81,23 +81,23 @@ function deleteYear(year: AcademicYear) {
                 No academic years created yet.
             </div>
 
-            <div class="bg-white shadow rounded-lg overflow-hidden">
+            <div class="bg-white shadow rounded-lg overflow-x-auto">
                 <table v-if="academicYears.length > 0" class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Duration</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Terms</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                            <th class="px-6 py-3"></th>
+                            <th class="whitespace-nowrap px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
+                            <th class="whitespace-nowrap px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Duration</th>
+                            <th class="whitespace-nowrap px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Terms</th>
+                            <th class="whitespace-nowrap px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                            <th class="whitespace-nowrap px-6 py-3"></th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200">
                         <tr v-for="year in academicYears" :key="year.id">
-                            <td class="px-6 py-4 text-sm font-medium text-gray-900">{{ year.name }}</td>
-                            <td class="px-6 py-4 text-sm text-gray-500">{{ formatDateRange(year.start_date, year.end_date) }}</td>
-                            <td class="px-6 py-4 text-sm text-gray-500">{{ year.terms_count ?? year.terms?.length ?? 0 }} / 3</td>
-                            <td class="px-6 py-4">
+                            <td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">{{ year.name }}</td>
+                            <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">{{ formatDateRange(year.start_date, year.end_date) }}</td>
+                            <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">{{ year.terms_count ?? year.terms?.length ?? 0 }} / 3</td>
+                            <td class="whitespace-nowrap px-6 py-4">
                                 <span
                                     class="inline-flex text-xs font-medium px-2 py-0.5 rounded-full"
                                     :class="year.is_current ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'"
@@ -105,7 +105,7 @@ function deleteYear(year: AcademicYear) {
                                     {{ year.is_current ? 'Current' : 'Past' }}
                                 </span>
                             </td>
-                            <td class="px-6 py-4 text-right space-x-3">
+                            <td class="whitespace-nowrap px-6 py-4 text-right space-x-3">
                                 <button class="text-sm text-indigo-600 hover:underline" @click="openEdit(year)">Edit</button>
                                 <button class="text-sm text-red-600 hover:underline" @click="deleteYear(year)">Delete</button>
                             </td>
@@ -118,10 +118,10 @@ function deleteYear(year: AcademicYear) {
         <!-- Create / Edit Modal -->
         <div
             v-if="showModal"
-            class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
             @click.self="showModal = false"
         >
-            <div class="bg-white rounded-lg p-6 w-full max-w-md shadow-xl">
+            <div class="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-lg bg-white p-6 shadow-xl">
                 <h2 class="text-lg font-semibold mb-4">
                     {{ editingYear ? 'Edit Academic Year' : 'New Academic Year' }}
                 </h2>

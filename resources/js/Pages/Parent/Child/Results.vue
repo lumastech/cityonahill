@@ -49,29 +49,31 @@ function average(): string {
                         <span class="ml-2 text-gray-400">Average: {{ average() }}</span>
                     </p>
                 </div>
-                <table class="min-w-full divide-y divide-gray-200 text-sm">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">Subject</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">Total</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">Grade</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-100">
-                        <tr v-for="result in summary.latest_results" :key="result.id">
-                            <td class="px-4 py-3 font-medium text-gray-900">{{ result.subject?.name }}</td>
-                            <td class="px-4 py-3 text-gray-700">{{ result.total_marks ?? '—' }}</td>
-                            <td class="px-4 py-3">
-                                <span :class="['rounded-full px-2 py-0.5 text-xs font-semibold', gradeColor[result.grade_letter] ?? 'bg-gray-100 text-gray-700']">
-                                    {{ result.grade_letter }}
-                                </span>
-                            </td>
-                        </tr>
-                        <tr v-if="!summary.latest_results.length">
-                            <td colspan="3" class="px-4 py-8 text-center text-gray-400">No published results yet.</td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200 text-sm">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Subject</th>
+                                <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Total</th>
+                                <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Grade</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">
+                            <tr v-for="result in summary.latest_results" :key="result.id">
+                                <td class="whitespace-nowrap px-4 py-3 font-medium text-gray-900">{{ result.subject?.name }}</td>
+                                <td class="whitespace-nowrap px-4 py-3 text-gray-700">{{ result.total_marks ?? '—' }}</td>
+                                <td class="whitespace-nowrap px-4 py-3">
+                                    <span :class="['rounded-full px-2 py-0.5 text-xs font-semibold', gradeColor[result.grade_letter] ?? 'bg-gray-100 text-gray-700']">
+                                        {{ result.grade_letter }}
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr v-if="!summary.latest_results.length">
+                                <td colspan="3" class="px-4 py-8 text-center text-gray-400">No published results yet.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>

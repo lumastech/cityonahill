@@ -49,53 +49,55 @@ function printPage() {
                     <p class="text-sm text-gray-500">Printed: {{ new Date().toLocaleDateString('en-ZM') }}</p>
                 </div>
 
-                <table class="min-w-full border border-gray-300 text-sm">
-                    <thead>
-                        <tr class="bg-gray-100">
-                            <th class="border border-gray-300 px-3 py-2 text-left">#</th>
-                            <th class="border border-gray-300 px-3 py-2 text-left">Pupil Name</th>
-                            <th class="border border-gray-300 px-3 py-2 text-left">Adm. No.</th>
-                            <th class="border border-gray-300 px-3 py-2 text-left">Grade</th>
-                            <th class="border border-gray-300 px-3 py-2 text-left">Dormitory</th>
-                            <th class="border border-gray-300 px-3 py-2 text-left">Bed</th>
-                            <th class="border border-gray-300 px-3 py-2 text-left">Guardian Phone</th>
-                            <th class="border border-gray-300 px-3 py-2 text-right print:hidden">Fee (ZMW)</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="(a, idx) in roster" :key="a.id" :class="idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'">
-                            <td class="border border-gray-300 px-3 py-2 text-gray-500">{{ idx + 1 }}</td>
-                            <td class="border border-gray-300 px-3 py-2 font-medium text-gray-900">
-                                <Link v-if="a.pupil" :href="route('pupils.show', a.pupil.id)" class="hover:underline text-indigo-700">
-                                    {{ a.pupil.first_name }} {{ a.pupil.last_name }}
-                                </Link>
-                            </td>
-                            <td class="border border-gray-300 px-3 py-2 text-gray-600">{{ a.pupil?.admission_no }}</td>
-                            <td class="border border-gray-300 px-3 py-2 text-gray-600">
-                                {{ a.pupil?.stream?.grade?.name }} {{ a.pupil?.stream?.name }}
-                            </td>
-                            <td class="border border-gray-300 px-3 py-2 text-gray-600">
-                                {{ a.bed?.dormitory?.name }}
-                                <span :class="['ml-1 text-xs', a.bed?.dormitory?.gender === 'male' ? 'text-blue-500' : 'text-pink-500']">
-                                    ({{ a.bed?.dormitory?.gender }})
-                                </span>
-                            </td>
-                            <td class="border border-gray-300 px-3 py-2 font-medium text-gray-700">{{ a.bed?.bed_number }}</td>
-                            <td class="border border-gray-300 px-3 py-2 text-gray-600">
-                                {{ a.pupil?.guardians?.[0]?.phone ?? '—' }}
-                            </td>
-                            <td class="border border-gray-300 px-3 py-2 text-right text-gray-700 print:hidden">
-                                {{ Number(a.fee_amount).toFixed(2) }}
-                            </td>
-                        </tr>
-                    </tbody>
-                    <tfoot>
-                        <tr class="bg-gray-100 font-semibold print:hidden">
-                            <td colspan="7" class="border border-gray-300 px-3 py-2 text-right">Total boarders:</td>
-                            <td class="border border-gray-300 px-3 py-2 text-right">{{ roster.length }}</td>
-                        </tr>
-                    </tfoot>
-                </table>
+                <div class="overflow-x-auto print:overflow-visible">
+                    <table class="min-w-full border border-gray-300 text-sm">
+                        <thead>
+                            <tr class="bg-gray-100">
+                                <th class="whitespace-nowrap border border-gray-300 px-3 py-2 text-left">#</th>
+                                <th class="whitespace-nowrap border border-gray-300 px-3 py-2 text-left">Pupil Name</th>
+                                <th class="whitespace-nowrap border border-gray-300 px-3 py-2 text-left">Adm. No.</th>
+                                <th class="whitespace-nowrap border border-gray-300 px-3 py-2 text-left">Grade</th>
+                                <th class="whitespace-nowrap border border-gray-300 px-3 py-2 text-left">Dormitory</th>
+                                <th class="whitespace-nowrap border border-gray-300 px-3 py-2 text-left">Bed</th>
+                                <th class="whitespace-nowrap border border-gray-300 px-3 py-2 text-left">Guardian Phone</th>
+                                <th class="whitespace-nowrap border border-gray-300 px-3 py-2 text-right print:hidden">Fee (ZMW)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(a, idx) in roster" :key="a.id" :class="idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'">
+                                <td class="whitespace-nowrap border border-gray-300 px-3 py-2 text-gray-500">{{ idx + 1 }}</td>
+                                <td class="whitespace-nowrap border border-gray-300 px-3 py-2 font-medium text-gray-900">
+                                    <Link v-if="a.pupil" :href="route('pupils.show', a.pupil.id)" class="hover:underline text-indigo-700">
+                                        {{ a.pupil.first_name }} {{ a.pupil.last_name }}
+                                    </Link>
+                                </td>
+                                <td class="whitespace-nowrap border border-gray-300 px-3 py-2 text-gray-600">{{ a.pupil?.admission_no }}</td>
+                                <td class="whitespace-nowrap border border-gray-300 px-3 py-2 text-gray-600">
+                                    {{ a.pupil?.stream?.grade?.name }} {{ a.pupil?.stream?.name }}
+                                </td>
+                                <td class="whitespace-nowrap border border-gray-300 px-3 py-2 text-gray-600">
+                                    {{ a.bed?.dormitory?.name }}
+                                    <span :class="['ml-1 text-xs', a.bed?.dormitory?.gender === 'male' ? 'text-blue-500' : 'text-pink-500']">
+                                        ({{ a.bed?.dormitory?.gender }})
+                                    </span>
+                                </td>
+                                <td class="whitespace-nowrap border border-gray-300 px-3 py-2 font-medium text-gray-700">{{ a.bed?.bed_number }}</td>
+                                <td class="whitespace-nowrap border border-gray-300 px-3 py-2 text-gray-600">
+                                    {{ a.pupil?.guardians?.[0]?.phone ?? '—' }}
+                                </td>
+                                <td class="whitespace-nowrap border border-gray-300 px-3 py-2 text-right text-gray-700 print:hidden">
+                                    {{ Number(a.fee_amount).toFixed(2) }}
+                                </td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr class="bg-gray-100 font-semibold print:hidden">
+                                <td colspan="7" class="border border-gray-300 px-3 py-2 text-right">Total boarders:</td>
+                                <td class="whitespace-nowrap border border-gray-300 px-3 py-2 text-right">{{ roster.length }}</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
             </template>
 
             <div v-else class="py-16 text-center text-gray-400">

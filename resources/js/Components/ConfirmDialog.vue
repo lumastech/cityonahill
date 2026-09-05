@@ -26,7 +26,7 @@ const { state, accept, cancel } = useConfirm()
                 >
                     <div
                         v-if="state.open"
-                        class="w-full max-w-md rounded-xl bg-white p-6 shadow-xl"
+                        class="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-xl bg-white p-6 shadow-xl"
                         role="dialog"
                         aria-modal="true"
                     >

@@ -67,12 +67,12 @@ function printPdf() {
         <Head :title="`Stream Results — ${streamName}`" />
 
         <div class="py-6 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 print:px-0 print:py-0">
-            <div class="mb-4 flex items-center justify-between print:hidden">
+            <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between print:hidden">
                 <div>
                     <h1 class="text-2xl font-bold text-gray-900">{{ streamName }} — {{ termName }}</h1>
                     <p class="text-sm text-gray-500">{{ pupils.length }} pupils · {{ subjects.length }} subjects</p>
                 </div>
-                <div class="flex gap-3">
+                <div class="flex gap-3 flex-wrap">
                     <button
                         class="rounded-md border border-gray-300 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50"
                         @click="exportExcel"

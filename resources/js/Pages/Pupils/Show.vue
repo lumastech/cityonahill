@@ -411,7 +411,7 @@ const TABS = [
 
             <!-- Academic Tab -->
             <div v-if="activeTab === 'academic'" class="bg-white rounded-lg shadow p-6 space-y-4">
-                <div class="grid grid-cols-3 gap-4 text-sm">
+                <div class="grid grid-cols-2 gap-4 text-sm sm:grid-cols-3">
                     <div>
                         <p class="text-gray-500">Grade</p>
                         <p class="font-medium text-gray-900">{{ pupil.grade?.name ?? '—' }}</p>
@@ -448,7 +448,7 @@ const TABS = [
             <div v-if="activeTab === 'fees'" class="space-y-4">
 
                 <!-- Balance summary -->
-                <div class="grid grid-cols-3 gap-4">
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
                     <div class="bg-white rounded-lg shadow p-4 text-center">
                         <p class="text-xs font-medium uppercase tracking-wide text-gray-500">Total Billed</p>
                         <p class="mt-1 text-2xl font-bold text-gray-900">
@@ -550,7 +550,7 @@ const TABS = [
             <div v-if="activeTab === 'attendance'" class="space-y-4">
 
                 <!-- Month summary stats -->
-                <div class="grid grid-cols-4 gap-3">
+                <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
                     <div class="bg-white rounded-lg shadow p-4 text-center">
                         <p class="text-xs font-medium uppercase tracking-wide text-gray-500">Days Recorded</p>
                         <p class="mt-1 text-2xl font-bold text-gray-900">{{ attendanceSummary.total }}</p>
@@ -609,10 +609,10 @@ const TABS = [
         <!-- Transfer Modal -->
         <div
             v-if="showTransferModal"
-            class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
             @click.self="showTransferModal = false"
         >
-            <div class="bg-white rounded-lg p-6 w-full max-w-md shadow-xl">
+            <div class="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-lg bg-white p-6 shadow-xl">
                 <h2 class="text-lg font-semibold mb-4">Transfer Pupil</h2>
 
                 <form @submit.prevent="submitTransfer" class="space-y-3">

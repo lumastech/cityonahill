@@ -95,14 +95,14 @@ function publish() {
             </div>
 
             <!-- Cards table -->
-            <div v-if="cards !== null" class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+            <div v-if="cards !== null" class="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm">
                 <table class="min-w-full divide-y divide-gray-200 text-sm">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">Pupil</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">Admission No</th>
-                            <th class="px-4 py-3 text-center font-medium text-gray-600">Published</th>
-                            <th class="px-4 py-3"></th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Pupil</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Admission No</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-center font-medium text-gray-600">Published</th>
+                            <th class="whitespace-nowrap px-4 py-3"></th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
@@ -112,17 +112,17 @@ function publish() {
                             </td>
                         </tr>
                         <tr v-for="card in cards" :key="card.id" class="hover:bg-gray-50">
-                            <td class="px-4 py-3 font-medium text-gray-900">
+                            <td class="whitespace-nowrap px-4 py-3 font-medium text-gray-900">
                                 <Link v-if="card.pupil" :href="route('pupils.show', card.pupil.id)" class="hover:underline text-indigo-700">
                                     {{ card.pupil.first_name }} {{ card.pupil.last_name }}
                                 </Link>
                             </td>
-                            <td class="px-4 py-3 font-mono text-gray-600">{{ card.pupil?.admission_no }}</td>
-                            <td class="px-4 py-3 text-center">
+                            <td class="whitespace-nowrap px-4 py-3 font-mono text-gray-600">{{ card.pupil?.admission_no }}</td>
+                            <td class="whitespace-nowrap px-4 py-3 text-center">
                                 <span v-if="card.published" class="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">Published</span>
                                 <span v-else class="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-500">Draft</span>
                             </td>
-                            <td class="px-4 py-3 text-right">
+                            <td class="whitespace-nowrap px-4 py-3 text-right">
                                 <Link :href="route('report-cards.show', card.id)" class="text-xs text-indigo-600 hover:underline">View</Link>
                             </td>
                         </tr>

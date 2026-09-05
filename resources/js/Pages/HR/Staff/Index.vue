@@ -24,9 +24,9 @@ function formatLastLogin(value?: string | null): string {
     <Head title="Staff Directory" />
     <div class="py-6">
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div class="mb-6 flex items-center justify-between">
+            <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <h1 class="text-2xl font-semibold text-gray-900">Staff Directory</h1>
-                <div class="flex items-center gap-3">
+                <div class="flex items-center gap-3 flex-wrap">
                     <!-- Plain anchor, not Inertia Link: this is a file download, not a page visit. -->
                     <a
                         v-if="can_export"
@@ -45,17 +45,17 @@ function formatLastLogin(value?: string | null): string {
                 <input v-model="search" type="text" placeholder="Search name, position, employee no…" class="w-64 rounded-md border-gray-300 text-sm shadow-sm" />
             </div>
 
-            <div class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+            <div class="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm">
                 <table class="min-w-full divide-y divide-gray-200 text-sm">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">Name</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">Position</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">Department</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">Employee No</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">Status</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">Last Login</th>
-                            <th class="px-4 py-3"></th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Name</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Position</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Department</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Employee No</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Status</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Last Login</th>
+                            <th class="whitespace-nowrap px-4 py-3"></th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
@@ -64,7 +64,7 @@ function formatLastLogin(value?: string | null): string {
                             :key="member.id"
                             class="hover:bg-gray-50"
                         >
-                            <td class="px-4 py-3">
+                            <td class="whitespace-nowrap px-4 py-3">
                                 <div class="flex items-center gap-3">
                                     <div class="h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center text-xs font-semibold text-indigo-600">
                                         {{ member.user?.name?.charAt(0) }}
@@ -72,22 +72,22 @@ function formatLastLogin(value?: string | null): string {
                                     <span class="font-medium text-gray-900">{{ member.user?.name }}</span>
                                 </div>
                             </td>
-                            <td class="px-4 py-3">
+                            <td class="whitespace-nowrap px-4 py-3">
                                 <span :class="['rounded-full px-2 py-0.5 text-xs font-medium', positionColor(member.position)]">
                                     {{ positionLabel(member.position) }}
                                 </span>
                             </td>
-                            <td class="px-4 py-3 text-gray-600">{{ member.department ?? '—' }}</td>
-                            <td class="px-4 py-3 text-gray-600">{{ member.employee_no }}</td>
-                            <td class="px-4 py-3">
+                            <td class="whitespace-nowrap px-4 py-3 text-gray-600">{{ member.department ?? '—' }}</td>
+                            <td class="whitespace-nowrap px-4 py-3 text-gray-600">{{ member.employee_no }}</td>
+                            <td class="whitespace-nowrap px-4 py-3">
                                 <span :class="['rounded-full px-2 py-0.5 text-xs font-medium', statusColor(member.status)]">
                                     {{ member.status }}
                                 </span>
                             </td>
-                            <td class="px-4 py-3 text-gray-600" :class="{ 'text-gray-400 italic': !member.user?.last_login_at }">
+                            <td class="whitespace-nowrap px-4 py-3 text-gray-600" :class="{ 'text-gray-400 italic': !member.user?.last_login_at }">
                                 {{ formatLastLogin(member.user?.last_login_at) }}
                             </td>
-                            <td class="px-4 py-3 text-right">
+                            <td class="whitespace-nowrap px-4 py-3 text-right">
                                 <Link :href="route('staff.show', member.id)" class="text-indigo-600 hover:text-indigo-900 text-sm">View</Link>
                             </td>
                         </tr>

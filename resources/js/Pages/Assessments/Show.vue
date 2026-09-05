@@ -161,27 +161,27 @@ window.onbeforeunload = () => (isDirty.value ? 'You have unsaved changes.' : nul
             </div>
 
             <!-- Score table -->
-            <div class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+            <div class="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm">
                 <table class="min-w-full divide-y divide-gray-200 text-sm">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">#</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Pupil</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Adm. No.</th>
-                            <th class="px-4 py-3 text-center text-xs font-medium uppercase text-gray-500">Marks / {{ maxMarks }}</th>
-                            <th class="px-4 py-3 text-center text-xs font-medium uppercase text-gray-500">Grade</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Remarks</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Answer Sheet</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">#</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Pupil</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Adm. No.</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-center text-xs font-medium uppercase text-gray-500">Marks / {{ maxMarks }}</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-center text-xs font-medium uppercase text-gray-500">Grade</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Remarks</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Answer Sheet</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
                         <tr v-for="(pupil, idx) in pupils" :key="pupil.id" class="hover:bg-gray-50">
-                            <td class="px-4 py-2 text-gray-400">{{ idx + 1 }}</td>
-                            <td class="px-4 py-2 font-medium text-gray-900">
+                            <td class="whitespace-nowrap px-4 py-2 text-gray-400">{{ idx + 1 }}</td>
+                            <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
                                 <Link :href="route('pupils.show', pupil.id)" class="hover:underline text-indigo-700">{{ pupil.last_name }}, {{ pupil.first_name }}</Link>
                             </td>
-                            <td class="px-4 py-2 text-gray-500">{{ pupil.admission_no }}</td>
-                            <td class="px-4 py-2 text-center">
+                            <td class="whitespace-nowrap px-4 py-2 text-gray-500">{{ pupil.admission_no }}</td>
+                            <td class="whitespace-nowrap px-4 py-2 text-center">
                                 <input
                                     v-model.number="rows[idx].marks"
                                     type="number"
@@ -193,7 +193,7 @@ window.onbeforeunload = () => (isDirty.value ? 'You have unsaved changes.' : nul
                                     @input="markDirty"
                                 />
                             </td>
-                            <td class="px-4 py-2 text-center">
+                            <td class="whitespace-nowrap px-4 py-2 text-center">
                                 <span
                                     v-if="gradeForRow[idx]"
                                     class="inline-flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold"
@@ -214,7 +214,7 @@ window.onbeforeunload = () => (isDirty.value ? 'You have unsaved changes.' : nul
                             </td>
 
                             <!-- Answer sheet: saved files, plus any staged for the next save -->
-                            <td class="px-4 py-2">
+                            <td class="whitespace-nowrap px-4 py-2">
                                 <div class="flex flex-col gap-1">
                                     <a
                                         v-for="sheet in saved(pupil.id)"

@@ -315,7 +315,7 @@ function submitDecision() {
         <!-- Decision modal — approve, reject or return -->
         <div v-if="deciding" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
             @click.self="deciding = null">
-            <div class="w-full max-w-lg rounded-lg bg-white p-6 shadow-xl">
+            <div class="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-lg bg-white p-6 shadow-xl">
                 <h2 class="mb-1 text-lg font-semibold text-gray-900">{{ LESSON_PLAN_DECISION_UI[deciding].title }}</h2>
                 <p class="mb-4 text-sm text-gray-500">{{ lessonPlan.topic }} — {{ lessonPlan.teacher?.name }}</p>
 

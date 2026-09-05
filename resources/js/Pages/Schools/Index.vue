@@ -40,10 +40,10 @@ const STATUS_CLASSES: Record<string, string> = {
         <Head title="Branches" />
 
         <div class="py-8 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
-            <div class="mb-6 flex items-center justify-between">
+            <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <h1 class="text-2xl font-bold text-gray-900">Branches</h1>
                 <Link v-if="can('school.create')" :href="route('schools.create')"
-                    class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">
+                    class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 block w-full text-center sm:w-auto">
                     Add Branch
                 </Link>
             </div>

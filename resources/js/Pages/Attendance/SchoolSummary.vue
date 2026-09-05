@@ -46,31 +46,31 @@ function attendancePct(session: StreamDailySummary['session']): string {
                 </div>
             </div>
 
-            <div class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+            <div class="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Class</th>
-                            <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Present</th>
-                            <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Absent</th>
-                            <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Late</th>
-                            <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Total</th>
-                            <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Rate</th>
-                            <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Status</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Class</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Present</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Absent</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Late</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Total</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Rate</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Status</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
                         <tr v-for="row in summary" :key="row.stream_id">
-                            <td class="px-4 py-3 text-sm font-medium text-gray-900">
+                            <td class="whitespace-nowrap px-4 py-3 text-sm font-medium text-gray-900">
                                 {{ row.grade_name }} {{ row.stream_name }}
                             </td>
                             <template v-if="row.session">
-                                <td class="px-4 py-3 text-center text-sm text-green-700 font-semibold">{{ row.session.present }}</td>
-                                <td class="px-4 py-3 text-center text-sm text-red-700 font-semibold">{{ row.session.absent }}</td>
-                                <td class="px-4 py-3 text-center text-sm text-yellow-700 font-semibold">{{ row.session.late }}</td>
-                                <td class="px-4 py-3 text-center text-sm text-gray-600">{{ row.session.total }}</td>
-                                <td class="px-4 py-3 text-center text-sm font-semibold text-gray-900">{{ attendancePct(row.session) }}</td>
-                                <td class="px-4 py-3 text-center">
+                                <td class="whitespace-nowrap px-4 py-3 text-center text-sm text-green-700 font-semibold">{{ row.session.present }}</td>
+                                <td class="whitespace-nowrap px-4 py-3 text-center text-sm text-red-700 font-semibold">{{ row.session.absent }}</td>
+                                <td class="whitespace-nowrap px-4 py-3 text-center text-sm text-yellow-700 font-semibold">{{ row.session.late }}</td>
+                                <td class="whitespace-nowrap px-4 py-3 text-center text-sm text-gray-600">{{ row.session.total }}</td>
+                                <td class="whitespace-nowrap px-4 py-3 text-center text-sm font-semibold text-gray-900">{{ attendancePct(row.session) }}</td>
+                                <td class="whitespace-nowrap px-4 py-3 text-center">
                                     <span
                                         class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
                                         :class="row.session.finalized ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'"

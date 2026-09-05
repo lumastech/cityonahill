@@ -133,24 +133,26 @@ async function handlePromote() {
                 <div v-if="!streamPupils.length" class="p-6 text-center text-gray-400 text-sm">
                     No pupils in this stream.
                 </div>
-                <table v-else class="min-w-full text-sm divide-y divide-gray-100">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
-                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Admission No</th>
-                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-100">
-                        <tr v-for="pupil in streamPupils" :key="pupil.id" :class="pupil.status !== 'active' ? 'opacity-50' : ''">
-                            <td class="px-4 py-2">
-                                <Link :href="route('pupils.show', pupil.id)" class="hover:underline text-indigo-700">{{ pupil.full_name }}</Link>
-                            </td>
-                            <td class="px-4 py-2 font-mono text-gray-500">{{ pupil.admission_no }}</td>
-                            <td class="px-4 py-2 capitalize text-gray-500">{{ pupil.status }}</td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div v-else class="overflow-x-auto">
+                    <table class="min-w-full text-sm divide-y divide-gray-100">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="whitespace-nowrap px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
+                                <th class="whitespace-nowrap px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Admission No</th>
+                                <th class="whitespace-nowrap px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">
+                            <tr v-for="pupil in streamPupils" :key="pupil.id" :class="pupil.status !== 'active' ? 'opacity-50' : ''">
+                                <td class="whitespace-nowrap px-4 py-2">
+                                    <Link :href="route('pupils.show', pupil.id)" class="hover:underline text-indigo-700">{{ pupil.full_name }}</Link>
+                                </td>
+                                <td class="whitespace-nowrap px-4 py-2 font-mono text-gray-500">{{ pupil.admission_no }}</td>
+                                <td class="whitespace-nowrap px-4 py-2 capitalize text-gray-500">{{ pupil.status }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             <div class="flex justify-end">

@@ -129,31 +129,31 @@ function remove(id: number) {
             </div>
 
             <!-- Streams table -->
-            <div class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+            <div class="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm">
                 <table class="min-w-full divide-y divide-gray-200 text-sm">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">Stream</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">Grade</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">Class Teacher</th>
-                            <th class="px-4 py-3 text-center font-medium text-gray-600">Pupils</th>
-                            <th class="px-4 py-3 text-center font-medium text-gray-600">Capacity</th>
-                            <th class="px-4 py-3"></th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Stream</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Grade</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Class Teacher</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-center font-medium text-gray-600">Pupils</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-center font-medium text-gray-600">Capacity</th>
+                            <th class="whitespace-nowrap px-4 py-3"></th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
                         <tr v-for="s in streams" :key="s.id" class="hover:bg-gray-50">
-                            <td class="px-4 py-3 font-medium text-gray-900">{{ s.name }}</td>
-                            <td class="px-4 py-3 text-gray-600">{{ s.grade?.name }}</td>
-                            <td class="px-4 py-3 text-gray-600">{{ s.class_teacher?.name ?? '—' }}</td>
-                            <td class="px-4 py-3 text-center">
+                            <td class="whitespace-nowrap px-4 py-3 font-medium text-gray-900">{{ s.name }}</td>
+                            <td class="whitespace-nowrap px-4 py-3 text-gray-600">{{ s.grade?.name }}</td>
+                            <td class="whitespace-nowrap px-4 py-3 text-gray-600">{{ s.class_teacher?.name ?? '—' }}</td>
+                            <td class="whitespace-nowrap px-4 py-3 text-center">
                                 <span
                                     class="font-medium"
                                     :class="s.pupils_count >= s.capacity ? 'text-red-600' : 'text-gray-900'"
                                 >{{ s.pupils_count }}</span>
                             </td>
-                            <td class="px-4 py-3 text-center text-gray-500">{{ s.capacity }}</td>
-                            <td class="px-4 py-3 text-right">
+                            <td class="whitespace-nowrap px-4 py-3 text-center text-gray-500">{{ s.capacity }}</td>
+                            <td class="whitespace-nowrap px-4 py-3 text-right">
                                 <div class="flex justify-end gap-3">
                                     <Link :href="route('streams.edit', s.id)" class="text-xs text-indigo-600 hover:underline">Edit</Link>
                                     <button class="text-xs text-red-500 hover:underline" @click="remove(s.id)">Delete</button>

@@ -70,10 +70,10 @@ const CATEGORY_COLORS: Record<string, string> = {
         <Head title="Subjects" />
 
         <div class="py-8 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
-            <div class="mb-6 flex items-center justify-between">
+            <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <h1 class="text-2xl font-bold text-gray-900">Subjects</h1>
                 <button
-                    class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
+                    class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 w-full sm:w-auto"
                     @click="showForm = !showForm"
                 >
                     + Add Subject
@@ -130,16 +130,16 @@ const CATEGORY_COLORS: Record<string, string> = {
             </div>
 
             <!-- Table -->
-            <div class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+            <div class="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm">
                 <table class="min-w-full divide-y divide-gray-200 text-sm">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">Subject</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">Code</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">Category</th>
-                            <th class="px-4 py-3 text-center font-medium text-gray-600">ECZ</th>
-                            <th class="px-4 py-3 text-center font-medium text-gray-600">Zam. Lang.</th>
-                            <th class="px-4 py-3"></th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Subject</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Code</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Category</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-center font-medium text-gray-600">ECZ</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-center font-medium text-gray-600">Zam. Lang.</th>
+                            <th class="whitespace-nowrap px-4 py-3"></th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
@@ -147,22 +147,22 @@ const CATEGORY_COLORS: Record<string, string> = {
                             <td colspan="6" class="px-4 py-10 text-center text-gray-400">No subjects found.</td>
                         </tr>
                         <tr v-for="subject in subjects" :key="subject.id" class="hover:bg-gray-50">
-                            <td class="px-4 py-3 font-medium text-gray-900">{{ subject.name }}</td>
-                            <td class="px-4 py-3 font-mono text-gray-600">{{ subject.code }}</td>
-                            <td class="px-4 py-3">
+                            <td class="whitespace-nowrap px-4 py-3 font-medium text-gray-900">{{ subject.name }}</td>
+                            <td class="whitespace-nowrap px-4 py-3 font-mono text-gray-600">{{ subject.code }}</td>
+                            <td class="whitespace-nowrap px-4 py-3">
                                 <span class="rounded-full px-2 py-0.5 text-xs font-medium" :class="CATEGORY_COLORS[subject.category] ?? 'bg-gray-100 text-gray-600'">
                                     {{ CATEGORY_LABELS[subject.category] ?? subject.category }}
                                 </span>
                             </td>
-                            <td class="px-4 py-3 text-center">
+                            <td class="whitespace-nowrap px-4 py-3 text-center">
                                 <span v-if="subject.is_ecz_subject" class="text-green-600">✓</span>
                                 <span v-else class="text-gray-300">—</span>
                             </td>
-                            <td class="px-4 py-3 text-center">
+                            <td class="whitespace-nowrap px-4 py-3 text-center">
                                 <span v-if="subject.is_zambian_language" class="text-green-600">✓</span>
                                 <span v-else class="text-gray-300">—</span>
                             </td>
-                            <td class="px-4 py-3 text-right">
+                            <td class="whitespace-nowrap px-4 py-3 text-right">
                                 <Link :href="route('subjects.edit', subject.id)" class="mr-3 text-xs text-indigo-600 hover:underline">Edit</Link>
                                 <button class="text-xs text-red-600 hover:underline" @click="remove(subject.id)">Delete</button>
                             </td>

@@ -32,31 +32,31 @@ function fineAmount(dueDate: string): string {
                 <a :href="route('library-books.index')" class="text-sm text-indigo-600 hover:underline">← Catalogue</a>
             </div>
 
-            <div class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+            <div class="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm">
                 <table class="min-w-full divide-y divide-gray-200 text-sm">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">Book</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">Borrower</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">Borrowed</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">Due</th>
-                            <th class="px-4 py-3 text-right font-medium text-gray-600">Days Overdue</th>
-                            <th class="px-4 py-3 text-right font-medium text-gray-600">Fine (ZMW)</th>
-                            <th class="px-4 py-3"></th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Book</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Borrower</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Borrowed</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Due</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-right font-medium text-gray-600">Days Overdue</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-right font-medium text-gray-600">Fine (ZMW)</th>
+                            <th class="whitespace-nowrap px-4 py-3"></th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
                         <tr v-for="b in overdue_borrowings" :key="b.id" class="bg-red-50/30">
-                            <td class="px-4 py-3">
+                            <td class="whitespace-nowrap px-4 py-3">
                                 <p class="font-medium text-gray-900">{{ b.book?.title }}</p>
                                 <p class="text-xs text-gray-500">{{ b.book?.author }}</p>
                             </td>
-                            <td class="px-4 py-3 capitalize text-gray-700">{{ b.borrower_type }} #{{ b.borrower_id }}</td>
-                            <td class="px-4 py-3 text-gray-600">{{ fmtDate(b.borrowed_date) }}</td>
-                            <td class="px-4 py-3 font-medium text-red-700">{{ fmtDate(b.due_date) }}</td>
-                            <td class="px-4 py-3 text-right font-bold text-red-700">{{ daysOverdue(b.due_date) }}</td>
-                            <td class="px-4 py-3 text-right font-semibold text-red-600">{{ fineAmount(b.due_date) }}</td>
-                            <td class="px-4 py-3 text-right">
+                            <td class="whitespace-nowrap px-4 py-3 capitalize text-gray-700">{{ b.borrower_type }} #{{ b.borrower_id }}</td>
+                            <td class="whitespace-nowrap px-4 py-3 text-gray-600">{{ fmtDate(b.borrowed_date) }}</td>
+                            <td class="whitespace-nowrap px-4 py-3 font-medium text-red-700">{{ fmtDate(b.due_date) }}</td>
+                            <td class="whitespace-nowrap px-4 py-3 text-right font-bold text-red-700">{{ daysOverdue(b.due_date) }}</td>
+                            <td class="whitespace-nowrap px-4 py-3 text-right font-semibold text-red-600">{{ fineAmount(b.due_date) }}</td>
+                            <td class="whitespace-nowrap px-4 py-3 text-right">
                                 <a :href="route('borrowings.index')" class="text-xs text-indigo-600 hover:underline">Return</a>
                             </td>
                         </tr>

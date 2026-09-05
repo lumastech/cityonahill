@@ -214,7 +214,7 @@ function copyLink() {
             </div>
 
             <!-- Fee summary -->
-            <div class="mb-6 grid grid-cols-3 gap-4">
+            <div class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
                 <div class="rounded-lg border border-gray-200 bg-white p-4 text-center shadow-sm">
                     <p class="text-lg font-bold">ZMW {{ Number(invoice.balance_due).toFixed(2) }}</p>
                     <p class="text-sm text-gray-500">Total Due</p>
@@ -230,25 +230,25 @@ function copyLink() {
             </div>
 
             <!-- Payment history -->
-            <div class="mb-6 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+            <div class="mb-6 overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm">
                 <h2 class="border-b border-gray-200 px-4 py-3 text-sm font-semibold text-gray-700">Payment History</h2>
                 <table class="min-w-full divide-y divide-gray-200 text-sm">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-4 py-2 text-left font-medium text-gray-600">Date</th>
-                            <th class="px-4 py-2 text-right font-medium text-gray-600">Amount</th>
-                            <th class="px-4 py-2 text-left font-medium text-gray-600">Method</th>
-                            <th class="px-4 py-2 text-left font-medium text-gray-600">Gateway</th>
-                            <th class="px-4 py-2 text-left font-medium text-gray-600">Reference</th>
-                            <th class="px-4 py-2 text-left font-medium text-gray-600">Received By</th>
+                            <th class="whitespace-nowrap px-4 py-2 text-left font-medium text-gray-600">Date</th>
+                            <th class="whitespace-nowrap px-4 py-2 text-right font-medium text-gray-600">Amount</th>
+                            <th class="whitespace-nowrap px-4 py-2 text-left font-medium text-gray-600">Method</th>
+                            <th class="whitespace-nowrap px-4 py-2 text-left font-medium text-gray-600">Gateway</th>
+                            <th class="whitespace-nowrap px-4 py-2 text-left font-medium text-gray-600">Reference</th>
+                            <th class="whitespace-nowrap px-4 py-2 text-left font-medium text-gray-600">Received By</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
                         <tr v-for="p in invoice.payments" :key="p.id">
-                            <td class="px-4 py-2 text-gray-700">{{ fmtDate(p.payment_date) }}</td>
-                            <td class="px-4 py-2 text-right font-medium">ZMW {{ Number(p.amount).toFixed(2) }}</td>
-                            <td class="px-4 py-2 text-gray-600 capitalize">{{ p.payment_method?.replace('_', ' ') }}</td>
-                            <td class="px-4 py-2">
+                            <td class="whitespace-nowrap px-4 py-2 text-gray-700">{{ fmtDate(p.payment_date) }}</td>
+                            <td class="whitespace-nowrap px-4 py-2 text-right font-medium">ZMW {{ Number(p.amount).toFixed(2) }}</td>
+                            <td class="whitespace-nowrap px-4 py-2 text-gray-600 capitalize">{{ p.payment_method?.replace('_', ' ') }}</td>
+                            <td class="whitespace-nowrap px-4 py-2">
                                 <span v-if="p.gateway"
                                     :class="p.gateway_status === 'completed' ? 'bg-green-100 text-green-700'
                                           : p.gateway_status === 'pending'   ? 'bg-yellow-100 text-yellow-700'
@@ -258,8 +258,8 @@ function copyLink() {
                                 </span>
                                 <span v-else class="text-gray-400 text-xs">—</span>
                             </td>
-                            <td class="px-4 py-2 text-gray-600 font-mono text-xs">{{ p.reference ?? '—' }}</td>
-                            <td class="px-4 py-2 text-gray-600">{{ p.received_by_user?.name ?? '—' }}</td>
+                            <td class="whitespace-nowrap px-4 py-2 text-gray-600 font-mono text-xs">{{ p.reference ?? '—' }}</td>
+                            <td class="whitespace-nowrap px-4 py-2 text-gray-600">{{ p.received_by_user?.name ?? '—' }}</td>
                         </tr>
                         <tr v-if="!invoice.payments?.length">
                             <td colspan="6" class="px-4 py-4 text-center text-gray-400">No payments yet.</td>

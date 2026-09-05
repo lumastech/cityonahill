@@ -58,10 +58,10 @@ const LEVEL_COLORS: Record<string, string> = {
         <Head title="Grades" />
 
         <div class="py-8 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
-            <div class="mb-6 flex items-center justify-between">
+            <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <h1 class="text-2xl font-bold text-gray-900">Grades / Classes</h1>
                 <button
-                    class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
+                    class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 w-full sm:w-auto"
                     @click="showForm = !showForm"
                 >
                     + Add Grade
@@ -114,16 +114,16 @@ const LEVEL_COLORS: Record<string, string> = {
             </div>
 
             <!-- Table -->
-            <div class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+            <div class="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm">
                 <table class="min-w-full divide-y divide-gray-200 text-sm">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">Grade</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">Level</th>
-                            <th class="px-4 py-3 text-center font-medium text-gray-600">Streams</th>
-                            <th class="px-4 py-3 text-center font-medium text-gray-600">Pupils</th>
-                            <th class="px-4 py-3 text-center font-medium text-gray-600">ECZ</th>
-                            <th class="px-4 py-3"></th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Grade</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Level</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-center font-medium text-gray-600">Streams</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-center font-medium text-gray-600">Pupils</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-center font-medium text-gray-600">ECZ</th>
+                            <th class="whitespace-nowrap px-4 py-3"></th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
@@ -131,23 +131,23 @@ const LEVEL_COLORS: Record<string, string> = {
                             <td colspan="6" class="px-4 py-10 text-center text-gray-400">No grades defined yet.</td>
                         </tr>
                         <tr v-for="grade in grades" :key="grade.id" class="hover:bg-gray-50">
-                            <td class="px-4 py-3 font-semibold">
+                            <td class="whitespace-nowrap px-4 py-3 font-semibold">
                                 <Link :href="route('pupils.index', { grade_id: grade.id })" class="text-indigo-700 hover:underline">
                                     {{ grade.name }}
                                 </Link>
                             </td>
-                            <td class="px-4 py-3">
+                            <td class="whitespace-nowrap px-4 py-3">
                                 <span class="rounded-full px-2 py-0.5 text-xs font-medium" :class="LEVEL_COLORS[grade.level] ?? 'bg-gray-100 text-gray-600'">
                                     {{ LEVEL_LABELS[grade.level] ?? grade.level }}
                                 </span>
                             </td>
-                            <td class="px-4 py-3 text-center text-gray-600">{{ grade.streams_count }}</td>
-                            <td class="px-4 py-3 text-center text-gray-600">{{ grade.pupils_count }}</td>
-                            <td class="px-4 py-3 text-center">
+                            <td class="whitespace-nowrap px-4 py-3 text-center text-gray-600">{{ grade.streams_count }}</td>
+                            <td class="whitespace-nowrap px-4 py-3 text-center text-gray-600">{{ grade.pupils_count }}</td>
+                            <td class="whitespace-nowrap px-4 py-3 text-center">
                                 <span v-if="grade.is_ecz_year" class="rounded-full bg-orange-100 px-2 py-0.5 text-xs font-medium text-orange-700">ECZ</span>
                                 <span v-else class="text-gray-300">—</span>
                             </td>
-                            <td class="px-4 py-3 text-right">
+                            <td class="whitespace-nowrap px-4 py-3 text-right">
                                 <Link :href="route('grades.edit', grade.id)" class="mr-3 text-xs text-indigo-600 hover:underline">Edit</Link>
                                 <button class="text-xs text-red-600 hover:underline" @click="remove(grade.id)">Delete</button>
                             </td>

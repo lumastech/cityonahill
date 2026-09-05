@@ -47,10 +47,10 @@ function isLowStock(id: number): boolean {
     <Head title="Feeding Stock" />
     <div class="py-6">
         <div class="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-            <div class="mb-6 flex items-center justify-between">
+            <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <h1 class="text-2xl font-semibold text-gray-900">Feeding Stock</h1>
                 <button @click="showAddForm = !showAddForm"
-                    class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">
+                    class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 w-full sm:w-auto">
                     + Add Stock Item
                 </button>
             </div>

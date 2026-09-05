@@ -63,7 +63,7 @@ const MEAL_COLORS: Record<string, string> = {
 
             <!-- Session detail / register mode -->
             <template v-if="session">
-                <div class="mb-4 flex items-center justify-between">
+                <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                         <a :href="route('feeding-sessions.index')" class="text-sm text-indigo-600 hover:underline">← Sessions</a>
                         <h1 class="mt-1 text-2xl font-bold text-gray-900">
@@ -74,7 +74,7 @@ const MEAL_COLORS: Record<string, string> = {
                         </h1>
                         <p v-if="session.stream" class="text-sm text-gray-500">{{ session.stream.name }}</p>
                     </div>
-                    <div class="flex gap-2">
+                    <div class="flex gap-2 flex-wrap">
                         <button v-if="!session.finalized" @click="save" :disabled="saveForm.processing"
                             class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50">
                             Save
@@ -141,33 +141,33 @@ const MEAL_COLORS: Record<string, string> = {
                     </button>
                 </div>
 
-                <div class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+                <div class="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm">
                     <table class="min-w-full divide-y divide-gray-200 text-sm">
                         <thead class="bg-gray-50">
                             <tr>
-                                <th class="px-4 py-3 text-left font-medium text-gray-600">Date</th>
-                                <th class="px-4 py-3 text-left font-medium text-gray-600">Meal</th>
-                                <th class="px-4 py-3 text-left font-medium text-gray-600">Stream</th>
-                                <th class="px-4 py-3 text-right font-medium text-gray-600">Served</th>
-                                <th class="px-4 py-3 text-center font-medium text-gray-600">Status</th>
-                                <th class="px-4 py-3"></th>
+                                <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Date</th>
+                                <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Meal</th>
+                                <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Stream</th>
+                                <th class="whitespace-nowrap px-4 py-3 text-right font-medium text-gray-600">Served</th>
+                                <th class="whitespace-nowrap px-4 py-3 text-center font-medium text-gray-600">Status</th>
+                                <th class="whitespace-nowrap px-4 py-3"></th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100">
                             <tr v-for="s in sessions?.data" :key="s.id">
-                                <td class="px-4 py-3 font-medium text-gray-900">{{ fmtDate(s.date) }}</td>
-                                <td class="px-4 py-3">
+                                <td class="whitespace-nowrap px-4 py-3 font-medium text-gray-900">{{ fmtDate(s.date) }}</td>
+                                <td class="whitespace-nowrap px-4 py-3">
                                     <span :class="['rounded-full px-2 py-0.5 text-xs capitalize', MEAL_COLORS[s.meal_type]]">{{ s.meal_type }}</span>
                                 </td>
-                                <td class="px-4 py-3 text-gray-600">{{ s.stream?.name ?? 'Whole school' }}</td>
-                                <td class="px-4 py-3 text-right font-medium text-gray-700">{{ s.served_count ?? 0 }}</td>
-                                <td class="px-4 py-3 text-center">
+                                <td class="whitespace-nowrap px-4 py-3 text-gray-600">{{ s.stream?.name ?? 'Whole school' }}</td>
+                                <td class="whitespace-nowrap px-4 py-3 text-right font-medium text-gray-700">{{ s.served_count ?? 0 }}</td>
+                                <td class="whitespace-nowrap px-4 py-3 text-center">
                                     <span :class="s.finalized ? 'bg-gray-100 text-gray-500' : 'bg-yellow-100 text-yellow-700'"
                                         class="rounded-full px-2 py-0.5 text-xs">
                                         {{ s.finalized ? 'Finalized' : 'Open' }}
                                     </span>
                                 </td>
-                                <td class="px-4 py-3 text-right">
+                                <td class="whitespace-nowrap px-4 py-3 text-right">
                                     <a :href="route('feeding-sessions.show', s.id)" class="text-xs text-indigo-600 hover:underline">Open</a>
                                 </td>
                             </tr>

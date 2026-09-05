@@ -122,9 +122,9 @@ const allSelected = computed(
             </div>
 
             <!-- Header -->
-            <div class="flex items-center justify-between mb-4">
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-4">
                 <h1 class="text-2xl font-bold text-gray-900">Pupils</h1>
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-2 flex-wrap">
                     <button
                         v-if="selected.length"
                         class="text-sm px-3 py-1.5 border rounded text-gray-700 hover:bg-gray-50"
@@ -238,19 +238,19 @@ const allSelected = computed(
             </div>
 
             <!-- Table -->
-            <div class="bg-white shadow rounded-lg overflow-hidden">
+            <div class="bg-white shadow rounded-lg overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200 text-sm">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-4 py-3 w-8">
+                            <th class="whitespace-nowrap px-4 py-3 w-8">
                                 <input type="checkbox" :checked="allSelected" @change="selectAll" class="rounded" />
                             </th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-500 uppercase text-xs">Pupil</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-500 uppercase text-xs">Admission No</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-500 uppercase text-xs">Grade / Stream</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-500 uppercase text-xs">Sex</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-500 uppercase text-xs">Age</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-500 uppercase text-xs">Status</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-500 uppercase text-xs">Pupil</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-500 uppercase text-xs">Admission No</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-500 uppercase text-xs">Grade / Stream</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-500 uppercase text-xs">Sex</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-500 uppercase text-xs">Age</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-500 uppercase text-xs">Status</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
@@ -263,7 +263,7 @@ const allSelected = computed(
                             class="hover:bg-gray-50 cursor-pointer"
                             @click="router.visit(route('pupils.show', pupil.id))"
                         >
-                            <td class="px-4 py-3" @click.stop>
+                            <td class="whitespace-nowrap px-4 py-3" @click.stop>
                                 <input
                                     type="checkbox"
                                     :checked="selected.includes(pupil.id)"
@@ -271,15 +271,15 @@ const allSelected = computed(
                                     @change="toggleSelect(pupil.id)"
                                 />
                             </td>
-                            <td class="px-4 py-3">
+                            <td class="whitespace-nowrap px-4 py-3">
                                 <Link :href="route('pupils.show', pupil.id)" class="font-medium text-indigo-700 hover:underline">{{ pupil.first_name }} {{ pupil.last_name }}</Link>
                             </td>
-                            <td class="px-4 py-3 font-mono text-gray-600">{{ pupil.admission_no }}</td>
-                            <td class="px-4 py-3 text-gray-600">
+                            <td class="whitespace-nowrap px-4 py-3 font-mono text-gray-600">{{ pupil.admission_no }}</td>
+                            <td class="whitespace-nowrap px-4 py-3 text-gray-600">
                                 {{ pupil.grade?.name }}
                                 <span v-if="pupil.stream" class="text-gray-400"> / {{ pupil.stream.name }}</span>
                             </td>
-                            <td class="px-4 py-3">
+                            <td class="whitespace-nowrap px-4 py-3">
                                 <span
                                     class="inline-flex text-xs font-medium px-2 py-0.5 rounded-full"
                                     :class="sexClass(pupil.sex)"
@@ -287,8 +287,8 @@ const allSelected = computed(
                                     {{ pupil.sex === 'male' ? 'M' : 'F' }}
                                 </span>
                             </td>
-                            <td class="px-4 py-3 text-gray-600">{{ pupil.age }}</td>
-                            <td class="px-4 py-3">
+                            <td class="whitespace-nowrap px-4 py-3 text-gray-600">{{ pupil.age }}</td>
+                            <td class="whitespace-nowrap px-4 py-3">
                                 <span
                                     class="inline-flex text-xs font-medium px-2 py-0.5 rounded-full"
                                     :class="statusClass(pupil.status)"

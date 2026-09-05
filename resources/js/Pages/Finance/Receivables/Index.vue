@@ -60,29 +60,29 @@ const BUCKET_COLORS: Record<string, string> = {
             </div>
 
             <!-- Debtors -->
-            <div class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+            <div class="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm">
                 <h2 class="border-b border-gray-200 px-4 py-3 text-sm font-semibold text-gray-700">Debtors</h2>
                 <table class="min-w-full divide-y divide-gray-200 text-sm">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">Pupil</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">Adm. No</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">Grade</th>
-                            <th class="px-4 py-3 text-right font-medium text-gray-600">Invoices</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">Oldest Due</th>
-                            <th class="px-4 py-3 text-right font-medium text-gray-600">Outstanding</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Pupil</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Adm. No</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Grade</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-right font-medium text-gray-600">Invoices</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Oldest Due</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-right font-medium text-gray-600">Outstanding</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
                         <tr v-for="d in aging.debtors" :key="d.pupil_id">
-                            <td class="px-4 py-3 font-medium text-gray-900">
+                            <td class="whitespace-nowrap px-4 py-3 font-medium text-gray-900">
                                 <Link :href="route('pupils.show', d.pupil_id)" class="text-indigo-600 hover:underline">{{ d.name }}</Link>
                             </td>
-                            <td class="px-4 py-3 text-gray-500">{{ d.admission_no }}</td>
-                            <td class="px-4 py-3 text-gray-700">Grade {{ d.grade }}</td>
-                            <td class="px-4 py-3 text-right text-gray-700">{{ d.invoice_count }}</td>
-                            <td class="px-4 py-3 text-gray-500">{{ fmtDate(d.oldest_due_date) }}</td>
-                            <td class="px-4 py-3 text-right font-semibold text-red-700">{{ formatZmw(d.outstanding) }}</td>
+                            <td class="whitespace-nowrap px-4 py-3 text-gray-500">{{ d.admission_no }}</td>
+                            <td class="whitespace-nowrap px-4 py-3 text-gray-700">Grade {{ d.grade }}</td>
+                            <td class="whitespace-nowrap px-4 py-3 text-right text-gray-700">{{ d.invoice_count }}</td>
+                            <td class="whitespace-nowrap px-4 py-3 text-gray-500">{{ fmtDate(d.oldest_due_date) }}</td>
+                            <td class="whitespace-nowrap px-4 py-3 text-right font-semibold text-red-700">{{ formatZmw(d.outstanding) }}</td>
                         </tr>
                         <tr v-if="!aging.debtors.length">
                             <td colspan="6" class="px-4 py-8 text-center text-gray-400">No outstanding receivables. 🎉</td>

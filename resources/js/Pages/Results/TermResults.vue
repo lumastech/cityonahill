@@ -166,28 +166,28 @@ function publish() {
                 Select a class, subject and term to enter results.
             </div>
 
-            <div v-else class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+            <div v-else class="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-3 py-3 text-left text-xs font-medium uppercase text-gray-500">Pupil</th>
-                            <th class="px-3 py-3 text-center text-xs font-medium uppercase text-gray-500">CA Marks</th>
-                            <th class="px-3 py-3 text-center text-xs font-medium uppercase text-gray-500">Exam Marks</th>
-                            <th class="px-3 py-3 text-center text-xs font-medium uppercase text-gray-500">Total</th>
-                            <th class="px-3 py-3 text-center text-xs font-medium uppercase text-gray-500">Grade</th>
-                            <th class="px-3 py-3 text-center text-xs font-medium uppercase text-gray-500">Pts</th>
-                            <th class="px-3 py-3 text-left text-xs font-medium uppercase text-gray-500">Comment</th>
+                            <th class="whitespace-nowrap px-3 py-3 text-left text-xs font-medium uppercase text-gray-500">Pupil</th>
+                            <th class="whitespace-nowrap px-3 py-3 text-center text-xs font-medium uppercase text-gray-500">CA Marks</th>
+                            <th class="whitespace-nowrap px-3 py-3 text-center text-xs font-medium uppercase text-gray-500">Exam Marks</th>
+                            <th class="whitespace-nowrap px-3 py-3 text-center text-xs font-medium uppercase text-gray-500">Total</th>
+                            <th class="whitespace-nowrap px-3 py-3 text-center text-xs font-medium uppercase text-gray-500">Grade</th>
+                            <th class="whitespace-nowrap px-3 py-3 text-center text-xs font-medium uppercase text-gray-500">Pts</th>
+                            <th class="whitespace-nowrap px-3 py-3 text-left text-xs font-medium uppercase text-gray-500">Comment</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
                         <tr v-for="(pupil, idx) in pupils" :key="pupil.id">
-                            <td class="px-3 py-2 text-sm font-medium text-gray-900">
+                            <td class="whitespace-nowrap px-3 py-2 text-sm font-medium text-gray-900">
                                 <Link :href="route('pupils.show', pupil.id)" class="hover:underline text-indigo-700">
                                     {{ pupil.last_name }}, {{ pupil.first_name }}
                                 </Link>
                                 <span class="ml-1 text-xs text-gray-400">{{ pupil.admission_no }}</span>
                             </td>
-                            <td class="px-3 py-2 text-center">
+                            <td class="whitespace-nowrap px-3 py-2 text-center">
                                 <input
                                     v-model.number="drafts[idx].ca_marks"
                                     type="number"
@@ -197,7 +197,7 @@ function publish() {
                                     class="w-20 rounded border-gray-200 text-center text-sm focus:ring-1 focus:ring-indigo-300"
                                 />
                             </td>
-                            <td class="px-3 py-2 text-center">
+                            <td class="whitespace-nowrap px-3 py-2 text-center">
                                 <input
                                     v-model.number="drafts[idx].exam_marks"
                                     type="number"
@@ -207,10 +207,10 @@ function publish() {
                                     class="w-20 rounded border-gray-200 text-center text-sm focus:ring-1 focus:ring-indigo-300"
                                 />
                             </td>
-                            <td class="px-3 py-2 text-center text-sm font-semibold text-gray-900">
+                            <td class="whitespace-nowrap px-3 py-2 text-center text-sm font-semibold text-gray-900">
                                 {{ liveRows[idx].total !== null ? liveRows[idx].total : '—' }}
                             </td>
-                            <td class="px-3 py-2 text-center">
+                            <td class="whitespace-nowrap px-3 py-2 text-center">
                                 <span
                                     v-if="liveRows[idx].grade"
                                     class="inline-flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold"
@@ -221,7 +221,7 @@ function publish() {
                                 </span>
                                 <span v-else class="text-gray-300">—</span>
                             </td>
-                            <td class="px-3 py-2 text-center text-sm text-gray-600">
+                            <td class="whitespace-nowrap px-3 py-2 text-center text-sm text-gray-600">
                                 {{ liveRows[idx].points ?? '—' }}
                             </td>
                             <td class="px-3 py-2">

@@ -52,31 +52,31 @@ function remove(id: number) {
                 </select>
             </div>
 
-            <div class="mb-6 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+            <div class="mb-6 overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm">
                 <table class="min-w-full divide-y divide-gray-200 text-sm">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">Date</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">Category</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">Description</th>
-                            <th class="px-4 py-3 text-right font-medium text-gray-600">Amount (ZMW)</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">Receipt</th>
-                            <th class="px-4 py-3"></th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Date</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Category</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Description</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-right font-medium text-gray-600">Amount (ZMW)</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Receipt</th>
+                            <th class="whitespace-nowrap px-4 py-3"></th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
                         <tr v-for="e in expenses.data" :key="e.id">
-                            <td class="px-4 py-3 text-gray-700">{{ fmtDate(e.expense_date) }}</td>
-                            <td class="px-4 py-3">
+                            <td class="whitespace-nowrap px-4 py-3 text-gray-700">{{ fmtDate(e.expense_date) }}</td>
+                            <td class="whitespace-nowrap px-4 py-3">
                                 <span :class="['rounded-full px-2 py-0.5 text-xs font-medium capitalize', CATEGORY_COLORS[e.category]]">{{ e.category }}</span>
                             </td>
                             <td class="px-4 py-3 text-gray-700 max-w-xs truncate">{{ e.description }}</td>
-                            <td class="px-4 py-3 text-right font-medium">{{ Number(e.amount).toFixed(2) }}</td>
-                            <td class="px-4 py-3 text-gray-500 text-xs">
+                            <td class="whitespace-nowrap px-4 py-3 text-right font-medium">{{ Number(e.amount).toFixed(2) }}</td>
+                            <td class="whitespace-nowrap px-4 py-3 text-gray-500 text-xs">
                                 <a v-if="e.media?.[0]" :href="e.media[0].original_url" target="_blank" class="text-indigo-600 hover:underline">View</a>
                                 <span v-else>{{ e.receipt_no ?? '—' }}</span>
                             </td>
-                            <td class="px-4 py-3 text-right">
+                            <td class="whitespace-nowrap px-4 py-3 text-right">
                                 <button class="text-xs text-red-600 hover:underline" @click="remove(e.id)">Delete</button>
                             </td>
                         </tr>

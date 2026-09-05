@@ -86,29 +86,29 @@ function submit() {
             </div>
 
             <!-- Borrowing history -->
-            <div class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+            <div class="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm">
                 <h2 class="border-b border-gray-200 px-4 py-3 text-sm font-semibold text-gray-700">Borrowing History</h2>
                 <table class="min-w-full divide-y divide-gray-200 text-sm">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">Borrower</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">Issued</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">Due</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">Returned</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">Status</th>
-                            <th class="px-4 py-3 text-right font-medium text-gray-600">Fine</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Borrower</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Issued</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Due</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Returned</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Status</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-right font-medium text-gray-600">Fine</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
                         <tr v-for="b in book.borrowings" :key="b.id">
-                            <td class="px-4 py-3 text-gray-700 capitalize">{{ b.borrower_type }} #{{ b.borrower_id }}</td>
-                            <td class="px-4 py-3 text-gray-600">{{ fmtDate(b.borrowed_date) }}</td>
-                            <td class="px-4 py-3 text-gray-600">{{ fmtDate(b.due_date) }}</td>
-                            <td class="px-4 py-3 text-gray-600">{{ b.returned_date ?? '—' }}</td>
-                            <td class="px-4 py-3">
+                            <td class="whitespace-nowrap px-4 py-3 text-gray-700 capitalize">{{ b.borrower_type }} #{{ b.borrower_id }}</td>
+                            <td class="whitespace-nowrap px-4 py-3 text-gray-600">{{ fmtDate(b.borrowed_date) }}</td>
+                            <td class="whitespace-nowrap px-4 py-3 text-gray-600">{{ fmtDate(b.due_date) }}</td>
+                            <td class="whitespace-nowrap px-4 py-3 text-gray-600">{{ b.returned_date ?? '—' }}</td>
+                            <td class="whitespace-nowrap px-4 py-3">
                                 <span :class="['rounded-full px-2 py-0.5 text-xs font-medium', STATUS_COLORS[b.status]]">{{ b.status }}</span>
                             </td>
-                            <td class="px-4 py-3 text-right" :class="Number(b.fine_amount) > 0 ? 'text-red-600 font-medium' : 'text-gray-400'">
+                            <td class="whitespace-nowrap px-4 py-3 text-right" :class="Number(b.fine_amount) > 0 ? 'text-red-600 font-medium' : 'text-gray-400'">
                                 {{ Number(b.fine_amount) > 0 ? `ZMW ${Number(b.fine_amount).toFixed(2)}` : '—' }}
                             </td>
                         </tr>

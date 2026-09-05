@@ -57,36 +57,36 @@ function remove(id: number) {
                 <h1 class="mb-6 text-2xl font-semibold text-gray-900">Fee Schedule</h1>
 
                 <!-- Existing fee structures -->
-                <div class="mb-6 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+                <div class="mb-6 overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm">
                     <table class="min-w-full divide-y divide-gray-200 text-sm">
                         <thead class="bg-gray-50">
                             <tr>
-                                <th class="px-4 py-3 text-left font-medium text-gray-600">Name</th>
-                                <th class="px-4 py-3 text-left font-medium text-gray-600">Grade</th>
-                                <th class="px-4 py-3 text-left font-medium text-gray-600">Term</th>
-                                <th class="px-4 py-3 text-right font-medium text-gray-600">Amount (ZMW)</th>
-                                <th class="px-4 py-3 text-left font-medium text-gray-600">Applies To</th>
-                                <th class="px-4 py-3 text-left font-medium text-gray-600">Mandatory</th>
-                                <th class="px-4 py-3"></th>
+                                <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Name</th>
+                                <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Grade</th>
+                                <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Term</th>
+                                <th class="whitespace-nowrap px-4 py-3 text-right font-medium text-gray-600">Amount (ZMW)</th>
+                                <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Applies To</th>
+                                <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Mandatory</th>
+                                <th class="whitespace-nowrap px-4 py-3"></th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100">
                             <tr v-for="fs in fee_structures" :key="fs.id">
-                                <td class="px-4 py-3 font-medium text-gray-900">{{ fs.name }}</td>
-                                <td class="px-4 py-3 text-gray-600">{{ fs.grade ? `Grade ${fs.grade.grade_number}` : 'All Grades' }}</td>
-                                <td class="px-4 py-3 text-gray-600">{{ fs.term?.name }}</td>
-                                <td class="px-4 py-3 text-right font-medium">{{ Number(fs.amount).toFixed(2) }}</td>
-                                <td class="px-4 py-3">
+                                <td class="whitespace-nowrap px-4 py-3 font-medium text-gray-900">{{ fs.name }}</td>
+                                <td class="whitespace-nowrap px-4 py-3 text-gray-600">{{ fs.grade ? `Grade ${fs.grade.grade_number}` : 'All Grades' }}</td>
+                                <td class="whitespace-nowrap px-4 py-3 text-gray-600">{{ fs.term?.name }}</td>
+                                <td class="whitespace-nowrap px-4 py-3 text-right font-medium">{{ Number(fs.amount).toFixed(2) }}</td>
+                                <td class="whitespace-nowrap px-4 py-3">
                                     <span class="rounded-full bg-blue-100 px-2 py-0.5 text-xs text-blue-800">
                                         {{ APPLIES_TO_LABELS[fs.applies_to] }}
                                     </span>
                                 </td>
-                                <td class="px-4 py-3">
+                                <td class="whitespace-nowrap px-4 py-3">
                                     <span :class="fs.is_mandatory ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-600'" class="rounded-full px-2 py-0.5 text-xs">
                                         {{ fs.is_mandatory ? 'Yes' : 'No' }}
                                     </span>
                                 </td>
-                                <td class="px-4 py-3 text-right">
+                                <td class="whitespace-nowrap px-4 py-3 text-right">
                                     <button class="text-xs text-red-600 hover:underline" @click="remove(fs.id)">Delete</button>
                                 </td>
                             </tr>

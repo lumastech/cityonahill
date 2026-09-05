@@ -63,36 +63,36 @@ function viewCandidate(id: number) {
             </div>
 
             <!-- Candidates table -->
-            <div class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+            <div class="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm">
                 <table class="min-w-full divide-y divide-gray-200 text-sm">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">Pupil</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">Adm No</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">Index No</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">Subjects</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">Status</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">Division</th>
-                            <th class="px-4 py-3"></th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Pupil</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Adm No</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Index No</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Subjects</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Status</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Division</th>
+                            <th class="whitespace-nowrap px-4 py-3"></th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
                         <tr v-for="c in candidates" :key="c.id" class="hover:bg-gray-50">
-                            <td class="px-4 py-3 font-medium text-gray-900">
+                            <td class="whitespace-nowrap px-4 py-3 font-medium text-gray-900">
                                 <Link :href="route('pupils.show', c.pupil_id)" class="hover:underline text-indigo-700">
                                     {{ c.pupil?.first_name }} {{ c.pupil?.last_name }}
                                 </Link>
                             </td>
-                            <td class="px-4 py-3 text-gray-600">{{ c.pupil?.admission_no }}</td>
-                            <td class="px-4 py-3 text-gray-600">{{ c.index_number ?? '—' }}</td>
-                            <td class="px-4 py-3 text-gray-600">{{ c.subject_entries?.length ?? 0 }}</td>
-                            <td class="px-4 py-3">
+                            <td class="whitespace-nowrap px-4 py-3 text-gray-600">{{ c.pupil?.admission_no }}</td>
+                            <td class="whitespace-nowrap px-4 py-3 text-gray-600">{{ c.index_number ?? '—' }}</td>
+                            <td class="whitespace-nowrap px-4 py-3 text-gray-600">{{ c.subject_entries?.length ?? 0 }}</td>
+                            <td class="whitespace-nowrap px-4 py-3">
                                 <span :class="['rounded-full px-2 py-0.5 text-xs font-medium', statusColor[c.registration_status] ?? 'bg-gray-100 text-gray-700']">
                                     {{ c.registration_status }}
                                 </span>
                             </td>
-                            <td class="px-4 py-3 text-gray-600">{{ c.division ?? '—' }}</td>
-                            <td class="px-4 py-3 text-right">
+                            <td class="whitespace-nowrap px-4 py-3 text-gray-600">{{ c.division ?? '—' }}</td>
+                            <td class="whitespace-nowrap px-4 py-3 text-right">
                                 <button class="text-indigo-600 hover:text-indigo-900" @click="viewCandidate(c.id)">View</button>
                             </td>
                         </tr>

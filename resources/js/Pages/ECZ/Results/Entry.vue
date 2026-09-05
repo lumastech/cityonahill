@@ -68,21 +68,45 @@ const subjectMap = computed(() => {
             </div>
 
             <form @submit.prevent="submit">
-                <div class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+                <div class="rounded-lg border border-gray-200 bg-white shadow-sm">
+                    <!-- Mobile: one card per candidate subject -->
+                    <div class="divide-y divide-gray-100 sm:hidden">
+                        <div v-for="(row, i) in rows" :key="i" class="p-4">
+                            <p class="text-sm font-medium text-gray-900">{{ candidateMap[row.candidate_id] }}</p>
+                            <p class="mt-0.5 text-xs text-gray-500">{{ subjectMap[row.subject_id] }}</p>
+                            <div class="mt-3 flex items-center gap-3">
+                                <label class="flex items-center gap-2">
+                                    <span class="text-xs font-medium text-gray-600">Grade</span>
+                                    <select
+                                        v-model="row.actual_grade"
+                                        class="rounded border-gray-300 text-sm shadow-sm"
+                                        @change="onGradeChange(row)"
+                                    >
+                                        <option value="">—</option>
+                                        <option v-for="g in gradeOptions" :key="g" :value="g">{{ g }}</option>
+                                    </select>
+                                </label>
+                                <span class="text-xs text-gray-500">Points: {{ row.actual_points ?? '—' }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Desktop: table -->
+                    <div class="hidden overflow-x-auto sm:block">
                     <table class="min-w-full divide-y divide-gray-200 text-sm">
                         <thead class="bg-gray-50">
                             <tr>
-                                <th class="px-4 py-3 text-left font-medium text-gray-600">Pupil</th>
-                                <th class="px-4 py-3 text-left font-medium text-gray-600">Subject</th>
-                                <th class="px-4 py-3 text-left font-medium text-gray-600">Grade</th>
-                                <th class="px-4 py-3 text-left font-medium text-gray-600">Points</th>
+                                <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Pupil</th>
+                                <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Subject</th>
+                                <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Grade</th>
+                                <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Points</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100">
                             <tr v-for="(row, i) in rows" :key="i">
-                                <td class="px-4 py-2 text-gray-900">{{ candidateMap[row.candidate_id] }}</td>
-                                <td class="px-4 py-2 text-gray-600">{{ subjectMap[row.subject_id] }}</td>
-                                <td class="px-4 py-2">
+                                <td class="whitespace-nowrap px-4 py-2 text-gray-900">{{ candidateMap[row.candidate_id] }}</td>
+                                <td class="whitespace-nowrap px-4 py-2 text-gray-600">{{ subjectMap[row.subject_id] }}</td>
+                                <td class="whitespace-nowrap px-4 py-2">
                                     <select
                                         v-model="row.actual_grade"
                                         class="rounded border-gray-300 text-sm shadow-sm"
@@ -92,10 +116,11 @@ const subjectMap = computed(() => {
                                         <option v-for="g in gradeOptions" :key="g" :value="g">{{ g }}</option>
                                     </select>
                                 </td>
-                                <td class="px-4 py-2 text-gray-600">{{ row.actual_points }}</td>
+                                <td class="whitespace-nowrap px-4 py-2 text-gray-600">{{ row.actual_points }}</td>
                             </tr>
                         </tbody>
                     </table>
+                    </div>
                 </div>
 
                 <div class="mt-4 flex justify-end">

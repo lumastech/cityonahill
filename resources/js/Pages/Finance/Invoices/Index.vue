@@ -110,39 +110,39 @@ function bulkRaise() {
             </div>
 
             <!-- Invoice table -->
-            <div class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+            <div class="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm">
                 <table class="min-w-full divide-y divide-gray-200 text-sm">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">Pupil</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">Grade</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">Fee</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">Term</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">Due Date</th>
-                            <th class="px-4 py-3 text-right font-medium text-gray-600">Balance Due</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-600">Status</th>
-                            <th class="px-4 py-3"></th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Pupil</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Grade</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Fee</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Term</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Due Date</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-right font-medium text-gray-600">Balance Due</th>
+                            <th class="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-600">Status</th>
+                            <th class="whitespace-nowrap px-4 py-3"></th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
                         <tr v-for="invoice in invoices.data" :key="invoice.id">
-                            <td class="px-4 py-3 font-medium text-gray-900">
+                            <td class="whitespace-nowrap px-4 py-3 font-medium text-gray-900">
                                 <Link v-if="invoice.pupil" :href="route('pupils.show', invoice.pupil.id)" class="hover:underline text-indigo-700">
                                     {{ invoice.pupil.first_name }} {{ invoice.pupil.last_name }}
                                 </Link>
                                 <span class="block text-xs text-gray-400">{{ invoice.pupil?.admission_no }}</span>
                             </td>
-                            <td class="px-4 py-3 text-gray-600">Grade {{ invoice.pupil?.grade?.grade_number }}</td>
-                            <td class="px-4 py-3 text-gray-600">{{ invoice.fee_structure?.name }}</td>
-                            <td class="px-4 py-3 text-gray-600">{{ invoice.term?.name }}</td>
-                            <td class="px-4 py-3 text-gray-500">{{ fmtDate(invoice.due_date) }}</td>
-                            <td class="px-4 py-3 text-right font-medium">ZMW {{ Number(invoice.balance_due).toFixed(2) }}</td>
-                            <td class="px-4 py-3">
+                            <td class="whitespace-nowrap px-4 py-3 text-gray-600">Grade {{ invoice.pupil?.grade?.grade_number }}</td>
+                            <td class="whitespace-nowrap px-4 py-3 text-gray-600">{{ invoice.fee_structure?.name }}</td>
+                            <td class="whitespace-nowrap px-4 py-3 text-gray-600">{{ invoice.term?.name }}</td>
+                            <td class="whitespace-nowrap px-4 py-3 text-gray-500">{{ fmtDate(invoice.due_date) }}</td>
+                            <td class="whitespace-nowrap px-4 py-3 text-right font-medium">ZMW {{ Number(invoice.balance_due).toFixed(2) }}</td>
+                            <td class="whitespace-nowrap px-4 py-3">
                                 <span :class="['rounded-full px-2 py-0.5 text-xs font-medium', STATUS_COLORS[invoice.status]]">
                                     {{ invoice.status }}
                                 </span>
                             </td>
-                            <td class="px-4 py-3 text-right">
+                            <td class="whitespace-nowrap px-4 py-3 text-right">
                                 <a :href="route('fee-invoices.show', invoice.id)" class="text-xs text-indigo-600 hover:underline">View</a>
                             </td>
                         </tr>

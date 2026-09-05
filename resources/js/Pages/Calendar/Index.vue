@@ -106,7 +106,7 @@ function termStatusClass(term: Term): string {
             </div>
 
             <div v-for="year in academicYears" :key="year.id" class="mb-8">
-                <div class="flex items-center justify-between mb-3">
+                <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between items-start mb-3">
                     <div>
                         <h2 class="text-lg font-semibold text-gray-800">
                             {{ year.name }}
@@ -205,10 +205,10 @@ function termStatusClass(term: Term): string {
         <!-- Add Term Modal -->
         <div
             v-if="showAddTermModal"
-            class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
             @click.self="showAddTermModal = false"
         >
-            <div class="bg-white rounded-lg p-6 w-full max-w-md shadow-xl">
+            <div class="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-lg bg-white p-6 shadow-xl">
                 <h2 class="text-lg font-semibold mb-4">Add Term</h2>
 
                 <div v-if="termForm.errors.conflict" class="mb-3 text-sm text-red-600 bg-red-50 p-2 rounded">
@@ -255,10 +255,10 @@ function termStatusClass(term: Term): string {
         <!-- Add Holiday Modal -->
         <div
             v-if="showHolidayModal"
-            class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
             @click.self="showHolidayModal = false"
         >
-            <div class="bg-white rounded-lg p-6 w-full max-w-md shadow-xl">
+            <div class="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-lg bg-white p-6 shadow-xl">
                 <h2 class="text-lg font-semibold mb-4">Add Holiday</h2>
 
                 <form @submit.prevent="submitHoliday" class="space-y-3">
